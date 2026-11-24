@@ -165,17 +165,10 @@
     }
     .pill:hover { border-color: var(--accent); }
 
-    .row-2 {
+    .row-3 {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 56px 1fr 1fr;
       gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .row-4 {
-      display: grid;
-      grid-template-columns: 52px 1fr 1fr 1fr;
-      gap: 6px;
       align-items: center;
       margin-bottom: 8px;
     }
@@ -186,8 +179,8 @@
       border: 1px solid var(--border);
       color: var(--text);
       border-radius: 10px;
-      padding: 9px 8px;
-      font-size: 13px;
+      padding: 9px 10px;
+      font-size: 14px;
       outline: none;
     }
     input:focus, select:focus { border-color: var(--accent); }
@@ -286,6 +279,7 @@
           <div class="timer-num" id="timerDisplay">01:30</div>
         </div>
         <div style="display:flex; gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="setTimer(30)">30s</button>
           <button class="btn btn-ghost btn-sm" onclick="setTimer(60)">60s</button>
           <button class="btn btn-ghost btn-sm" onclick="setTimer(90)">90s</button>
           <button class="btn btn-primary btn-sm" id="timerToggleBtn" onclick="toggleTimer()">開始</button>
@@ -296,22 +290,21 @@
       <div class="cat-grid" id="catGrid"></div>
 
       <div class="card hidden" id="restCard">
-        <div class="card-title">今日狀態：休息</div>
-        <p class="muted" style="margin-top:6px;">已標記為休息日。</p>
+        <div class="card-title">今日狀態：低強度/休息</div>
+        <p class="muted" style="margin-top:6px;">已標記為低強度/休息日。</p>
       </div>
 
       <div class="card" id="strengthCard">
         <div class="card-header">
           <div class="card-title">新增動作組數</div>
-          <span class="muted">重量kg / 分鐘 / 次數</span>
+          <span class="muted">重量kg / 次數</span>
         </div>
 
         <div class="section-label">常用動作快選</div>
         <div class="pill-row" id="quickExercises"></div>
 
-        <div class="row-2">
+        <div style="margin-bottom:10px;">
           <input type="text" id="exNameInput" placeholder="動作名稱" />
-          <input type="text" id="exWeightInput" placeholder="預設重量kg 或 n（選填）" />
         </div>
 
         <div id="setsContainer"></div>
@@ -380,15 +373,14 @@
 
   <script>
     /* ===== 可自行擴充設定區 ===== */
-    const CATEGORIES = ['重量訓練', '衝浪訓練', '高強度間接', '有氧訓練', '低強度運動', '休息'];
+    const CATEGORIES = ['重量訓練', '衝浪訓練', '高強度間接', '有氧訓練', '低強度/休息'];
 
     const EXERCISE_POOL = {
       '重量訓練': ['槓鈴握推', '槓鈴深蹲', '槓鈴肩推', '槓鈴RDL', '槓鈴大腿側蹲', '滑輪下拉(機械)', '捲腹(重訓椅&懸吊)', '引體向上'],
       '衝浪訓練': ['趴式划船', '趴式Y式啞鈴', '啞鈴肩推(滑水)', '滑輪側腹轉體', '滑輪下拉划水', '地雷管爆發上推', '單腿RDL', '哥本哈根側棒式'],
       '高強度間接': ['槓鈴分腿蹲', '啞鈴肩推(滑水)', '單腿RDL', '捲腹(重訓椅&懸吊)', '地雷管爆發上推', '大腿寬內外收(機械)'],
       '有氧訓練': ['慢跑', '游泳', '20分間歇'],
-      '低強度運動': ['游泳', '慢跑', '20分間歇'],
-      '休息': []
+      '低強度/休息': ['游泳', '慢跑', '20分間歇']
     };
 
     const STORAGE_KEY = 'personal_workout_log_v1';
@@ -476,7 +468,7 @@
       const wkNames = ['日','一','二','三','四','五','六'];
       strip.innerHTML = dates.map(d => {
         const dt = new Date(d + 'T00:00:00');
-        const hasLog = db[d] && ((db[d].exercises?.length) || db[d].category === '休息');
+        const hasLog = db[d] && ((db[d].exercises?.length) || db[d].category === '低強度/休息');
         return `
           <div class="date-chip ${d === selectedDate ? 'active' : ''}" onclick="selectDate('${d}')">
             <div class="wk">週${wkNames[dt.getDay()]}</div>
@@ -501,9 +493,9 @@
         <button class="cat-btn ${day.category === cat ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>
       `).join('');
 
-      const isRest = day.category === '休息';
+      const isRest = day.category === '低強度/休息';
       document.getElementById('restCard').classList.toggle('hidden', !isRest);
-      document.getElementById('strengthCard').classList.toggle('hidden', isRest);
+      document.getElementById('strengthCard').classList.toggle('hidden', false);
 
       const pills = EXERCISE_POOL[day.category] || [];
       document.getElementById('quickExercises').innerHTML = pills.length
@@ -533,11 +525,10 @@
       const container = document.getElementById('setsContainer');
       const idx = forcedNum || (container.children.length + 1);
       const div = document.createElement('div');
-      div.className = 'row-4';
+      div.className = 'row-3';
       div.innerHTML = `
         <span class="muted">第 ${idx} 組</span>
         <input type="text" class="set-wt" placeholder="重量kg" />
-        <input type="text" class="set-min" placeholder="分鐘" />
         <input type="text" class="set-reps" placeholder="次數" />
       `;
       container.appendChild(div);
@@ -546,21 +537,18 @@
     function saveStrengthEntry() {
       const name = document.getElementById('exNameInput').value.trim();
       if (!name) return alert('請輸入動作名稱');
-      const baseWt = document.getElementById('exWeightInput').value.trim();
-      const rows = [...document.querySelectorAll('#setsContainer .row-4')];
+      const rows = [...document.querySelectorAll('#setsContainer .row-3')];
       const sets = rows.map((r, i) => ({
         set: i + 1,
-        weight: r.querySelector('.set-wt').value.trim() || baseWt,
-        minutes: r.querySelector('.set-min').value.trim(),
+        weight: r.querySelector('.set-wt').value.trim(),
         reps: r.querySelector('.set-reps').value.trim()
-      })).filter(s => s.weight || s.minutes || s.reps);
+      })).filter(s => s.weight || s.reps);
 
       const day = ensureDay(selectedDate);
-      day.exercises.push({ name, weight: baseWt, sets });
+      day.exercises.push({ name, sets });
       saveDB();
 
       document.getElementById('exNameInput').value = '';
-      document.getElementById('exWeightInput').value = '';
       resetSetsUI(3);
       renderDayEntries();
       renderDateStrip();
@@ -578,7 +566,7 @@
         const setsHtml = (ex.sets || []).map(s => `
           <div class="set-line">
             <span>第 ${s.set} 組</span>
-            <span>重量：<strong>${s.weight || '-'}</strong> ｜ 分鐘：<strong>${s.minutes || '-'}</strong> ｜ 次數：<strong>${s.reps || '-'}</strong></span>
+            <span>重量：<strong>${s.weight || '-'}</strong> ｜ 次數：<strong>${s.reps || '-'}</strong></span>
           </div>
         `).join('');
         html += `
