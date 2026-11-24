@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b1117" />
+  <title>運動紀錄 App</title>
+  <style>
+    :root {
+      --bg: #0b1117;
+      --surface: #131c26;
+      --surface-2: #1b2735;
+      --border: #273749;
+      --text: #eef4fa;
+      --muted: #8fa3b8;
+      --accent: #22d3ee;
+      --accent-2: #a3e635;
+      --danger: #f87171;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 84px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(11, 17, 23, 0.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .local-badge {
+      font-size: 11px;
+      background: rgba(163, 230, 53, 0.14);
+      color: var(--accent-2);
+      border: 1px solid rgba(163, 230, 53, 0.35);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 14px 16px;
+    }
+
+    .date-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .date-strip::-webkit-scrollbar { display: none; }
+
+    .date-chip {
+      flex: 0 0 auto;
+      min-width: 62px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 6px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .date-chip.active {
+      background: rgba(34, 211, 238, 0.16);
+      border-color: var(--accent);
+    }
+    .date-chip .wk { font-size: 11px; color: var(--muted); }
+    .date-chip .dy { font-size: 15px; font-weight: 700; margin-top: 2px; }
+    .date-chip .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      margin: 5px auto 0; background: var(--accent-2);
+    }
+
+    .section-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+    }
+
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .cat-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+    .cat-btn.active {
+      background: var(--accent);
+      color: #071018;
+      border-color: var(--accent);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+
+    .card-title { font-size: 15px; font-weight: 700; }
+
+    .pill-row {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .pill {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .pill:hover { border-color: var(--accent); }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .row-3 {
+      display: grid;
+      grid-template-columns: 64px 1fr 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-size: 14px;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); color: #071018; }
+    .btn-ghost {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-sm { padding: 6px 10px; font-size: 12px; }
+
+    .ex-item {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .ex-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .ex-name { font-weight: 700; font-size: 15px; }
+    .set-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 4px 0;
+      border-top: 1px dashed rgba(143, 163, 184, 0.16);
+    }
+    .set-line strong { color: var(--text); }
+
+    .timer-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(34,211,238,0.14), rgba(163,230,53,0.12));
+      border: 1px solid rgba(34,211,238,0.35);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+    .timer-num { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(11, 17, 23, 0.96);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 8px 0 10px;
+      z-index: 30;
+    }
+    .nav-btn {
+      background: none; border: none; color: var(--muted);
+      font-size: 11px; font-weight: 600; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    .nav-btn.active { color: var(--accent); }
+    .nav-icon { font-size: 17px; }
+
+    .hidden { display: none; }
+    .muted { color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-title">
+      <span>運動紀錄</span>
+      <span class="local-badge">純本機儲存</span>
+    </div>
+    <span class="muted" id="activeDateText"></span>
+  </div>
+
+  <div class="container">
+    <div id="tab-log">
+      <div class="date-strip" id="dateStrip"></div>
+
+      <div class="timer-box">
+        <div>
+          <div class="muted">組間休息計時器</div>
+          <div class="timer-num" id="timerDisplay">01:30</div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="setTimer(60)">60s</button>
+          <button class="btn btn-ghost btn-sm" onclick="setTimer(90)">90s</button>
+          <button class="btn btn-primary btn-sm" id="timerToggleBtn" onclick="toggleTimer()">開始</button>
+        </div>
+      </div>
+
+      <div class="section-label">當日訓練分類</div>
+      <div class="cat-grid" id="catGrid"></div>
+
+      <div class="card hidden" id="restCard">
+        <div class="card-title">今日狀態：休息</div>
+        <p class="muted" style="margin-top:6px;">已標記為休息日。</p>
+      </div>
+
+      <div class="card" id="strengthCard">
+        <div class="card-header">
+          <div class="card-title">新增動作組數</div>
+          <span class="muted">支援 30/50 或 n</span>
+        </div>
+
+        <div class="section-label">常用動作快選</div>
+        <div class="pill-row" id="quickExercises"></div>
+
+        <div class="row-2">
+          <input type="text" id="exNameInput" placeholder="動作名稱" />
+          <input type="text" id="exWeightInput" placeholder="重量/機械kg 或 n" />
+        </div>
+
+        <div id="setsContainer"></div>
+
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="btn btn-ghost btn-sm" onclick="addSetRow()">+ 加一組</button>
+          <button class="btn btn-primary" style="flex:1;" onclick="saveStrengthEntry()">加入今日紀錄</button>
+        </div>
+      </div>
+
+      <div class="card" id="modeCard">
+        <div class="card-header">
+          <div class="card-title">訓練模式 / 間歇</div>
+          <span class="muted">對應「訓練模式 / 分鐘m」</span>
+        </div>
+        <div class="pill-row">
+          <button class="pill" onclick="fillMode('20分間歇', '12/8')">20分間歇 12/8</button>
+          <button class="pill" onclick="fillMode('20分間歇', '13/8')">20分間歇 13/8</button>
+          <button class="pill" onclick="fillMode('游泳', '20')">游泳 20m</button>
+          <button class="pill" onclick="fillMode('慢跑', '32')">慢跑 32m</button>
+        </div>
+        <div class="row-2">
+          <input type="text" id="modeNameInput" placeholder="訓練模式" />
+          <input type="text" id="modeDurInput" placeholder="分鐘/m 或組數" />
+        </div>
+        <button class="btn btn-primary" style="width:100%;" onclick="saveModeEntry()">儲存訓練模式</button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">當日紀錄清單</div>
+          <span class="muted" id="daySummaryBadge"></span>
+        </div>
+        <div id="dayEntriesList"></div>
+      </div>
+    </div>
+
+    <div id="tab-overview" class="hidden">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:10px;">日期紀錄總覽</div>
+        <div id="overviewList"></div>
+      </div>
+    </div>
+
+    <div id="tab-library" class="hidden">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:8px;">分類動作庫</div>
+        <div id="libraryList"></div>
+      </div>
+    </div>
+
+    <div id="tab-storage" class="hidden">
+      <div class="card">
+        <div class="card-title">本機資料與備份</div>
+        <p class="muted" style="line-height:1.6; margin:8px 0 12px;">
+          資料僅存於手機瀏覽器本機 <code>localStorage</code>，無外部伺服器或登入系統。建議定期匯出 JSON 備份。
+        </p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" onclick="exportJSON()">匯出 JSON</button>
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
+            匯入 JSON <input type="file" accept=".json" style="display:none;" onchange="importJSON(event)" />
+          </label>
+          <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="clearAllData()">清空本機資料</button>
+        </div>
+        <pre id="jsonPreview" style="margin-top:12px; background:var(--surface-2); padding:10px; border-radius:10px; font-size:11px; max-height:220px; overflow:auto; color:var(--muted);"></pre>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="tab-log" onclick="switchTab('tab-log', this)">
+      <span class="nav-icon">🏋️</span><span>今日紀錄</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-overview" onclick="switchTab('tab-overview', this)">
+      <span class="nav-icon">📅</span><span>日期總覽</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-library" onclick="switchTab('tab-library', this)">
+      <span class="nav-icon">📋</span><span>動作庫</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-storage" onclick="switchTab('tab-storage', this)">
+      <span class="nav-icon">🔒</span><span>本機資料</span>
+    </button>
+  </nav>
+
+  <script>
+    /* ===== 可自行擴充設定區 ===== */
+    const CATEGORIES = ['重量訓練', '衝浪訓練', '高強度間接', '有氧訓練', '低強度運動', '休息'];
+
+    const EXERCISE_POOL = {
+      '重量訓練': ['槓鈴握推', '槓鈴深蹲', '槓鈴肩推', '槓鈴RDL', '槓鈴大腿側蹲', '滑輪下拉(機械)', '捲腹(重訓椅&懸吊)', '引體向上'],
+      '衝浪訓練': ['趴式划船', '趴式Y式啞鈴', '啞鈴肩推(滑水)', '滑輪側腹轉體', '滑輪下拉划水', '地雷管爆發上推', '單腿RDL', '哥本哈根側棒式'],
+      '高強度間接': ['槓鈴分腿蹲', '啞鈴肩推(滑水)', '單腿RDL', '捲腹(重訓椅&懸吊)', '地雷管爆發上推', '大腿寬內外收(機械)'],
+      '有氧訓練': ['慢跑', '游泳', '20分間歇'],
+      '低強度運動': ['游泳', '慢跑', '20分間歇'],
+      '休息': []
+    };
+
+    const STORAGE_KEY = 'personal_workout_log_v1';
+    /* ============================ */
+
+    /* 動態注入 PWA Manifest 與離線快取 */
+    (function setupPWA() {
+      const manifest = {
+        name: '個人運動紀錄',
+        short_name: '運動紀錄',
+        start_url: './',
+        display: 'standalone',
+        background_color: '#0b1117',
+        theme_color: '#0b1117'
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = URL.createObjectURL(blob);
+      document.head.appendChild(link);
+
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        const swCode = `
+          const CACHE = 'workout-pwa-v1';
+          self.addEventListener('install', e => {
+            e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./'])));
+          });
+          self.addEventListener('fetch', e => {
+            e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+          });
+        `;
+        const swBlob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+      }
+    })();
+
+    function formatToday() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    let db = loadDB();
+    let selectedDate = formatToday();
+    ensureDay(selectedDate);
+
+    function loadDB() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      } catch {
+        return {};
+      }
+    }
+
+    function saveDB() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      renderJSONPreview();
+    }
+
+    function ensureDay(d) {
+      if (!db[d]) db[d] = { category: '重量訓練', modes: [], exercises: [] };
+      return db[d];
+    }
+
+    function getRecentDates() {
+      const set = new Set(Object.keys(db));
+      const base = new Date(selectedDate + 'T00:00:00');
+      for (let offset = -6; offset <= 1; offset++) {
+        const dt = new Date(base);
+        dt.setDate(base.getDate() + offset);
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth() + 1).padStart(2, '0');
+        const d = String(dt.getDate()).padStart(2, '0');
+        set.add(`${y}-${m}-${d}`);
+      }
+      return [...set].sort();
+    }
+
+    function renderDateStrip() {
+      const strip = document.getElementById('dateStrip');
+      const dates = getRecentDates();
+      const wkNames = ['日','一','二','三','四','五','六'];
+      strip.innerHTML = dates.map(d => {
+        const dt = new Date(d + 'T00:00:00');
+        const hasLog = db[d] && ((db[d].exercises?.length) || (db[d].modes?.length) || db[d].category === '休息');
+        return `
+          <div class="date-chip ${d === selectedDate ? 'active' : ''}" onclick="selectDate('${d}')">
+            <div class="wk">週${wkNames[dt.getDay()]}</div>
+            <div class="dy">${d.slice(5)}</div>
+            <div class="dot" style="opacity:${hasLog ? 1 : 0.15}"></div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('activeDateText').textContent = selectedDate;
+    }
+
+    function selectDate(d) {
+      selectedDate = d;
+      ensureDay(d);
+      renderAll();
+    }
+
+    function renderCategories() {
+      const day = ensureDay(selectedDate);
+      const grid = document.getElementById('catGrid');
+      grid.innerHTML = CATEGORIES.map(cat => `
+        <button class="cat-btn ${day.category === cat ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>
+      `).join('');
+
+      const isRest = day.category === '休息';
+      document.getElementById('restCard').classList.toggle('hidden', !isRest);
+      document.getElementById('strengthCard').classList.toggle('hidden', isRest);
+      document.getElementById('modeCard').classList.toggle('hidden', isRest);
+
+      const pills = EXERCISE_POOL[day.category] || [];
+      document.getElementById('quickExercises').innerHTML = pills.length
+        ? pills.map(ex => `<button class="pill" onclick="pickExercise('${ex}')">${ex}</button>`).join('')
+        : '<span class="muted">可直接手動輸入動作</span>';
+    }
+
+    function setCategory(cat) {
+      ensureDay(selectedDate).category = cat;
+      saveDB();
+      renderCategories();
+      renderDayEntries();
+      renderOverview();
+    }
+
+    function pickExercise(name) {
+      document.getElementById('exNameInput').value = name;
+    }
+
+    function resetSetsUI(count = 4) {
+      const container = document.getElementById('setsContainer');
+      container.innerHTML = '';
+      for (let i = 1; i <= count; i++) addSetRow(i);
+    }
+
+    function addSetRow(forcedNum = null) {
+      const container = document.getElementById('setsContainer');
+      const idx = forcedNum || (container.children.length + 1);
+      const div = document.createElement('div');
+      div.className = 'row-3';
+      div.innerHTML = `
+        <span class="muted">第 ${idx} 組</span>
+        <input type="text" class="set-reps" placeholder="次數（如 8 或 30/50）" />
+        <input type="text" class="set-wt" placeholder="此組重量（選填）" />
+      `;
+      container.appendChild(div);
+    }
+
+    function saveStrengthEntry() {
+      const name = document.getElementById('exNameInput').value.trim();
+      if (!name) return alert('請輸入動作名稱');
+      const baseWt = document.getElementById('exWeightInput').value.trim();
+      const rows = [...document.querySelectorAll('#setsContainer .row-3')];
+      const sets = rows.map((r, i) => ({
+        set: i + 1,
+        reps: r.querySelector('.set-reps').value.trim(),
+        weight: r.querySelector('.set-wt').value.trim() || baseWt
+      })).filter(s => s.reps || s.weight);
+
+      const day = ensureDay(selectedDate);
+      day.exercises.push({ name, weight: baseWt, sets });
+      saveDB();
+
+      document.getElementById('exNameInput').value = '';
+      document.getElementById('exWeightInput').value = '';
+      resetSetsUI(4);
+      renderDayEntries();
+      renderDateStrip();
+      renderOverview();
+    }
+
+    function fillMode(mode, dur) {
+      document.getElementById('modeNameInput').value = mode;
+      document.getElementById('modeDurInput').value = dur;
+    }
+
+    function saveModeEntry() {
+      const mode = document.getElementById('modeNameInput').value.trim();
+      const duration = document.getElementById('modeDurInput').value.trim();
+      if (!mode) return alert('請輸入訓練模式');
+      ensureDay(selectedDate).modes.push({ mode, duration });
+      saveDB();
+      document.getElementById('modeNameInput').value = '';
+      document.getElementById('modeDurInput').value = '';
+      renderDayEntries();
+      renderDateStrip();
+      renderOverview();
+    }
+
+    function renderDayEntries() {
+      const day = ensureDay(selectedDate);
+      const box = document.getElementById('dayEntriesList');
+      const totalItems = (day.exercises?.length || 0) + (day.modes?.length || 0);
+      document.getElementById('daySummaryBadge').textContent = `${day.category} · ${totalItems} 項`;
+
+      let html = '';
+      (day.modes || []).forEach((m, idx) => {
+        html += `
+          <div class="ex-item">
+            <div class="ex-top">
+              <span class="ex-name">⏱️ ${m.mode}</span>
+              <span class="local-badge">${m.duration || '-'}</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="deleteMode(${idx})">移除</button>
+          </div>
+        `;
+      });
+
+      (day.exercises || []).forEach((ex, idx) => {
+        const setsHtml = (ex.sets || []).map(s => `
+          <div class="set-line">
+            <span>第 ${s.set} 組</span>
+            <span>次數：<strong>${s.reps || '-'}</strong> ｜ 重量：<strong>${s.weight || '-'}</strong></span>
+          </div>
+        `).join('');
+        html += `
+          <div class="ex-item">
+            <div class="ex-top">
+              <span class="ex-name">${ex.name}</span>
+              <button class="btn btn-ghost btn-sm" onclick="deleteExercise(${idx})">移除</button>
+            </div>
+            ${setsHtml || '<div class="muted">無組數明細</div>'}
+          </div>
+        `;
+      });
+
+      box.innerHTML = html || '<div class="muted">尚無紀錄</div>';
+    }
+
+    function deleteExercise(idx) {
+      ensureDay(selectedDate).exercises.splice(idx, 1);
+      saveDB();
+      renderDayEntries();
+      renderOverview();
+    }
+
+    function deleteMode(idx) {
+      ensureDay(selectedDate).modes.splice(idx, 1);
+      saveDB();
+      renderDayEntries();
+      renderOverview();
+    }
+
+    function renderOverview() {
+      const box = document.getElementById('overviewList');
+      const dates = Object.keys(db).sort().reverse();
+      box.innerHTML = dates.length ? dates.map(d => {
+        const day = db[d];
+        const exNames = (day.exercises || []).map(e => e.name).join('、');
+        const modeNames = (day.modes || []).map(m => `${m.mode}(${m.duration})`).join('、');
+        return `
+          <div class="ex-item" onclick="selectDate('${d}'); switchTab('tab-log', document.querySelector('[data-tab=tab-log]'))" style="cursor:pointer;">
+            <div class="ex-top">
+              <span class="ex-name">${d}</span>
+              <span class="local-badge">${day.category}</span>
+            </div>
+            <div class="muted">${[exNames, modeNames].filter(Boolean).join(' ｜ ') || '無訓練項目'}</div>
+          </div>
+        `;
+      }).join('') : '<div class="muted">目前尚無歷史紀錄</div>';
+    }
+
+    function renderLibrary() {
+      const box = document.getElementById('libraryList');
+      box.innerHTML = Object.entries(EXERCISE_POOL).filter(([, list]) => list.length).map(([cat, list]) => `
+        <div style="margin-bottom:14px;">
+          <div class="section-label">${cat}</div>
+          <div class="pill-row">${list.map(item => `<span class="pill">${item}</span>`).join('')}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderJSONPreview() {
+      document.getElementById('jsonPreview').textContent = JSON.stringify(db, null, 2);
+    }
+
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `運動紀錄備份_${formatToday()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error();
+          db = parsed;
+          saveDB();
+          ensureDay(selectedDate);
+          renderAll();
+          alert('已匯入備份資料');
+        } catch {
+          alert('JSON 格式不正確');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function clearAllData() {
+      if (!confirm('確定要清空手機本機所有運動紀錄嗎？建議先匯出備份。')) return;
+      db = {};
+      saveDB();
+      ensureDay(selectedDate);
+      renderAll();
+    }
+
+    function switchTab(tabId, btn) {
+      ['tab-log','tab-overview','tab-library','tab-storage'].forEach(id => {
+        document.getElementById(id).classList.toggle('hidden', id !== tabId);
+      });
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    let timerSec = 90;
+    let timerId = null;
+
+    function updateTimerDisplay() {
+      const m = String(Math.floor(timerSec / 60)).padStart(2, '0');
+      const s = String(timerSec % 60).padStart(2, '0');
+      document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+    }
+
+    function setTimer(sec) {
+      clearInterval(timerId);
+      timerId = null;
+      timerSec = sec;
+      document.getElementById('timerToggleBtn').textContent = '開始';
+      updateTimerDisplay();
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('timerToggleBtn');
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+        btn.textContent = '開始';
+      } else {
+        btn.textContent = '暫停';
+        timerId = setInterval(() => {
+          if (timerSec > 0) {
+            timerSec--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerId);
+            timerId = null;
+            btn.textContent = '開始';
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            alert('休息時間到！');
+          }
+        }, 1000);
+      }
+    }
+
+    function renderAll() {
+      renderDateStrip();
+      renderCategories();
+      renderDayEntries();
+      renderOverview();
+      renderLibrary();
+      renderJSONPreview();
+    }
+
+    resetSetsUI(4);
+    updateTimerDisplay();
+    renderAll();
+  </script>
+</body>
+</html>
