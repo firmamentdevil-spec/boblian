@@ -297,7 +297,7 @@
       <div class="card" id="strengthCard">
         <div class="card-header">
           <div class="card-title">新增動作組數</div>
-          <span class="muted">重量kg / 次數</span>
+          <span class="muted">次數 / 重量kg</span>
         </div>
 
         <div class="section-label">常用動作快選</div>
@@ -528,8 +528,8 @@
       div.className = 'row-3';
       div.innerHTML = `
         <span class="muted">第 ${idx} 組</span>
-        <input type="text" class="set-wt" placeholder="重量kg" />
-        <input type="text" class="set-reps" placeholder="次數" />
+        <input type="text" inputmode="decimal" class="set-reps" placeholder="次數" />
+        <input type="text" inputmode="decimal" class="set-wt" placeholder="重量kg" />
       `;
       container.appendChild(div);
     }
@@ -540,9 +540,9 @@
       const rows = [...document.querySelectorAll('#setsContainer .row-3')];
       const sets = rows.map((r, i) => ({
         set: i + 1,
-        weight: r.querySelector('.set-wt').value.trim(),
-        reps: r.querySelector('.set-reps').value.trim()
-      })).filter(s => s.weight || s.reps);
+        reps: r.querySelector('.set-reps').value.trim(),
+        weight: r.querySelector('.set-wt').value.trim()
+      })).filter(s => s.reps || s.weight);
 
       const day = ensureDay(selectedDate);
       day.exercises.push({ name, sets });
@@ -566,7 +566,7 @@
         const setsHtml = (ex.sets || []).map(s => `
           <div class="set-line">
             <span>第 ${s.set} 組</span>
-            <span>重量：<strong>${s.weight || '-'}</strong> ｜ 次數：<strong>${s.reps || '-'}</strong></span>
+            <span>次數：<strong>${s.reps || '-'}</strong> ｜ 重量：<strong>${s.weight || '-'}</strong></span>
           </div>
         `).join('');
         html += `
