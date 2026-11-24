@@ -2,24 +2,25 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0b1117" />
-  <title>運動紀錄 App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>運動紀錄</title>
+  <meta name="theme-color" content="#0f172a" />
   <style>
     :root {
-      --bg: #0b1117;
-      --surface: #131c26;
-      --surface-2: #1b2735;
-      --border: #273749;
-      --text: #eef4fa;
-      --muted: #8fa3b8;
-      --accent: #22d3ee;
-      --accent-2: #a3e635;
-      --danger: #f87171;
-      --radius: 14px;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-2: #162032;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --danger: #ef4444;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -29,764 +30,630 @@
       padding-bottom: 84px;
     }
 
-    .topbar {
+    header {
       position: sticky;
       top: 0;
-      z-index: 20;
-      background: rgba(11, 17, 23, 0.94);
-      backdrop-filter: blur(10px);
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
       padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
     }
 
-    .topbar-title {
-      font-size: 16px;
+    h1 {
+      margin: 0;
+      font-size: 18px;
       font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
-    .local-badge {
-      font-size: 11px;
-      background: rgba(163, 230, 53, 0.14);
-      color: var(--accent-2);
-      border: 1px solid rgba(163, 230, 53, 0.35);
-      padding: 2px 8px;
+    .badge {
+      font-size: 12px;
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 4px 8px;
       border-radius: 999px;
-      font-weight: 600;
+      white-space: nowrap;
     }
 
-    .container {
-      max-width: 540px;
+    main {
+      max-width: 720px;
       margin: 0 auto;
       padding: 14px 16px;
     }
 
-    .date-strip {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 6px;
-      margin-bottom: 12px;
-      scrollbar-width: none;
-    }
-    .date-strip::-webkit-scrollbar { display: none; }
-
-    .date-chip {
-      flex: 0 0 auto;
-      min-width: 62px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 8px 6px;
-      text-align: center;
-      cursor: pointer;
-    }
-    .date-chip.active {
-      background: rgba(34, 211, 238, 0.16);
-      border-color: var(--accent);
-    }
-    .date-chip .wk { font-size: 11px; color: var(--muted); }
-    .date-chip .dy { font-size: 15px; font-weight: 700; margin-top: 2px; }
-    .date-chip .dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      margin: 5px auto 0; background: var(--accent-2);
-    }
-
-    .section-label {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 8px;
-      font-weight: 600;
-      letter-spacing: 0.4px;
-    }
-
-    .cat-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .cat-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 10px;
-      padding: 10px 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-    }
-    .cat-btn.active {
-      background: var(--accent);
-      color: #071018;
-      border-color: var(--accent);
-    }
-
     .card {
-      background: var(--surface);
+      background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
+      border-radius: 14px;
       padding: 14px;
       margin-bottom: 14px;
     }
 
-    .card-header {
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+    }
+
+    input, textarea {
+      width: 100%;
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #062033;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .btn-success {
+      background: rgba(34, 197, 94, 0.16);
+      border-color: rgba(34, 197, 94, 0.45);
+      color: #86efac;
+      font-weight: 600;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.14);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .cat-list {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .cat-btn {
+      white-space: nowrap;
+    }
+
+    .cat-btn.active {
+      background: var(--accent);
+      color: #062033;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .set-box {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .set-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
-      gap: 8px;
-    }
-
-    .card-title { font-size: 15px; font-weight: 700; }
-
-    .pill-row {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-
-    .pill {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .pill:hover { border-color: var(--accent); }
-
-    .row-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .row-3 {
-      display: grid;
-      grid-template-columns: 64px 1fr 1fr;
-      gap: 8px;
-      align-items: center;
       margin-bottom: 8px;
-    }
-
-    input, select {
-      width: 100%;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 10px;
-      padding: 9px 10px;
-      font-size: 14px;
-      outline: none;
-    }
-    input:focus, select:focus { border-color: var(--accent); }
-
-    .btn {
-      border: none;
-      border-radius: 10px;
-      padding: 10px 12px;
       font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
+      color: var(--accent);
+      font-weight: 600;
     }
-    .btn-primary { background: var(--accent); color: #071018; }
-    .btn-ghost {
-      background: var(--surface-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-sm { padding: 6px 10px; font-size: 12px; }
 
-    .ex-item {
-      background: var(--surface-2);
+    .set-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .set-grid label {
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .log-item {
+      background: var(--card-2);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px;
       margin-bottom: 10px;
     }
-    .ex-top {
+
+    .log-top {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+      gap: 8px;
       margin-bottom: 8px;
     }
-    .ex-name { font-weight: 700; font-size: 15px; }
-    .set-line {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
+
+    .log-title {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .log-meta {
+      font-size: 12px;
       color: var(--muted);
-      padding: 4px 0;
-      border-top: 1px dashed rgba(143, 163, 184, 0.16);
     }
-    .set-line strong { color: var(--text); }
 
-    .timer-box {
+    .set-pill-list {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: linear-gradient(135deg, rgba(34,211,238,0.14), rgba(163,230,53,0.12));
-      border: 1px solid rgba(34,211,238,0.35);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 6px;
     }
-    .timer-num { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
 
-    .bottom-nav {
+    .set-pill {
+      font-size: 12px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 8px;
+    }
+
+    .toast {
       position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(11, 17, 23, 0.96);
-      backdrop-filter: blur(12px);
+      bottom: 76px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0ea5e9;
+      color: #041524;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.96);
       border-top: 1px solid var(--border);
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      padding: 8px 0 10px;
-      z-index: 30;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 6px 8px;
+      z-index: 20;
     }
-    .nav-btn {
-      background: none; border: none; color: var(--muted);
-      font-size: 11px; font-weight: 600; cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-    }
-    .nav-btn.active { color: var(--accent); }
-    .nav-icon { font-size: 17px; }
 
-    .hidden { display: none; }
-    .muted { color: var(--muted); font-size: 12px; }
+    .nav-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 4px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+    }
+
+    .nav-btn.active {
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+      padding: 16px 8px;
+    }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="topbar-title">
-      <span>運動紀錄</span>
-      <span class="local-badge">純本機儲存</span>
-    </div>
-    <span class="muted" id="activeDateText"></span>
-  </div>
+  <header>
+    <h1>運動紀錄</h1>
+    <span class="badge">純本機儲存</span>
+  </header>
 
-  <div class="container">
-    <div id="tab-log">
-      <div class="date-strip" id="dateStrip"></div>
-
-      <div class="timer-box">
-        <div>
-          <div class="muted">組間休息計時器</div>
-          <div class="timer-num" id="timerDisplay">01:30</div>
-        </div>
-        <div style="display:flex; gap:6px;">
-          <button class="btn btn-ghost btn-sm" onclick="setTimer(60)">60s</button>
-          <button class="btn btn-ghost btn-sm" onclick="setTimer(90)">90s</button>
-          <button class="btn btn-primary btn-sm" id="timerToggleBtn" onclick="toggleTimer()">開始</button>
-        </div>
-      </div>
-
-      <div class="section-label">當日訓練分類</div>
-      <div class="cat-grid" id="catGrid"></div>
-
-      <div class="card hidden" id="restCard">
-        <div class="card-title">今日狀態：休息</div>
-        <p class="muted" style="margin-top:6px;">已標記為休息日。</p>
-      </div>
-
-      <div class="card" id="strengthCard">
-        <div class="card-header">
-          <div class="card-title">新增動作組數</div>
-          <span class="muted">支援 30/50 或 n</span>
-        </div>
-
-        <div class="section-label">常用動作快選</div>
-        <div class="pill-row" id="quickExercises"></div>
-
-        <div class="row-2">
-          <input type="text" id="exNameInput" placeholder="動作名稱" />
-          <input type="text" id="exWeightInput" placeholder="重量/機械kg 或 n" />
-        </div>
-
-        <div id="setsContainer"></div>
-
-        <div style="display:flex; gap:8px; margin-top:10px;">
-          <button class="btn btn-ghost btn-sm" onclick="addSetRow()">+ 加一組</button>
-          <button class="btn btn-primary" style="flex:1;" onclick="saveStrengthEntry()">加入今日紀錄</button>
-        </div>
-      </div>
-
-      <div class="card" id="modeCard">
-        <div class="card-header">
-          <div class="card-title">訓練模式 / 間歇</div>
-          <span class="muted">對應「訓練模式 / 分鐘m」</span>
-        </div>
-        <div class="pill-row">
-          <button class="pill" onclick="fillMode('20分間歇', '12/8')">20分間歇 12/8</button>
-          <button class="pill" onclick="fillMode('20分間歇', '13/8')">20分間歇 13/8</button>
-          <button class="pill" onclick="fillMode('游泳', '20')">游泳 20m</button>
-          <button class="pill" onclick="fillMode('慢跑', '32')">慢跑 32m</button>
-        </div>
-        <div class="row-2">
-          <input type="text" id="modeNameInput" placeholder="訓練模式" />
-          <input type="text" id="modeDurInput" placeholder="分鐘/m 或組數" />
-        </div>
-        <button class="btn btn-primary" style="width:100%;" onclick="saveModeEntry()">儲存訓練模式</button>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">當日紀錄清單</div>
-          <span class="muted" id="daySummaryBadge"></span>
-        </div>
-        <div id="dayEntriesList"></div>
-      </div>
-    </div>
-
-    <div id="tab-overview" class="hidden">
-      <div class="card">
-        <div class="card-title" style="margin-bottom:10px;">日期紀錄總覽</div>
-        <div id="overviewList"></div>
-      </div>
-    </div>
-
-    <div id="tab-library" class="hidden">
-      <div class="card">
-        <div class="card-title" style="margin-bottom:8px;">分類動作庫</div>
-        <div id="libraryList"></div>
-      </div>
-    </div>
-
-    <div id="tab-storage" class="hidden">
-      <div class="card">
-        <div class="card-title">本機資料與備份</div>
-        <p class="muted" style="line-height:1.6; margin:8px 0 12px;">
-          資料僅存於手機瀏覽器本機 <code>localStorage</code>，無外部伺服器或登入系統。建議定期匯出 JSON 備份。
-        </p>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn btn-ghost btn-sm" onclick="exportJSON()">匯出 JSON</button>
-          <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
-            匯入 JSON <input type="file" accept=".json" style="display:none;" onchange="importJSON(event)" />
-          </label>
-          <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="clearAllData()">清空本機資料</button>
-        </div>
-        <pre id="jsonPreview" style="margin-top:12px; background:var(--surface-2); padding:10px; border-radius:10px; font-size:11px; max-height:220px; overflow:auto; color:var(--muted);"></pre>
-      </div>
-    </div>
-  </div>
+  <main id="app"></main>
+  <div id="toast" class="toast"></div>
 
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="tab-log" onclick="switchTab('tab-log', this)">
-      <span class="nav-icon">🏋️</span><span>今日紀錄</span>
-    </button>
-    <button class="nav-btn" data-tab="tab-overview" onclick="switchTab('tab-overview', this)">
-      <span class="nav-icon">📅</span><span>日期總覽</span>
-    </button>
-    <button class="nav-btn" data-tab="tab-library" onclick="switchTab('tab-library', this)">
-      <span class="nav-icon">📋</span><span>動作庫</span>
-    </button>
-    <button class="nav-btn" data-tab="tab-storage" onclick="switchTab('tab-storage', this)">
-      <span class="nav-icon">🔒</span><span>本機資料</span>
-    </button>
+    <button class="nav-btn active" data-tab="log" onclick="switchTab('log')">紀錄輸入</button>
+    <button class="nav-btn" data-tab="overview" onclick="switchTab('overview')">日期總覽</button>
+    <button class="nav-btn" data-tab="data" onclick="switchTab('data')">本機資料</button>
   </nav>
 
   <script>
-    /* ===== 可自行擴充設定區 ===== */
-    const CATEGORIES = ['重量訓練', '衝浪訓練', '高強度間接', '有氧訓練', '低強度運動', '休息'];
+    const STORAGE_KEY = "workout_logs_v2";
+    const CATEGORIES = ["肌力訓練", "衝浪體能", "有氧／間歇", "伸展／恢復"];
 
-    const EXERCISE_POOL = {
-      '重量訓練': ['槓鈴握推', '槓鈴深蹲', '槓鈴肩推', '槓鈴RDL', '槓鈴大腿側蹲', '滑輪下拉(機械)', '捲腹(重訓椅&懸吊)', '引體向上'],
-      '衝浪訓練': ['趴式划船', '趴式Y式啞鈴', '啞鈴肩推(滑水)', '滑輪側腹轉體', '滑輪下拉划水', '地雷管爆發上推', '單腿RDL', '哥本哈根側棒式'],
-      '高強度間接': ['槓鈴分腿蹲', '啞鈴肩推(滑水)', '單腿RDL', '捲腹(重訓椅&懸吊)', '地雷管爆發上推', '大腿寬內外收(機械)'],
-      '有氧訓練': ['慢跑', '游泳', '20分間歇'],
-      '低強度運動': ['游泳', '慢跑', '20分間歇'],
-      '休息': []
+    let state = {
+      tab: "log",
+      date: getToday(),
+      category: CATEGORIES[0],
+      exercise: "",
+      sets: makeDefaultSets(3),
+      logs: loadLogs()
     };
 
-    const STORAGE_KEY = 'personal_workout_log_v1';
-    /* ============================ */
-
-    /* 動態注入 PWA Manifest 與離線快取 */
-    (function setupPWA() {
-      const manifest = {
-        name: '個人運動紀錄',
-        short_name: '運動紀錄',
-        start_url: './',
-        display: 'standalone',
-        background_color: '#0b1117',
-        theme_color: '#0b1117'
-      };
-      const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-      const link = document.createElement('link');
-      link.rel = 'manifest';
-      link.href = URL.createObjectURL(blob);
-      document.head.appendChild(link);
-
-      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-        const swCode = `
-          const CACHE = 'workout-pwa-v1';
-          self.addEventListener('install', e => {
-            e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./'])));
-          });
-          self.addEventListener('fetch', e => {
-            e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
-          });
-        `;
-        const swBlob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
-      }
-    })();
-
-    function formatToday() {
+    function getToday() {
       const now = new Date();
       const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, '0');
-      const d = String(now.getDate()).padStart(2, '0');
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
       return `${y}-${m}-${d}`;
     }
 
-    let db = loadDB();
-    let selectedDate = formatToday();
-    ensureDay(selectedDate);
+    function makeDefaultSets(count = 3) {
+      return Array.from({ length: count }, () => ({
+        kg: "",
+        minutes: "",
+        reps: ""
+      }));
+    }
 
-    function loadDB() {
+    function loadLogs() {
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
       } catch {
-        return {};
+        return [];
       }
     }
 
-    function saveDB() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-      renderJSONPreview();
+    function saveLogs() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.logs));
     }
 
-    function ensureDay(d) {
-      if (!db[d]) db[d] = { category: '重量訓練', modes: [], exercises: [] };
-      return db[d];
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      setTimeout(() => el.classList.remove("show"), 1600);
     }
 
-    function getRecentDates() {
-      const set = new Set(Object.keys(db));
-      const base = new Date(selectedDate + 'T00:00:00');
-      for (let offset = -6; offset <= 1; offset++) {
-        const dt = new Date(base);
-        dt.setDate(base.getDate() + offset);
-        const y = dt.getFullYear();
-        const m = String(dt.getMonth() + 1).padStart(2, '0');
-        const d = String(dt.getDate()).padStart(2, '0');
-        set.add(`${y}-${m}-${d}`);
+    function switchTab(tab) {
+      state.tab = tab;
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === tab);
+      });
+      render();
+    }
+
+    function addSetRow() {
+      state.sets.push({ kg: "", minutes: "", reps: "" });
+      render();
+    }
+
+    function removeSetRow(index) {
+      if (state.sets.length <= 1) {
+        showToast("至少保留 1 組");
+        return;
       }
-      return [...set].sort();
+      state.sets.splice(index, 1);
+      render();
     }
 
-    function renderDateStrip() {
-      const strip = document.getElementById('dateStrip');
-      const dates = getRecentDates();
-      const wkNames = ['日','一','二','三','四','五','六'];
-      strip.innerHTML = dates.map(d => {
-        const dt = new Date(d + 'T00:00:00');
-        const hasLog = db[d] && ((db[d].exercises?.length) || (db[d].modes?.length) || db[d].category === '休息');
-        return `
-          <div class="date-chip ${d === selectedDate ? 'active' : ''}" onclick="selectDate('${d}')">
-            <div class="wk">週${wkNames[dt.getDay()]}</div>
-            <div class="dy">${d.slice(5)}</div>
-            <div class="dot" style="opacity:${hasLog ? 1 : 0.15}"></div>
-          </div>
-        `;
-      }).join('');
-      document.getElementById('activeDateText').textContent = selectedDate;
+    function updateSetField(index, field, value) {
+      state.sets[index][field] = value;
     }
 
-    function selectDate(d) {
-      selectedDate = d;
-      ensureDay(d);
-      renderAll();
-    }
+    function addEntry() {
+      const name = state.exercise.trim();
+      if (!name) {
+        showToast("請先輸入動作名稱");
+        return;
+      }
 
-    function renderCategories() {
-      const day = ensureDay(selectedDate);
-      const grid = document.getElementById('catGrid');
-      grid.innerHTML = CATEGORIES.map(cat => `
-        <button class="cat-btn ${day.category === cat ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>
-      `).join('');
+      const cleanedSets = state.sets
+        .map((s) => ({
+          kg: String(s.kg ?? "").trim(),
+          minutes: String(s.minutes ?? "").trim(),
+          reps: String(s.reps ?? "").trim()
+        }))
+        .filter((s) => s.kg !== "" || s.minutes !== "" || s.reps !== "");
 
-      const isRest = day.category === '休息';
-      document.getElementById('restCard').classList.toggle('hidden', !isRest);
-      document.getElementById('strengthCard').classList.toggle('hidden', isRest);
-      document.getElementById('modeCard').classList.toggle('hidden', isRest);
+      if (cleanedSets.length === 0) {
+        showToast("請至少填寫一組的重量、分鐘或次數");
+        return;
+      }
 
-      const pills = EXERCISE_POOL[day.category] || [];
-      document.getElementById('quickExercises').innerHTML = pills.length
-        ? pills.map(ex => `<button class="pill" onclick="pickExercise('${ex}')">${ex}</button>`).join('')
-        : '<span class="muted">可直接手動輸入動作</span>';
-    }
-
-    function setCategory(cat) {
-      ensureDay(selectedDate).category = cat;
-      saveDB();
-      renderCategories();
-      renderDayEntries();
-      renderOverview();
-    }
-
-    function pickExercise(name) {
-      document.getElementById('exNameInput').value = name;
-    }
-
-    function resetSetsUI(count = 4) {
-      const container = document.getElementById('setsContainer');
-      container.innerHTML = '';
-      for (let i = 1; i <= count; i++) addSetRow(i);
-    }
-
-    function addSetRow(forcedNum = null) {
-      const container = document.getElementById('setsContainer');
-      const idx = forcedNum || (container.children.length + 1);
-      const div = document.createElement('div');
-      div.className = 'row-3';
-      div.innerHTML = `
-        <span class="muted">第 ${idx} 組</span>
-        <input type="text" class="set-reps" placeholder="次數（如 8 或 30/50）" />
-        <input type="text" class="set-wt" placeholder="此組重量（選填）" />
-      `;
-      container.appendChild(div);
-    }
-
-    function saveStrengthEntry() {
-      const name = document.getElementById('exNameInput').value.trim();
-      if (!name) return alert('請輸入動作名稱');
-      const baseWt = document.getElementById('exWeightInput').value.trim();
-      const rows = [...document.querySelectorAll('#setsContainer .row-3')];
-      const sets = rows.map((r, i) => ({
-        set: i + 1,
-        reps: r.querySelector('.set-reps').value.trim(),
-        weight: r.querySelector('.set-wt').value.trim() || baseWt
-      })).filter(s => s.reps || s.weight);
-
-      const day = ensureDay(selectedDate);
-      day.exercises.push({ name, weight: baseWt, sets });
-      saveDB();
-
-      document.getElementById('exNameInput').value = '';
-      document.getElementById('exWeightInput').value = '';
-      resetSetsUI(4);
-      renderDayEntries();
-      renderDateStrip();
-      renderOverview();
-    }
-
-    function fillMode(mode, dur) {
-      document.getElementById('modeNameInput').value = mode;
-      document.getElementById('modeDurInput').value = dur;
-    }
-
-    function saveModeEntry() {
-      const mode = document.getElementById('modeNameInput').value.trim();
-      const duration = document.getElementById('modeDurInput').value.trim();
-      if (!mode) return alert('請輸入訓練模式');
-      ensureDay(selectedDate).modes.push({ mode, duration });
-      saveDB();
-      document.getElementById('modeNameInput').value = '';
-      document.getElementById('modeDurInput').value = '';
-      renderDayEntries();
-      renderDateStrip();
-      renderOverview();
-    }
-
-    function renderDayEntries() {
-      const day = ensureDay(selectedDate);
-      const box = document.getElementById('dayEntriesList');
-      const totalItems = (day.exercises?.length || 0) + (day.modes?.length || 0);
-      document.getElementById('daySummaryBadge').textContent = `${day.category} · ${totalItems} 項`;
-
-      let html = '';
-      (day.modes || []).forEach((m, idx) => {
-        html += `
-          <div class="ex-item">
-            <div class="ex-top">
-              <span class="ex-name">⏱️ ${m.mode}</span>
-              <span class="local-badge">${m.duration || '-'}</span>
-            </div>
-            <button class="btn btn-ghost btn-sm" onclick="deleteMode(${idx})">移除</button>
-          </div>
-        `;
+      state.logs.unshift({
+        id: String(Date.now()) + "_" + Math.random().toString(36).slice(2, 6),
+        date: state.date,
+        category: state.category,
+        exercise: name,
+        sets: cleanedSets
       });
 
-      (day.exercises || []).forEach((ex, idx) => {
-        const setsHtml = (ex.sets || []).map(s => `
-          <div class="set-line">
-            <span>第 ${s.set} 組</span>
-            <span>次數：<strong>${s.reps || '-'}</strong> ｜ 重量：<strong>${s.weight || '-'}</strong></span>
-          </div>
-        `).join('');
-        html += `
-          <div class="ex-item">
-            <div class="ex-top">
-              <span class="ex-name">${ex.name}</span>
-              <button class="btn btn-ghost btn-sm" onclick="deleteExercise(${idx})">移除</button>
-            </div>
-            ${setsHtml || '<div class="muted">無組數明細</div>'}
-          </div>
-        `;
-      });
-
-      box.innerHTML = html || '<div class="muted">尚無紀錄</div>';
+      saveLogs();
+      state.exercise = "";
+      state.sets = makeDefaultSets(3);
+      showToast("已加入紀錄");
+      render();
     }
 
-    function deleteExercise(idx) {
-      ensureDay(selectedDate).exercises.splice(idx, 1);
-      saveDB();
-      renderDayEntries();
-      renderOverview();
+    function deleteEntry(id) {
+      state.logs = state.logs.filter((item) => item.id !== id);
+      saveLogs();
+      showToast("已刪除紀錄");
+      render();
     }
 
-    function deleteMode(idx) {
-      ensureDay(selectedDate).modes.splice(idx, 1);
-      saveDB();
-      renderDayEntries();
-      renderOverview();
-    }
-
-    function renderOverview() {
-      const box = document.getElementById('overviewList');
-      const dates = Object.keys(db).sort().reverse();
-      box.innerHTML = dates.length ? dates.map(d => {
-        const day = db[d];
-        const exNames = (day.exercises || []).map(e => e.name).join('、');
-        const modeNames = (day.modes || []).map(m => `${m.mode}(${m.duration})`).join('、');
-        return `
-          <div class="ex-item" onclick="selectDate('${d}'); switchTab('tab-log', document.querySelector('[data-tab=tab-log]'))" style="cursor:pointer;">
-            <div class="ex-top">
-              <span class="ex-name">${d}</span>
-              <span class="local-badge">${day.category}</span>
-            </div>
-            <div class="muted">${[exNames, modeNames].filter(Boolean).join(' ｜ ') || '無訓練項目'}</div>
-          </div>
-        `;
-      }).join('') : '<div class="muted">目前尚無歷史紀錄</div>';
-    }
-
-    function renderLibrary() {
-      const box = document.getElementById('libraryList');
-      box.innerHTML = Object.entries(EXERCISE_POOL).filter(([, list]) => list.length).map(([cat, list]) => `
-        <div style="margin-bottom:14px;">
-          <div class="section-label">${cat}</div>
-          <div class="pill-row">${list.map(item => `<span class="pill">${item}</span>`).join('')}</div>
-        </div>
-      `).join('');
-    }
-
-    function renderJSONPreview() {
-      document.getElementById('jsonPreview').textContent = JSON.stringify(db, null, 2);
+    function formatSetSummary(s, idx) {
+      const parts = [];
+      if (s.kg !== "") parts.push(`${s.kg} kg`);
+      if (s.minutes !== "") parts.push(`${s.minutes} 分`);
+      if (s.reps !== "") parts.push(`${s.reps} 次`);
+      return `第 ${idx + 1} 組：${parts.join(" / ")}`;
     }
 
     function exportJSON() {
-      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(state.logs, null, 2)], {
+        type: "application/json"
+      });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `運動紀錄備份_${formatToday()}.json`;
+      a.download = `workout-backup-${getToday()}.json`;
       a.click();
       URL.revokeObjectURL(url);
+      showToast("已匯出 JSON 備份");
     }
 
     function importJSON(event) {
-      const file = event.target.files[0];
+      const file = event.target.files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = e => {
+      reader.onload = () => {
         try {
-          const parsed = JSON.parse(e.target.result);
-          if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error();
-          db = parsed;
-          saveDB();
-          ensureDay(selectedDate);
-          renderAll();
-          alert('已匯入備份資料');
+          const data = JSON.parse(String(reader.result || "[]"));
+          if (!Array.isArray(data)) {
+            showToast("JSON 格式不正確");
+            return;
+          }
+          state.logs = data;
+          saveLogs();
+          showToast("已匯入本機紀錄");
+          render();
         } catch {
-          alert('JSON 格式不正確');
+          showToast("無法解析 JSON 檔案");
         }
       };
       reader.readAsText(file);
-      event.target.value = '';
+      event.target.value = "";
     }
 
-    function clearAllData() {
-      if (!confirm('確定要清空手機本機所有運動紀錄嗎？建議先匯出備份。')) return;
-      db = {};
-      saveDB();
-      ensureDay(selectedDate);
-      renderAll();
+    function clearAllLogs() {
+      if (!confirm("確定要清空所有本機訓練紀錄嗎？建議先匯出 JSON 備份。")) return;
+      state.logs = [];
+      saveLogs();
+      showToast("已清空本機紀錄");
+      render();
     }
 
-    function switchTab(tabId, btn) {
-      ['tab-log','tab-overview','tab-library','tab-storage'].forEach(id => {
-        document.getElementById(id).classList.toggle('hidden', id !== tabId);
-      });
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
+    function renderLogTab() {
+      const dayLogs = state.logs.filter((item) => item.date === state.date);
+
+      const setsHtml = state.sets
+        .map(
+          (s, i) => `
+          <div class="set-box">
+            <div class="set-header">
+              <span>第 ${i + 1} 組</span>
+              ${
+                state.sets.length > 1
+                  ? `<button type="button" class="btn-danger" style="padding:3px 8px;font-size:12px;" onclick="removeSetRow(${i})">移除</button>`
+                  : ""
+              }
+            </div>
+            <div class="set-grid">
+              <div>
+                <label>重量 (kg)</label>
+                <input type="text" inputmode="decimal" placeholder="例如 60" value="${escapeAttr(s.kg)}" oninput="updateSetField(${i}, 'kg', this.value)" />
+              </div>
+              <div>
+                <label>分鐘</label>
+                <input type="text" inputmode="decimal" placeholder="例如 10" value="${escapeAttr(s.minutes)}" oninput="updateSetField(${i}, 'minutes', this.value)" />
+              </div>
+              <div>
+                <label>次數</label>
+                <input type="text" inputmode="numeric" placeholder="例如 12" value="${escapeAttr(s.reps)}" oninput="updateSetField(${i}, 'reps', this.value)" />
+              </div>
+            </div>
+          </div>
+        `
+        )
+        .join("");
+
+      const logsHtml =
+        dayLogs.length === 0
+          ? `<div class="empty">這天還沒有紀錄，上方填寫後按「加入今日紀錄」即可。</div>`
+          : dayLogs
+              .map(
+                (item) => `
+              <div class="log-item">
+                <div class="log-top">
+                  <div>
+                    <div class="log-title">${escapeHtml(item.exercise)}</div>
+                    <div class="log-meta">${escapeHtml(item.date)}・${escapeHtml(item.category)}</div>
+                  </div>
+                  <button type="button" class="btn-danger" style="padding:5px 9px;font-size:12px;" onclick="deleteEntry('${item.id}')">刪除</button>
+                </div>
+                <div class="set-pill-list">
+                  ${(item.sets || [])
+                    .map((s, idx) => `<span class="set-pill">${escapeHtml(formatSetSummary(s, idx))}</span>`)
+                    .join("")}
+                </div>
+              </div>
+            `
+              )
+              .join("");
+
+      return `
+        <div class="card">
+          <div class="row" style="margin-bottom:12px;">
+            <div style="flex:1;min-width:160px;">
+              <label>訓練日期</label>
+              <input type="date" value="${escapeAttr(state.date)}" onchange="state.date = this.value; render();" />
+            </div>
+          </div>
+
+          <label>訓練分類</label>
+          <div class="cat-list" style="margin-bottom:12px;">
+            ${CATEGORIES.map(
+              (cat) => `
+              <button type="button" class="cat-btn ${state.category === cat ? "active" : ""}" onclick="state.category = '${escapeJs(cat)}'; render();">
+                ${escapeHtml(cat)}
+              </button>
+            `
+            ).join("")}
+          </div>
+
+          <div style="margin-bottom:12px;">
+            <label>動作名稱</label>
+            <input type="text" placeholder="輸入動作名稱（例如：深蹲、划船、跑步）" value="${escapeAttr(state.exercise)}" oninput="state.exercise = this.value;" />
+          </div>
+
+          ${setsHtml}
+
+          <div class="row" style="justify-content:space-between;margin-top:10px;">
+            <button type="button" class="btn-success" onclick="addSetRow()">＋ 增加一組</button>
+            <button type="button" class="btn-primary" onclick="addEntry()">加入今日紀錄</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row" style="justify-content:space-between;margin-bottom:10px;">
+            <strong>${escapeHtml(state.date)} 紀錄（${dayLogs.length}）</strong>
+          </div>
+          ${logsHtml}
+        </div>
+      `;
     }
 
-    let timerSec = 90;
-    let timerId = null;
-
-    function updateTimerDisplay() {
-      const m = String(Math.floor(timerSec / 60)).padStart(2, '0');
-      const s = String(timerSec % 60).padStart(2, '0');
-      document.getElementById('timerDisplay').textContent = `${m}:${s}`;
-    }
-
-    function setTimer(sec) {
-      clearInterval(timerId);
-      timerId = null;
-      timerSec = sec;
-      document.getElementById('timerToggleBtn').textContent = '開始';
-      updateTimerDisplay();
-    }
-
-    function toggleTimer() {
-      const btn = document.getElementById('timerToggleBtn');
-      if (timerId) {
-        clearInterval(timerId);
-        timerId = null;
-        btn.textContent = '開始';
-      } else {
-        btn.textContent = '暫停';
-        timerId = setInterval(() => {
-          if (timerSec > 0) {
-            timerSec--;
-            updateTimerDisplay();
-          } else {
-            clearInterval(timerId);
-            timerId = null;
-            btn.textContent = '開始';
-            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-            alert('休息時間到！');
-          }
-        }, 1000);
+    function renderOverviewTab() {
+      const grouped = {};
+      for (const item of state.logs) {
+        if (!grouped[item.date]) grouped[item.date] = [];
+        grouped[item.date].push(item);
       }
+      const dates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+
+      if (dates.length === 0) {
+        return `<div class="card"><div class="empty">目前還沒有任何歷史紀錄。</div></div>`;
+      }
+
+      return dates
+        .map((d) => {
+          const items = grouped[d];
+          return `
+            <div class="card">
+              <div class="row" style="justify-content:space-between;margin-bottom:10px;">
+                <strong>${escapeHtml(d)}</strong>
+                <span class="log-meta">${items.length} 筆動作</span>
+              </div>
+              ${items
+                .map(
+                  (it) => `
+                <div class="log-item">
+                  <div class="log-title">${escapeHtml(it.exercise)} <span class="log-meta">(${escapeHtml(it.category)})</span></div>
+                  <div class="set-pill-list" style="margin-top:6px;">
+                    ${(it.sets || [])
+                      .map((s, idx) => `<span class="set-pill">${escapeHtml(formatSetSummary(s, idx))}</span>`)
+                      .join("")}
+                  </div>
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          `;
+        })
+        .join("");
     }
 
-    function renderAll() {
-      renderDateStrip();
-      renderCategories();
-      renderDayEntries();
-      renderOverview();
-      renderLibrary();
-      renderJSONPreview();
+    function renderDataTab() {
+      return `
+        <div class="card">
+          <h2 style="margin:0 0 8px 0;font-size:16px;">本機資料與備份</h2>
+          <p class="log-meta" style="margin:0 0 14px 0;line-height:1.6;">
+            所有資料僅保存在目前裝置的瀏覽器本機（localStorage），不會自動上傳到外部伺服器。建議定期匯出 JSON 檔保存。
+          </p>
+          <div class="row" style="margin-bottom:12px;">
+            <button type="button" class="btn-primary" onclick="exportJSON()">匯出 JSON 備份</button>
+            <label style="margin:0;cursor:pointer;">
+              <span class="btn-success" style="display:inline-block;padding:9px 12px;border-radius:10px;border:1px solid rgba(34,197,94,0.45);">匯入 JSON 還原</span>
+              <input type="file" accept="application/json,.json" style="display:none;" onchange="importJSON(event)" />
+            </label>
+          </div>
+          <div class="log-meta" style="margin-bottom:12px;">目前總紀錄筆數：${state.logs.length} 筆</div>
+          <button type="button" class="btn-danger" onclick="clearAllLogs()">清空所有本機紀錄</button>
+        </div>
+      `;
     }
 
-    resetSetsUI(4);
-    updateTimerDisplay();
-    renderAll();
+    function render() {
+      const app = document.getElementById("app");
+      if (state.tab === "log") app.innerHTML = renderLogTab();
+      else if (state.tab === "overview") app.innerHTML = renderOverviewTab();
+      else app.innerHTML = renderDataTab();
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str).replace(/'/g, "&#39;");
+    }
+
+    function escapeJs(str) {
+      return String(str ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    }
+
+    render();
   </script>
 </body>
 </html>
