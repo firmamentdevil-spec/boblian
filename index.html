@@ -173,10 +173,22 @@
 
     .row-3 {
       display: grid;
-      grid-template-columns: 56px 1fr 1fr;
-      gap: 8px;
+      grid-template-columns: 52px 1fr 1fr 28px;
+      gap: 6px;
       align-items: center;
       margin-bottom: 8px;
+    }
+
+    .del-set-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--danger);
+      border-radius: 8px;
+      height: 34px;
+      width: 28px;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0;
     }
 
     input, select {
@@ -245,6 +257,45 @@
       flex-wrap: wrap;
     }
     .timer-num { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+    .chart-wrap {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 14px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .legend-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .chart-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+      text-align: center;
+    }
+    .stat-box {
+      background: rgba(11, 17, 23, 0.55);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 4px;
+    }
+    .stat-box .val { font-size: 13px; font-weight: 700; color: var(--text); }
+    .stat-box .lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
     .bottom-nav {
       position: fixed;
@@ -319,9 +370,10 @@
 
         <div id="setsContainer"></div>
 
-        <div style="display:flex; gap:8px; margin-top:10px;">
+        <div style="display:flex; gap:6px; margin-top:10px; flex-wrap:wrap;">
           <button class="btn btn-ghost btn-sm" onclick="addSetRow()">＋ 增加一組</button>
-          <button class="btn btn-primary" style="flex:1;" onclick="saveStrengthEntry()">加入今日紀錄</button>
+          <button class="btn btn-ghost btn-sm" onclick="removeLastSetRow()">－ 減少一組</button>
+          <button class="btn btn-primary" style="flex:1; min-width:120px;" onclick="saveStrengthEntry()">加入今日紀錄</button>
         </div>
       </div>
 
@@ -331,6 +383,15 @@
           <span class="muted" id="daySummaryBadge"></span>
         </div>
         <div id="dayEntriesList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">訓練進步曲線圖</div>
+          <span class="muted">依歷次紀錄自動統計</span>
+        </div>
+        <select id="chartExerciseSelect" onchange="renderProgressChart()"></select>
+        <div id="progressChartContainer"></div>
       </div>
     </div>
 
@@ -385,21 +446,23 @@
     /* ===== 可自行擴充設定區 ===== */
     const CATEGORIES = ['重量訓練', '衝浪訓練', '高強度間接', '有氧訓練', '低強度/休息'];
 
+    /* 順序規則：槓鈴 -> 啞鈴 -> 機械 -> 其餘不重複名稱排後面 */
     const EXERCISE_POOL = {
       '重量訓練': [
         '槓鈴握推', '槓鈴深蹲', '槓鈴肩推', '槓鈴RDL', '槓鈴大腿側蹲',
-        '滑輪下拉(機械)', '捲腹(重訓椅&懸吊)', '引體向上',
-        '啞鈴坐式肩推', '啞鈴胸推', '水平划船(機械)', '肩側部(機械)'
+        '啞鈴坐式肩推', '啞鈴胸推',
+        '滑輪下拉(機械)', '水平划船(機械)', '肩側部(機械)',
+        '捲腹(重訓椅&懸吊)', '引體向上'
       ],
       '衝浪訓練': [
-        '趴式Y式啞鈴', '啞鈴肩推(滑水)', '滑輪側腹轉體', '滑輪下拉划水',
-        '地雷管爆發上推', '單腿RDL', '哥本哈根側棒式',
-        '地雷管單手肩推', '地雷管軀幹旋轉'
+        '啞鈴肩推(滑水)', '趴式Y式啞鈴',
+        '滑輪側腹轉體', '滑輪下拉划水', '地雷管爆發上推', '地雷管單手肩推', '地雷管軀幹旋轉', '單腿RDL', '哥本哈根側棒式'
       ],
       '高強度間接': [
-        '槓鈴分腿蹲', '啞鈴肩推(滑水)', '單腿RDL', '捲腹(重訓椅&懸吊)',
-        '地雷管爆發上推', '大腿寬內外收(機械)',
-        '啞鈴反向飛鳥(Y式)', '肩推深蹲(複合)', '直臂下拉(機械)'
+        '槓鈴分腿蹲',
+        '啞鈴肩推(滑水)', '啞鈴反向飛鳥(Y式)',
+        '大腿寬內外收(機械)', '直臂下拉(機械)',
+        '肩推深蹲(複合)', '單腿RDL', '捲腹(重訓椅&懸吊)', '地雷管爆發上推'
       ],
       '有氧訓練': ['慢跑', '游泳', '20分間歇'],
       '低強度/休息': []
@@ -508,6 +571,17 @@
       renderAll();
     }
 
+    function getSortedUniqueExercises(list) {
+      const unique = [...new Set(list || [])];
+      const rank = name => {
+        if (name.includes('槓鈴')) return 1;
+        if (name.includes('啞鈴')) return 2;
+        if (name.includes('機械')) return 3;
+        return 4;
+      };
+      return unique.sort((a, b) => rank(a) - rank(b));
+    }
+
     function renderCategories() {
       const day = ensureDay(selectedDate);
       const grid = document.getElementById('catGrid');
@@ -521,7 +595,7 @@
       document.getElementById('restCard').classList.toggle('hidden', !isRest);
       document.getElementById('strengthCard').classList.toggle('hidden', false);
 
-      const pills = EXERCISE_POOL[day.category] || [];
+      const pills = getSortedUniqueExercises(EXERCISE_POOL[day.category] || []);
       document.getElementById('quickExercises').innerHTML = pills.length
         ? pills.map(ex => `<button class="pill" onclick="pickExercise('${ex}')">${ex}</button>`).join('')
         : '<span class="muted">可直接手動輸入動作</span>';
@@ -537,6 +611,11 @@
 
     function pickExercise(name) {
       document.getElementById('exNameInput').value = name;
+      const sel = document.getElementById('chartExerciseSelect');
+      if (sel && [...sel.options].some(o => o.value === name)) {
+        sel.value = name;
+        renderProgressChart();
+      }
     }
 
     function resetSetsUI(count = 3) {
@@ -545,17 +624,42 @@
       for (let i = 1; i <= count; i++) addSetRow(i);
     }
 
+    function refreshSetLabels() {
+      const rows = [...document.querySelectorAll('#setsContainer .row-3')];
+      rows.forEach((r, i) => {
+        r.querySelector('.set-idx-label').textContent = `第 ${i + 1} 組`;
+        const delBtn = r.querySelector('.del-set-btn');
+        if (delBtn) delBtn.style.visibility = rows.length > 1 ? 'visible' : 'hidden';
+      });
+    }
+
     function addSetRow(forcedNum = null) {
       const container = document.getElementById('setsContainer');
       const idx = forcedNum || (container.children.length + 1);
       const div = document.createElement('div');
       div.className = 'row-3';
       div.innerHTML = `
-        <span class="muted">第 ${idx} 組</span>
+        <span class="muted set-idx-label">第 ${idx} 組</span>
         <input type="text" inputmode="decimal" class="set-reps" placeholder="次數" />
         <input type="text" inputmode="decimal" class="set-wt" placeholder="重量kg" />
+        <button type="button" class="del-set-btn" title="刪除此組" onclick="removeSpecificSetRow(this)">✕</button>
       `;
       container.appendChild(div);
+      refreshSetLabels();
+    }
+
+    function removeSpecificSetRow(btn) {
+      const container = document.getElementById('setsContainer');
+      if (container.children.length <= 1) return;
+      btn.closest('.row-3').remove();
+      refreshSetLabels();
+    }
+
+    function removeLastSetRow() {
+      const container = document.getElementById('setsContainer');
+      if (container.children.length <= 1) return;
+      container.lastElementChild.remove();
+      refreshSetLabels();
     }
 
     function saveStrengthEntry() {
@@ -577,6 +681,7 @@
       renderDayEntries();
       renderDateStrip();
       renderOverview();
+      renderChartExerciseOptions(name);
     }
 
     function renderDayEntries() {
@@ -612,6 +717,7 @@
       saveDB();
       renderDayEntries();
       renderOverview();
+      renderChartExerciseOptions();
     }
 
     function deleteOverviewDate(d, event) {
@@ -648,12 +754,149 @@
 
     function renderLibrary() {
       const box = document.getElementById('libraryList');
-      box.innerHTML = Object.entries(EXERCISE_POOL).filter(([, list]) => list.length).map(([cat, list]) => `
-        <div style="margin-bottom:14px;">
-          <div class="section-label">${cat}</div>
-          <div class="pill-row">${list.map(item => `<span class="pill">${item}</span>`).join('')}</div>
-        </div>
+      box.innerHTML = Object.entries(EXERCISE_POOL).filter(([, list]) => list.length).map(([cat, list]) => {
+        const sortedList = getSortedUniqueExercises(list);
+        return `
+          <div style="margin-bottom:14px;">
+            <div class="section-label">${cat}</div>
+            <div class="pill-row">${sortedList.map(item => `<span class="pill">${item}</span>`).join('')}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function parseNum(str) {
+      if (!str) return 0;
+      const nums = String(str).match(/[\d.]+/g);
+      if (!nums || !nums.length) return 0;
+      return Math.max(...nums.map(Number).filter(n => !Number.isNaN(n)));
+    }
+
+    function renderChartExerciseOptions(preferredName = null) {
+      const sel = document.getElementById('chartExerciseSelect');
+      if (!sel) return;
+      const prevVal = preferredName || sel.value;
+      const recordedNames = new Set();
+      Object.keys(db).sort().forEach(d => {
+        (db[d].exercises || []).forEach(ex => {
+          if (ex.name) recordedNames.add(ex.name);
+        });
+      });
+
+      const list = [...recordedNames];
+      if (!list.length) {
+        sel.innerHTML = '<option value="">尚無已紀錄動作</option>';
+        renderProgressChart();
+        return;
+      }
+
+      sel.innerHTML = list.map(name => `<option value="${name}">${name}</option>`).join('');
+      if (prevVal && list.includes(prevVal)) sel.value = prevVal;
+      renderProgressChart();
+    }
+
+    function renderProgressChart() {
+      const container = document.getElementById('progressChartContainer');
+      const sel = document.getElementById('chartExerciseSelect');
+      const targetName = sel ? sel.value : '';
+      if (!container) return;
+
+      if (!targetName) {
+        container.innerHTML = '<div class="muted" style="margin-top:8px;">新增訓練紀錄後，這裡會自動顯示重量與總量趨勢曲線。</div>';
+        return;
+      }
+
+      const points = [];
+      Object.keys(db).sort().forEach(d => {
+        const matched = (db[d].exercises || []).filter(ex => ex.name === targetName);
+        if (!matched.length) return;
+        let maxWt = 0;
+        let totalVol = 0;
+        let totalReps = 0;
+        matched.forEach(ex => {
+          (ex.sets || []).forEach(s => {
+            const wt = parseNum(s.weight);
+            const rp = parseNum(s.reps);
+            if (wt > maxWt) maxWt = wt;
+            totalReps += rp;
+            totalVol += wt > 0 ? wt * rp : rp;
+          });
+        });
+        points.push({ date: d, maxWt, totalVol, totalReps });
+      });
+
+      if (!points.length) {
+        container.innerHTML = '<div class="muted" style="margin-top:8px;">此動作尚無數據</div>';
+        return;
+      }
+
+      const W = 320, H = 140, padL = 32, padR = 14, padT = 14, padB = 24;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+
+      const maxWeightVal = Math.max(...points.map(p => p.maxWt), 1);
+      const maxVolVal = Math.max(...points.map(p => p.totalVol), 1);
+
+      const getX = i => points.length === 1 ? padL + plotW / 2 : padL + (i / (points.length - 1)) * plotW;
+      const getYWeight = v => padT + plotH - (v / maxWeightVal) * plotH;
+      const getYVol = v => padT + plotH - (v / maxVolVal) * plotH;
+
+      const weightLine = points.map((p, i) => `${getX(i).toFixed(1)},${getYWeight(p.maxWt).toFixed(1)}`).join(' ');
+      const volLine = points.map((p, i) => `${getX(i).toFixed(1)},${getYVol(p.totalVol).toFixed(1)}`).join(' ');
+
+      const weightDots = points.map((p, i) => `
+        <circle cx="${getX(i).toFixed(1)}" cy="${getYWeight(p.maxWt).toFixed(1)}" r="3.5" fill="#22d3ee" />
+        <text x="${getX(i).toFixed(1)}" y="${Math.max(10, getYWeight(p.maxWt) - 6).toFixed(1)}" fill="#eef4fa" font-size="9" text-anchor="middle">${p.maxWt || p.totalReps}</text>
       `).join('');
+
+      const volDots = points.map((p, i) => `
+        <circle cx="${getX(i).toFixed(1)}" cy="${getYVol(p.totalVol).toFixed(1)}" r="2.8" fill="#a3e635" />
+      `).join('');
+
+      const xLabels = points.map((p, i) => {
+        if (points.length > 6 && i !== 0 && i !== points.length - 1 && i % Math.ceil(points.length / 4) !== 0) return '';
+        return `<text x="${getX(i).toFixed(1)}" y="${H - 6}" fill="#8fa3b8" font-size="9" text-anchor="middle">${p.date.slice(5)}</text>`;
+      }).join('');
+
+      const first = points[0];
+      const latest = points[points.length - 1];
+      const bestWt = Math.max(...points.map(p => p.maxWt));
+      const diffWt = +(latest.maxWt - first.maxWt).toFixed(1);
+      const diffText = diffWt > 0 ? `+${diffWt}kg` : `${diffWt}kg`;
+
+      container.innerHTML = `
+        <div class="chart-wrap">
+          <div class="chart-legend">
+            <span><i class="legend-dot" style="background:#22d3ee;"></i>最高重量 (kg)</span>
+            <span><i class="legend-dot" style="background:#a3e635;"></i>單次總訓練量</span>
+          </div>
+          <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">
+            <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#273749" stroke-width="1" />
+            <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#273749" stroke-width="1" />
+            <text x="${padL - 4}" y="${padT + 4}" fill="#8fa3b8" font-size="8" text-anchor="end">${maxWeightVal}</text>
+            <text x="${padL - 4}" y="${H - padB}" fill="#8fa3b8" font-size="8" text-anchor="end">0</text>
+            ${points.length > 1 ? `<polyline fill="none" stroke="#a3e635" stroke-width="1.8" stroke-dasharray="4 3" points="${volLine}" />` : ''}
+            ${points.length > 1 ? `<polyline fill="none" stroke="#22d3ee" stroke-width="2.2" points="${weightLine}" />` : ''}
+            ${volDots}
+            ${weightDots}
+            ${xLabels}
+          </svg>
+          <div class="chart-stats">
+            <div class="stat-box">
+              <div class="val">${bestWt} kg</div>
+              <div class="lbl">歷史最高重</div>
+            </div>
+            <div class="stat-box">
+              <div class="val">${latest.maxWt} kg</div>
+              <div class="lbl">最近一次</div>
+            </div>
+            <div class="stat-box">
+              <div class="val" style="color:${diffWt >= 0 ? 'var(--accent-2)' : 'var(--danger)'};">${diffText}</div>
+              <div class="lbl">首末變化</div>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     function renderJSONPreview() {
@@ -763,6 +1006,7 @@
       renderDayEntries();
       renderOverview();
       renderLibrary();
+      renderChartExerciseOptions();
       renderJSONPreview();
     }
 
