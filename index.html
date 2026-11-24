@@ -304,7 +304,7 @@
       backdrop-filter: blur(12px);
       border-top: 1px solid var(--border);
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       padding: 8px 0 10px;
       z-index: 30;
     }
@@ -370,10 +370,9 @@
 
         <div id="setsContainer"></div>
 
-        <div style="display:flex; gap:6px; margin-top:10px; flex-wrap:wrap;">
+        <div style="display:flex; gap:8px; margin-top:10px;">
           <button class="btn btn-ghost btn-sm" onclick="addSetRow()">＋ 增加一組</button>
-          <button class="btn btn-ghost btn-sm" onclick="removeLastSetRow()">－ 減少一組</button>
-          <button class="btn btn-primary" style="flex:1; min-width:120px;" onclick="saveStrengthEntry()">加入今日紀錄</button>
+          <button class="btn btn-primary" style="flex:1;" onclick="saveStrengthEntry()">加入今日紀錄</button>
         </div>
       </div>
 
@@ -383,15 +382,6 @@
           <span class="muted" id="daySummaryBadge"></span>
         </div>
         <div id="dayEntriesList"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">訓練進步曲線圖</div>
-          <span class="muted">依歷次紀錄自動統計</span>
-        </div>
-        <select id="chartExerciseSelect" onchange="renderProgressChart()"></select>
-        <div id="progressChartContainer"></div>
       </div>
     </div>
 
@@ -406,6 +396,17 @@
       <div class="card">
         <div class="card-title" style="margin-bottom:8px;">分類動作庫</div>
         <div id="libraryList"></div>
+      </div>
+    </div>
+
+    <div id="tab-chart" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">訓練進步曲線圖</div>
+          <span class="muted">依歷次紀錄自動統計</span>
+        </div>
+        <select id="chartExerciseSelect" onchange="renderProgressChart()"></select>
+        <div id="progressChartContainer"></div>
       </div>
     </div>
 
@@ -436,6 +437,9 @@
     </button>
     <button class="nav-btn" data-tab="tab-library" onclick="switchTab('tab-library', this)">
       <span class="nav-icon">📋</span><span>動作庫</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-chart" onclick="switchTab('tab-chart', this)">
+      <span class="nav-icon">📈</span><span>曲線圖</span>
     </button>
     <button class="nav-btn" data-tab="tab-storage" onclick="switchTab('tab-storage', this)">
       <span class="nav-icon">🔒</span><span>本機資料</span>
@@ -652,13 +656,6 @@
       const container = document.getElementById('setsContainer');
       if (container.children.length <= 1) return;
       btn.closest('.row-3').remove();
-      refreshSetLabels();
-    }
-
-    function removeLastSetRow() {
-      const container = document.getElementById('setsContainer');
-      if (container.children.length <= 1) return;
-      container.lastElementChild.remove();
       refreshSetLabels();
     }
 
@@ -943,7 +940,7 @@
     }
 
     function switchTab(tabId, btn) {
-      ['tab-log','tab-overview','tab-library','tab-storage'].forEach(id => {
+      ['tab-log','tab-overview','tab-library','tab-chart','tab-storage'].forEach(id => {
         document.getElementById(id).classList.toggle('hidden', id !== tabId);
       });
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
