@@ -172,10 +172,10 @@
       margin-bottom: 10px;
     }
 
-    .row-3 {
+    .row-4 {
       display: grid;
-      grid-template-columns: 64px 1fr 1fr;
-      gap: 8px;
+      grid-template-columns: 52px 1fr 1fr 1fr;
+      gap: 6px;
       align-items: center;
       margin-bottom: 8px;
     }
@@ -186,8 +186,8 @@
       border: 1px solid var(--border);
       color: var(--text);
       border-radius: 10px;
-      padding: 9px 10px;
-      font-size: 14px;
+      padding: 9px 8px;
+      font-size: 13px;
       outline: none;
     }
     input:focus, select:focus { border-color: var(--accent); }
@@ -303,7 +303,7 @@
       <div class="card" id="strengthCard">
         <div class="card-header">
           <div class="card-title">新增動作組數</div>
-          <span class="muted">支援 30/50 或 n</span>
+          <span class="muted">重量kg / 分鐘 / 次數</span>
         </div>
 
         <div class="section-label">常用動作快選</div>
@@ -311,33 +311,15 @@
 
         <div class="row-2">
           <input type="text" id="exNameInput" placeholder="動作名稱" />
-          <input type="text" id="exWeightInput" placeholder="重量/機械kg 或 n" />
+          <input type="text" id="exWeightInput" placeholder="預設重量kg 或 n（選填）" />
         </div>
 
         <div id="setsContainer"></div>
 
         <div style="display:flex; gap:8px; margin-top:10px;">
-          <button class="btn btn-ghost btn-sm" onclick="addSetRow()">+ 加一組</button>
+          <button class="btn btn-ghost btn-sm" onclick="addSetRow()">＋ 增加一組</button>
           <button class="btn btn-primary" style="flex:1;" onclick="saveStrengthEntry()">加入今日紀錄</button>
         </div>
-      </div>
-
-      <div class="card" id="modeCard">
-        <div class="card-header">
-          <div class="card-title">訓練模式 / 間歇</div>
-          <span class="muted">對應「訓練模式 / 分鐘m」</span>
-        </div>
-        <div class="pill-row">
-          <button class="pill" onclick="fillMode('20分間歇', '12/8')">20分間歇 12/8</button>
-          <button class="pill" onclick="fillMode('20分間歇', '13/8')">20分間歇 13/8</button>
-          <button class="pill" onclick="fillMode('游泳', '20')">游泳 20m</button>
-          <button class="pill" onclick="fillMode('慢跑', '32')">慢跑 32m</button>
-        </div>
-        <div class="row-2">
-          <input type="text" id="modeNameInput" placeholder="訓練模式" />
-          <input type="text" id="modeDurInput" placeholder="分鐘/m 或組數" />
-        </div>
-        <button class="btn btn-primary" style="width:100%;" onclick="saveModeEntry()">儲存訓練模式</button>
       </div>
 
       <div class="card">
@@ -469,7 +451,8 @@
     }
 
     function ensureDay(d) {
-      if (!db[d]) db[d] = { category: '重量訓練', modes: [], exercises: [] };
+      if (!db[d]) db[d] = { category: '重量訓練', exercises: [] };
+      if (!db[d].exercises) db[d].exercises = [];
       return db[d];
     }
 
@@ -493,7 +476,7 @@
       const wkNames = ['日','一','二','三','四','五','六'];
       strip.innerHTML = dates.map(d => {
         const dt = new Date(d + 'T00:00:00');
-        const hasLog = db[d] && ((db[d].exercises?.length) || (db[d].modes?.length) || db[d].category === '休息');
+        const hasLog = db[d] && ((db[d].exercises?.length) || db[d].category === '休息');
         return `
           <div class="date-chip ${d === selectedDate ? 'active' : ''}" onclick="selectDate('${d}')">
             <div class="wk">週${wkNames[dt.getDay()]}</div>
@@ -521,7 +504,6 @@
       const isRest = day.category === '休息';
       document.getElementById('restCard').classList.toggle('hidden', !isRest);
       document.getElementById('strengthCard').classList.toggle('hidden', isRest);
-      document.getElementById('modeCard').classList.toggle('hidden', isRest);
 
       const pills = EXERCISE_POOL[day.category] || [];
       document.getElementById('quickExercises').innerHTML = pills.length
@@ -541,7 +523,7 @@
       document.getElementById('exNameInput').value = name;
     }
 
-    function resetSetsUI(count = 4) {
+    function resetSetsUI(count = 3) {
       const container = document.getElementById('setsContainer');
       container.innerHTML = '';
       for (let i = 1; i <= count; i++) addSetRow(i);
@@ -551,11 +533,12 @@
       const container = document.getElementById('setsContainer');
       const idx = forcedNum || (container.children.length + 1);
       const div = document.createElement('div');
-      div.className = 'row-3';
+      div.className = 'row-4';
       div.innerHTML = `
         <span class="muted">第 ${idx} 組</span>
-        <input type="text" class="set-reps" placeholder="次數（如 8 或 30/50）" />
-        <input type="text" class="set-wt" placeholder="此組重量（選填）" />
+        <input type="text" class="set-wt" placeholder="重量kg" />
+        <input type="text" class="set-min" placeholder="分鐘" />
+        <input type="text" class="set-reps" placeholder="次數" />
       `;
       container.appendChild(div);
     }
@@ -564,12 +547,13 @@
       const name = document.getElementById('exNameInput').value.trim();
       if (!name) return alert('請輸入動作名稱');
       const baseWt = document.getElementById('exWeightInput').value.trim();
-      const rows = [...document.querySelectorAll('#setsContainer .row-3')];
+      const rows = [...document.querySelectorAll('#setsContainer .row-4')];
       const sets = rows.map((r, i) => ({
         set: i + 1,
-        reps: r.querySelector('.set-reps').value.trim(),
-        weight: r.querySelector('.set-wt').value.trim() || baseWt
-      })).filter(s => s.reps || s.weight);
+        weight: r.querySelector('.set-wt').value.trim() || baseWt,
+        minutes: r.querySelector('.set-min').value.trim(),
+        reps: r.querySelector('.set-reps').value.trim()
+      })).filter(s => s.weight || s.minutes || s.reps);
 
       const day = ensureDay(selectedDate);
       day.exercises.push({ name, weight: baseWt, sets });
@@ -577,25 +561,7 @@
 
       document.getElementById('exNameInput').value = '';
       document.getElementById('exWeightInput').value = '';
-      resetSetsUI(4);
-      renderDayEntries();
-      renderDateStrip();
-      renderOverview();
-    }
-
-    function fillMode(mode, dur) {
-      document.getElementById('modeNameInput').value = mode;
-      document.getElementById('modeDurInput').value = dur;
-    }
-
-    function saveModeEntry() {
-      const mode = document.getElementById('modeNameInput').value.trim();
-      const duration = document.getElementById('modeDurInput').value.trim();
-      if (!mode) return alert('請輸入訓練模式');
-      ensureDay(selectedDate).modes.push({ mode, duration });
-      saveDB();
-      document.getElementById('modeNameInput').value = '';
-      document.getElementById('modeDurInput').value = '';
+      resetSetsUI(3);
       renderDayEntries();
       renderDateStrip();
       renderOverview();
@@ -604,27 +570,15 @@
     function renderDayEntries() {
       const day = ensureDay(selectedDate);
       const box = document.getElementById('dayEntriesList');
-      const totalItems = (day.exercises?.length || 0) + (day.modes?.length || 0);
+      const totalItems = day.exercises?.length || 0;
       document.getElementById('daySummaryBadge').textContent = `${day.category} · ${totalItems} 項`;
 
       let html = '';
-      (day.modes || []).forEach((m, idx) => {
-        html += `
-          <div class="ex-item">
-            <div class="ex-top">
-              <span class="ex-name">⏱️ ${m.mode}</span>
-              <span class="local-badge">${m.duration || '-'}</span>
-            </div>
-            <button class="btn btn-ghost btn-sm" onclick="deleteMode(${idx})">移除</button>
-          </div>
-        `;
-      });
-
       (day.exercises || []).forEach((ex, idx) => {
         const setsHtml = (ex.sets || []).map(s => `
           <div class="set-line">
             <span>第 ${s.set} 組</span>
-            <span>次數：<strong>${s.reps || '-'}</strong> ｜ 重量：<strong>${s.weight || '-'}</strong></span>
+            <span>重量：<strong>${s.weight || '-'}</strong> ｜ 分鐘：<strong>${s.minutes || '-'}</strong> ｜ 次數：<strong>${s.reps || '-'}</strong></span>
           </div>
         `).join('');
         html += `
@@ -648,27 +602,19 @@
       renderOverview();
     }
 
-    function deleteMode(idx) {
-      ensureDay(selectedDate).modes.splice(idx, 1);
-      saveDB();
-      renderDayEntries();
-      renderOverview();
-    }
-
     function renderOverview() {
       const box = document.getElementById('overviewList');
       const dates = Object.keys(db).sort().reverse();
       box.innerHTML = dates.length ? dates.map(d => {
         const day = db[d];
         const exNames = (day.exercises || []).map(e => e.name).join('、');
-        const modeNames = (day.modes || []).map(m => `${m.mode}(${m.duration})`).join('、');
         return `
           <div class="ex-item" onclick="selectDate('${d}'); switchTab('tab-log', document.querySelector('[data-tab=tab-log]'))" style="cursor:pointer;">
             <div class="ex-top">
               <span class="ex-name">${d}</span>
               <span class="local-badge">${day.category}</span>
             </div>
-            <div class="muted">${[exNames, modeNames].filter(Boolean).join(' ｜ ') || '無訓練項目'}</div>
+            <div class="muted">${exNames || '無訓練項目'}</div>
           </div>
         `;
       }).join('') : '<div class="muted">目前尚無歷史紀錄</div>';
@@ -784,7 +730,7 @@
       renderJSONPreview();
     }
 
-    resetSetsUI(4);
+    resetSetsUI(3);
     updateTimerDisplay();
     renderAll();
   </script>
