@@ -154,17 +154,27 @@
     }
 
     .cat-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
       gap: 6px;
+      scrollbar-width: none;
+      cursor: grab;
+      user-select: none;
+      -webkit-overflow-scrolling: touch;
+      align-items: center;
     }
+    .cat-grid::-webkit-scrollbar { display: none; }
+    .cat-grid.dragging { cursor: grabbing; }
 
     .cat-btn {
+      flex: 0 0 auto;
+      white-space: nowrap;
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text);
       border-radius: 8px;
-      padding: 7px 6px;
+      padding: 8px 9px;
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
@@ -180,6 +190,29 @@
       background: var(--orange);
       color: #160b04;
       border-color: var(--orange);
+    }
+
+    .rest-inline-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+    }
+    .rest-inline-text {
+      min-width: 0;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+    }
+    .rest-inline-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--orange);
+      margin-right: 6px;
     }
 
     .card {
@@ -294,36 +327,39 @@
 
     .timer-box {
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-end;
+      flex-direction: row;
+      justify-content: flex-end;
+      align-items: center;
       text-align: right;
       background: linear-gradient(135deg, rgba(34,211,238,0.12), rgba(163,230,53,0.08));
       border: 1px solid rgba(34,211,238,0.3);
       border-radius: 12px;
-      padding: 8px 9px;
+      padding: 7px 8px;
       gap: 6px;
       transition: all 0.2s ease;
     }
     .timer-num {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 800;
       font-variant-numeric: tabular-nums;
       line-height: 1.1;
+      white-space: nowrap;
       transition: font-size 0.2s ease;
     }
     .timer-btns {
       display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
+      gap: 3px;
+      flex-wrap: nowrap;
       justify-content: flex-end;
+      align-items: center;
     }
     .timer-btn {
-      padding: 4px 6px;
-      font-size: 11px;
-      border-radius: 7px;
+      padding: 4px 5px;
+      font-size: 10px;
+      border-radius: 6px;
       font-weight: 700;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .timer-box.running {
@@ -338,6 +374,7 @@
       box-shadow: 0 0 0 1px rgba(34,211,238,0.35);
     }
     .timer-box.running .timer-num { font-size: 32px; }
+    .timer-box.running .timer-btns { gap: 5px; }
     .timer-box.running .timer-btn { padding: 7px 10px; font-size: 12px; border-radius: 9px; }
 
     .chart-wrap {
@@ -420,7 +457,7 @@
       <div class="date-strip" id="dateStrip"></div>
 
       <div class="cat-timer-row" style="margin-bottom:6px;">
-        <div class="section-label" style="margin-bottom:0;">當日訓練分類</div>
+        <div class="section-label" style="margin-bottom:0;">當日訓練分類（可拖曳）</div>
         <div class="section-label" style="margin-bottom:0; text-align:right;">組間計時器</div>
       </div>
 
@@ -439,12 +476,12 @@
         </div>
       </div>
 
-      <div class="card hidden" id="restCard">
-        <div class="card-header" style="margin-bottom:4px;">
-          <div class="card-title">今日狀態：低強度/休息</div>
-          <button class="btn btn-orange btn-sm" id="markRestBtn" onclick="markRestDay()">記錄為休息日</button>
+      <div class="card rest-inline-card hidden" id="restCard">
+        <div class="rest-inline-text" id="restInlineText">
+          <span class="rest-inline-title">今日狀態：低強度/休息</span>
+          <span class="muted" id="restCardDesc">點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。</span>
         </div>
-        <p class="muted" style="margin:0;" id="restCardDesc">點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。</p>
+        <button type="button" class="btn btn-orange btn-sm" style="flex:0 0 auto; white-space:nowrap;" id="markRestBtn" onclick="markRestDay()">記錄為休息日</button>
       </div>
 
       <div class="card" id="strengthCard">
@@ -616,6 +653,7 @@
     let selectedDate = formatToday();
     let activeCategory = db[selectedDate]?.category || '重量訓練';
     let didDragStrip = false;
+    let didDragCatGrid = false;
 
     function saveDB() {
       try {
@@ -714,36 +752,48 @@
       selectDate(d);
     }
 
-    (function enableStripDrag() {
-      const strip = document.getElementById('dateStrip');
-      if (!strip) return;
-      let isDown = false;
-      let startX = 0;
-      let startScrollLeft = 0;
+    function handleCatClick(cat) {
+      if (didDragCatGrid) {
+        didDragCatGrid = false;
+        return;
+      }
+      setCategory(cat);
+    }
 
-      strip.addEventListener('mousedown', e => {
-        isDown = true;
-        didDragStrip = false;
-        strip.classList.add('dragging');
-        startX = e.pageX - strip.offsetLeft;
-        startScrollLeft = strip.scrollLeft;
-      });
+    (function enableHorizontalDrag() {
+      const bindDrag = (el, flagSetter) => {
+        if (!el) return;
+        let isDown = false;
+        let startX = 0;
+        let startScrollLeft = 0;
 
-      window.addEventListener('mouseup', () => {
-        if (!isDown) return;
-        isDown = false;
-        strip.classList.remove('dragging');
-        setTimeout(() => { didDragStrip = false; }, 0);
-      });
+        el.addEventListener('mousedown', e => {
+          isDown = true;
+          flagSetter(false);
+          el.classList.add('dragging');
+          startX = e.pageX - el.offsetLeft;
+          startScrollLeft = el.scrollLeft;
+        });
 
-      strip.addEventListener('mousemove', e => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - strip.offsetLeft;
-        const walk = (x - startX) * 1.2;
-        if (Math.abs(walk) > 4) didDragStrip = true;
-        strip.scrollLeft = startScrollLeft - walk;
-      });
+        window.addEventListener('mouseup', () => {
+          if (!isDown) return;
+          isDown = false;
+          el.classList.remove('dragging');
+          setTimeout(() => flagSetter(false), 0);
+        });
+
+        el.addEventListener('mousemove', e => {
+          if (!isDown) return;
+          e.preventDefault();
+          const x = e.pageX - el.offsetLeft;
+          const walk = (x - startX) * 1.2;
+          if (Math.abs(walk) > 4) flagSetter(true);
+          el.scrollLeft = startScrollLeft - walk;
+        });
+      };
+
+      bindDrag(document.getElementById('dateStrip'), v => { didDragStrip = v; });
+      bindDrag(document.getElementById('catGrid'), v => { didDragCatGrid = v; });
     })();
 
     function selectDate(d) {
@@ -770,7 +820,7 @@
       grid.innerHTML = CATEGORIES.map(cat => {
         const isRestCat = cat === '低強度/休息';
         const activeClass = currentCat === cat ? (isRestCat ? 'active rest-cat' : 'active') : '';
-        return `<button class="cat-btn ${activeClass}" onclick="setCategory('${cat}')">${cat}</button>`;
+        return `<button type="button" class="cat-btn ${activeClass}" onclick="handleCatClick('${cat}')">${cat}</button>`;
       }).join('');
 
       const isRest = currentCat === '低強度/休息';
@@ -780,7 +830,7 @@
         const alreadyMarked = Boolean(db[selectedDate]?.restMarked);
         document.getElementById('markRestBtn').textContent = alreadyMarked ? '已記錄休息日' : '記錄為休息日';
         document.getElementById('restCardDesc').textContent = alreadyMarked
-          ? '此日期已標記為低強度/休息日並列入紀錄。'
+          ? '已列入休息日紀錄。'
           : '點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。';
       }
       document.getElementById('strengthCard').classList.toggle('hidden', false);
