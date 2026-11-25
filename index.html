@@ -67,6 +67,25 @@
       padding: 14px 16px;
     }
 
+    .date-bar-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .month-select {
+      width: auto;
+      min-width: 118px;
+      padding: 5px 8px;
+      font-size: 12px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
     .date-strip {
       display: flex;
       gap: 8px;
@@ -74,11 +93,20 @@
       padding-bottom: 6px;
       margin-bottom: 12px;
       scrollbar-width: none;
+      cursor: grab;
+      user-select: none;
+      -webkit-overflow-scrolling: touch;
     }
     .date-strip::-webkit-scrollbar { display: none; }
+    .date-strip.dragging { cursor: grabbing; }
+
+    .date-spacer {
+      flex: 0 0 calc(50% - 31px);
+      pointer-events: none;
+    }
 
     .date-chip {
-      flex: 0 0 auto;
+      flex: 0 0 62px;
       min-width: 62px;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -110,9 +138,9 @@
 
     .cat-timer-row {
       display: grid;
-      grid-template-columns: 1.35fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
-      align-items: start;
+      align-items: stretch;
       margin-bottom: 14px;
     }
 
@@ -374,9 +402,13 @@
 
   <div class="container">
     <div id="tab-log">
+      <div class="date-bar-top">
+        <span class="muted">拖曳或點選日期</span>
+        <select id="monthSelect" class="month-select" onchange="onMonthChange(this.value)"></select>
+      </div>
       <div class="date-strip" id="dateStrip"></div>
 
-      <div style="display:grid; grid-template-columns:1.35fr 1fr; gap:8px; margin-bottom:6px; align-items:end;">
+      <div class="cat-timer-row" style="margin-bottom:6px;">
         <div class="section-label" style="margin-bottom:0;">當日訓練分類</div>
         <div class="section-label" style="margin-bottom:0;">組間計時器</div>
       </div>
@@ -596,6 +628,7 @@
     saveDB();
     let selectedDate = formatToday();
     let activeCategory = db[selectedDate]?.category || '重量訓練';
+    let didDragStrip = false;
 
     function loadDB() {
       try {
@@ -610,18 +643,50 @@
       renderJSONPreview();
     }
 
-    function getRecentDates() {
-      const set = new Set(Object.keys(db).filter(d => isDayRecorded(db[d])));
-      const base = new Date(selectedDate + 'T00:00:00');
-      for (let offset = -5; offset <= 2; offset++) {
-        const dt = new Date(base);
-        dt.setDate(base.getDate() + offset);
-        const y = dt.getFullYear();
-        const m = String(dt.getMonth() + 1).padStart(2, '0');
-        const d = String(dt.getDate()).padStart(2, '0');
-        set.add(`${y}-${m}-${d}`);
+    function getMonthDates(ym) {
+      const [yStr, mStr] = ym.split('-');
+      const y = Number(yStr);
+      const m = Number(mStr);
+      const daysInMonth = new Date(y, m, 0).getDate();
+      const list = [];
+      for (let d = 1; d <= daysInMonth; d++) {
+        list.push(`${yStr}-${mStr}-${String(d).padStart(2, '0')}`);
       }
-      return [...set].sort();
+      return list;
+    }
+
+    function renderMonthOptions() {
+      const sel = document.getElementById('monthSelect');
+      if (!sel) return;
+      const todayStr = formatToday();
+      const currentYM = todayStr.slice(0, 7);
+      const selectedYM = selectedDate.slice(0, 7);
+
+      const months = new Set([currentYM, selectedYM]);
+      const baseDate = new Date(todayStr + 'T00:00:00');
+      for (let offset = -5; offset <= 1; offset++) {
+        const dt = new Date(baseDate.getFullYear(), baseDate.getMonth() + offset, 1);
+        months.add(`${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`);
+      }
+      Object.keys(db).forEach(d => {
+        if (isDayRecorded(db[d]) && d.length >= 7) months.add(d.slice(0, 7));
+      });
+
+      const sorted = [...months].sort();
+      sel.innerHTML = sorted.map(ym => `<option value="${ym}">${ym}</option>`).join('');
+      sel.value = selectedYM;
+    }
+
+    function onMonthChange(ym) {
+      if (!ym) return;
+      const todayStr = formatToday();
+      if (ym === todayStr.slice(0, 7)) {
+        selectedDate = todayStr;
+      } else {
+        selectedDate = `${ym}-01`;
+      }
+      activeCategory = db[selectedDate]?.category || '重量訓練';
+      renderAll();
     }
 
     function scrollActiveDateIntoView() {
@@ -629,31 +694,75 @@
       if (!strip) return;
       const activeChip = strip.querySelector('.date-chip.active');
       if (activeChip) {
-        const targetLeft = activeChip.offsetLeft - (strip.clientWidth / 2) + (activeChip.offsetWidth / 2);
-        strip.scrollLeft = Math.max(0, targetLeft);
+        activeChip.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
       }
     }
 
     function renderDateStrip() {
       const strip = document.getElementById('dateStrip');
-      const dates = getRecentDates();
+      const ym = selectedDate.slice(0, 7);
+      const dates = getMonthDates(ym);
       const wkNames = ['日','一','二','三','四','五','六'];
       const todayStr = formatToday();
-      strip.innerHTML = dates.map(d => {
+
+      const chipsHtml = dates.map(d => {
         const dt = new Date(d + 'T00:00:00');
         const hasLog = isDayRecorded(db[d]);
         const isToday = d === todayStr;
         return `
-          <div class="date-chip ${d === selectedDate ? 'active' : ''}" onclick="selectDate('${d}')">
+          <div class="date-chip ${d === selectedDate ? 'active' : ''}" onclick="handleChipClick('${d}')">
             <div class="wk">${isToday ? '今日' : '週' + wkNames[dt.getDay()]}</div>
             <div class="dy">${d.slice(5)}</div>
             <div class="dot" style="opacity:${hasLog ? 1 : 0.15}"></div>
           </div>
         `;
       }).join('');
+
+      strip.innerHTML = `<div class="date-spacer"></div>${chipsHtml}<div class="date-spacer"></div>`;
       document.getElementById('activeDateText').textContent = selectedDate;
+      renderMonthOptions();
       requestAnimationFrame(scrollActiveDateIntoView);
     }
+
+    function handleChipClick(d) {
+      if (didDragStrip) {
+        didDragStrip = false;
+        return;
+      }
+      selectDate(d);
+    }
+
+    (function enableStripDrag() {
+      const strip = document.getElementById('dateStrip');
+      if (!strip) return;
+      let isDown = false;
+      let startX = 0;
+      let startScrollLeft = 0;
+
+      strip.addEventListener('mousedown', e => {
+        isDown = true;
+        didDragStrip = false;
+        strip.classList.add('dragging');
+        startX = e.pageX - strip.offsetLeft;
+        startScrollLeft = strip.scrollLeft;
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (!isDown) return;
+        isDown = false;
+        strip.classList.remove('dragging');
+        setTimeout(() => { didDragStrip = false; }, 0);
+      });
+
+      strip.addEventListener('mousemove', e => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - strip.offsetLeft;
+        const walk = (x - startX) * 1.2;
+        if (Math.abs(walk) > 4) didDragStrip = true;
+        strip.scrollLeft = startScrollLeft - walk;
+      });
+    })();
 
     function selectDate(d) {
       selectedDate = d;
