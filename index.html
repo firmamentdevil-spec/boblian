@@ -154,33 +154,37 @@
     }
 
     .cat-grid {
-      display: flex;
-      flex-wrap: nowrap;
-      overflow-x: auto;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 6px;
-      scrollbar-width: none;
-      cursor: grab;
-      user-select: none;
-      -webkit-overflow-scrolling: touch;
-      align-items: center;
+      min-width: 0;
     }
-    .cat-grid::-webkit-scrollbar { display: none; }
-    .cat-grid.dragging { cursor: grabbing; }
 
     .cat-btn {
-      flex: 0 0 auto;
-      white-space: nowrap;
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text);
       border-radius: 8px;
-      padding: 8px 9px;
+      padding: 7px 6px;
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
       line-height: 1.2;
+      min-width: 0;
     }
+    .cat-btn.rest-scroll-btn {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none;
+      cursor: grab;
+      user-select: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .cat-btn.rest-scroll-btn::-webkit-scrollbar { display: none; }
+    .cat-btn.rest-scroll-btn.dragging { cursor: grabbing; }
+
     .cat-btn.active {
       background: var(--accent);
       color: #071018;
@@ -327,29 +331,40 @@
 
     .timer-box {
       display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-      align-items: center;
-      text-align: right;
+      flex-direction: column;
+      justify-content: center;
       background: linear-gradient(135deg, rgba(34,211,238,0.12), rgba(163,230,53,0.08));
       border: 1px solid rgba(34,211,238,0.3);
       border-radius: 12px;
       padding: 7px 8px;
       gap: 6px;
+      min-width: 0;
       transition: all 0.2s ease;
     }
+    .timer-top-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+    .timer-presets {
+      display: flex;
+      gap: 3px;
+      flex-wrap: nowrap;
+      align-items: center;
+    }
     .timer-num {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 800;
       font-variant-numeric: tabular-nums;
       line-height: 1.1;
       white-space: nowrap;
+      text-align: right;
       transition: font-size 0.2s ease;
     }
-    .timer-btns {
+    .timer-action-line {
       display: flex;
-      gap: 3px;
-      flex-wrap: nowrap;
+      gap: 4px;
       justify-content: flex-end;
       align-items: center;
     }
@@ -373,8 +388,9 @@
       border-color: var(--accent);
       box-shadow: 0 0 0 1px rgba(34,211,238,0.35);
     }
+    .timer-box.running .timer-top-line { flex: 1; gap: 12px; }
     .timer-box.running .timer-num { font-size: 32px; }
-    .timer-box.running .timer-btns { gap: 5px; }
+    .timer-box.running .timer-action-line { gap: 6px; }
     .timer-box.running .timer-btn { padding: 7px 10px; font-size: 12px; border-radius: 9px; }
 
     .chart-wrap {
@@ -457,19 +473,23 @@
       <div class="date-strip" id="dateStrip"></div>
 
       <div class="cat-timer-row" style="margin-bottom:6px;">
-        <div class="section-label" style="margin-bottom:0;">當日訓練分類（可拖曳）</div>
-        <div class="section-label" style="margin-bottom:0; text-align:right;">組間計時器</div>
+        <div class="section-label" style="margin-bottom:0;">當日訓練分類</div>
+        <div class="section-label" style="margin-bottom:0; text-align:right;">組間計時</div>
       </div>
 
       <div class="cat-timer-row">
         <div class="cat-grid" id="catGrid"></div>
 
         <div class="timer-box" id="timerBox">
-          <div class="timer-num" id="timerDisplay">01:30</div>
-          <div class="timer-btns">
-            <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(30)">30s</button>
-            <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(60)">60s</button>
-            <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(90)">90s</button>
+          <div class="timer-top-line">
+            <div class="timer-presets">
+              <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(30)">30s</button>
+              <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(60)">60s</button>
+              <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(90)">90s</button>
+            </div>
+            <div class="timer-num" id="timerDisplay">01:30</div>
+          </div>
+          <div class="timer-action-line">
             <button type="button" class="btn btn-ghost timer-btn" onclick="resetTimer()">重新</button>
             <button type="button" class="btn btn-primary timer-btn" id="timerToggleBtn" onclick="toggleTimer()">開始</button>
           </div>
@@ -653,7 +673,7 @@
     let selectedDate = formatToday();
     let activeCategory = db[selectedDate]?.category || '重量訓練';
     let didDragStrip = false;
-    let didDragCatGrid = false;
+    let didDragRestBtn = false;
 
     function saveDB() {
       try {
@@ -752,48 +772,76 @@
       selectDate(d);
     }
 
-    function handleCatClick(cat) {
-      if (didDragCatGrid) {
-        didDragCatGrid = false;
+    function handleRestBtnClick(cat) {
+      if (didDragRestBtn) {
+        didDragRestBtn = false;
         return;
       }
       setCategory(cat);
     }
 
-    (function enableHorizontalDrag() {
-      const bindDrag = (el, flagSetter) => {
-        if (!el) return;
-        let isDown = false;
-        let startX = 0;
-        let startScrollLeft = 0;
+    function bindRestBtnDrag() {
+      const btn = document.getElementById('restCatBtn');
+      if (!btn || btn.dataset.dragBound) return;
+      btn.dataset.dragBound = '1';
+      let isDown = false;
+      let startX = 0;
+      let startScrollLeft = 0;
 
-        el.addEventListener('mousedown', e => {
-          isDown = true;
-          flagSetter(false);
-          el.classList.add('dragging');
-          startX = e.pageX - el.offsetLeft;
-          startScrollLeft = el.scrollLeft;
-        });
+      btn.addEventListener('mousedown', e => {
+        isDown = true;
+        didDragRestBtn = false;
+        btn.classList.add('dragging');
+        startX = e.pageX - btn.offsetLeft;
+        startScrollLeft = btn.scrollLeft;
+      });
 
-        window.addEventListener('mouseup', () => {
-          if (!isDown) return;
-          isDown = false;
-          el.classList.remove('dragging');
-          setTimeout(() => flagSetter(false), 0);
-        });
+      window.addEventListener('mouseup', () => {
+        if (!isDown) return;
+        isDown = false;
+        btn.classList.remove('dragging');
+        setTimeout(() => { didDragRestBtn = false; }, 0);
+      });
 
-        el.addEventListener('mousemove', e => {
-          if (!isDown) return;
-          e.preventDefault();
-          const x = e.pageX - el.offsetLeft;
-          const walk = (x - startX) * 1.2;
-          if (Math.abs(walk) > 4) flagSetter(true);
-          el.scrollLeft = startScrollLeft - walk;
-        });
-      };
+      btn.addEventListener('mousemove', e => {
+        if (!isDown) return;
+        const x = e.pageX - btn.offsetLeft;
+        const walk = (x - startX) * 1.2;
+        if (Math.abs(walk) > 4) didDragRestBtn = true;
+        btn.scrollLeft = startScrollLeft - walk;
+      });
+    }
 
-      bindDrag(document.getElementById('dateStrip'), v => { didDragStrip = v; });
-      bindDrag(document.getElementById('catGrid'), v => { didDragCatGrid = v; });
+    (function enableStripDrag() {
+      const strip = document.getElementById('dateStrip');
+      if (!strip) return;
+      let isDown = false;
+      let startX = 0;
+      let startScrollLeft = 0;
+
+      strip.addEventListener('mousedown', e => {
+        isDown = true;
+        didDragStrip = false;
+        strip.classList.add('dragging');
+        startX = e.pageX - strip.offsetLeft;
+        startScrollLeft = strip.scrollLeft;
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (!isDown) return;
+        isDown = false;
+        strip.classList.remove('dragging');
+        setTimeout(() => { didDragStrip = false; }, 0);
+      });
+
+      strip.addEventListener('mousemove', e => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - strip.offsetLeft;
+        const walk = (x - startX) * 1.2;
+        if (Math.abs(walk) > 4) didDragStrip = true;
+        strip.scrollLeft = startScrollLeft - walk;
+      });
     })();
 
     function selectDate(d) {
@@ -820,8 +868,12 @@
       grid.innerHTML = CATEGORIES.map(cat => {
         const isRestCat = cat === '低強度/休息';
         const activeClass = currentCat === cat ? (isRestCat ? 'active rest-cat' : 'active') : '';
-        return `<button type="button" class="cat-btn ${activeClass}" onclick="handleCatClick('${cat}')">${cat}</button>`;
+        if (isRestCat) {
+          return `<button type="button" id="restCatBtn" class="cat-btn rest-scroll-btn ${activeClass}" onclick="handleRestBtnClick('${cat}')">${cat}</button>`;
+        }
+        return `<button type="button" class="cat-btn ${activeClass}" onclick="setCategory('${cat}')">${cat}</button>`;
       }).join('');
+      bindRestBtnDrag();
 
       const isRest = currentCat === '低強度/休息';
       const restCard = document.getElementById('restCard');
