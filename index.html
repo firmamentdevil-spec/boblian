@@ -88,10 +88,12 @@
       cursor: pointer;
     }
     .date-chip.active {
-      background: rgba(34, 211, 238, 0.16);
+      background: rgba(34, 211, 238, 0.22);
       border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
     }
     .date-chip .wk { font-size: 11px; color: var(--muted); }
+    .date-chip.active .wk { color: var(--accent); font-weight: 700; }
     .date-chip .dy { font-size: 15px; font-weight: 700; margin-top: 2px; }
     .date-chip .dot {
       width: 6px; height: 6px; border-radius: 50%;
@@ -212,6 +214,7 @@
       cursor: pointer;
     }
     .btn-primary { background: var(--accent); color: #071018; }
+    .btn-orange { background: var(--orange); color: #160b04; }
     .btn-ghost {
       background: var(--surface-2);
       color: var(--text);
@@ -351,8 +354,11 @@
       <div class="cat-grid" id="catGrid"></div>
 
       <div class="card hidden" id="restCard">
-        <div class="card-title">今日狀態：低強度/休息</div>
-        <p class="muted" style="margin-top:6px;">已標記為低強度/休息日。</p>
+        <div class="card-header" style="margin-bottom:4px;">
+          <div class="card-title">今日狀態：低強度/休息</div>
+          <button class="btn btn-orange btn-sm" id="markRestBtn" onclick="markRestDay()">記錄為休息日</button>
+        </div>
+        <p class="muted" style="margin:0;" id="restCardDesc">點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。</p>
       </div>
 
       <div class="card" id="strengthCard">
@@ -514,9 +520,36 @@
       return `${y}-${m}-${d}`;
     }
 
-    let db = loadDB();
+    function isDayRecorded(dayObj) {
+      if (!dayObj) return false;
+      const hasExercises = Array.isArray(dayObj.exercises) && dayObj.exercises.length > 0;
+      const isMarkedRest = Boolean(dayObj.restMarked);
+      return hasExercises || isMarkedRest;
+    }
+
+    function cleanEmptyRecords(rawObj) {
+      const cleaned = {};
+      if (!rawObj || typeof rawObj !== 'object' || Array.isArray(rawObj)) return cleaned;
+      Object.keys(rawObj).forEach(d => {
+        const item = rawObj[d];
+        if (!item || typeof item !== 'object') return;
+        const exercises = Array.isArray(item.exercises) ? item.exercises : [];
+        const restMarked = Boolean(item.restMarked);
+        if (exercises.length > 0 || restMarked) {
+          cleaned[d] = {
+            category: item.category || '重量訓練',
+            exercises,
+            ...(restMarked ? { restMarked: true } : {})
+          };
+        }
+      });
+      return cleaned;
+    }
+
+    let db = cleanEmptyRecords(loadDB());
+    saveDB();
     let selectedDate = formatToday();
-    ensureDay(selectedDate);
+    let activeCategory = db[selectedDate]?.category || '重量訓練';
 
     function loadDB() {
       try {
@@ -531,16 +564,10 @@
       renderJSONPreview();
     }
 
-    function ensureDay(d) {
-      if (!db[d]) db[d] = { category: '重量訓練', exercises: [] };
-      if (!db[d].exercises) db[d].exercises = [];
-      return db[d];
-    }
-
     function getRecentDates() {
-      const set = new Set(Object.keys(db));
+      const set = new Set(Object.keys(db).filter(d => isDayRecorded(db[d])));
       const base = new Date(selectedDate + 'T00:00:00');
-      for (let offset = -6; offset <= 1; offset++) {
+      for (let offset = -5; offset <= 2; offset++) {
         const dt = new Date(base);
         dt.setDate(base.getDate() + offset);
         const y = dt.getFullYear();
@@ -551,27 +578,40 @@
       return [...set].sort();
     }
 
+    function scrollActiveDateIntoView() {
+      const strip = document.getElementById('dateStrip');
+      if (!strip) return;
+      const activeChip = strip.querySelector('.date-chip.active');
+      if (activeChip) {
+        const targetLeft = activeChip.offsetLeft - (strip.clientWidth / 2) + (activeChip.offsetWidth / 2);
+        strip.scrollLeft = Math.max(0, targetLeft);
+      }
+    }
+
     function renderDateStrip() {
       const strip = document.getElementById('dateStrip');
       const dates = getRecentDates();
       const wkNames = ['日','一','二','三','四','五','六'];
+      const todayStr = formatToday();
       strip.innerHTML = dates.map(d => {
         const dt = new Date(d + 'T00:00:00');
-        const hasLog = db[d] && ((db[d].exercises?.length) || db[d].category === '低強度/休息');
+        const hasLog = isDayRecorded(db[d]);
+        const isToday = d === todayStr;
         return `
           <div class="date-chip ${d === selectedDate ? 'active' : ''}" onclick="selectDate('${d}')">
-            <div class="wk">週${wkNames[dt.getDay()]}</div>
+            <div class="wk">${isToday ? '今日' : '週' + wkNames[dt.getDay()]}</div>
             <div class="dy">${d.slice(5)}</div>
             <div class="dot" style="opacity:${hasLog ? 1 : 0.15}"></div>
           </div>
         `;
       }).join('');
       document.getElementById('activeDateText').textContent = selectedDate;
+      requestAnimationFrame(scrollActiveDateIntoView);
     }
 
     function selectDate(d) {
       selectedDate = d;
-      ensureDay(d);
+      activeCategory = db[d]?.category || '重量訓練';
       renderAll();
     }
 
@@ -587,30 +627,52 @@
     }
 
     function renderCategories() {
-      const day = ensureDay(selectedDate);
+      const currentCat = db[selectedDate]?.category || activeCategory;
       const grid = document.getElementById('catGrid');
       grid.innerHTML = CATEGORIES.map(cat => {
         const isRestCat = cat === '低強度/休息';
-        const activeClass = day.category === cat ? (isRestCat ? 'active rest-cat' : 'active') : '';
+        const activeClass = currentCat === cat ? (isRestCat ? 'active rest-cat' : 'active') : '';
         return `<button class="cat-btn ${activeClass}" onclick="setCategory('${cat}')">${cat}</button>`;
       }).join('');
 
-      const isRest = day.category === '低強度/休息';
-      document.getElementById('restCard').classList.toggle('hidden', !isRest);
+      const isRest = currentCat === '低強度/休息';
+      const restCard = document.getElementById('restCard');
+      restCard.classList.toggle('hidden', !isRest);
+      if (isRest) {
+        const alreadyMarked = Boolean(db[selectedDate]?.restMarked);
+        document.getElementById('markRestBtn').textContent = alreadyMarked ? '已記錄休息日' : '記錄為休息日';
+        document.getElementById('restCardDesc').textContent = alreadyMarked
+          ? '此日期已標記為低強度/休息日並列入紀錄。'
+          : '點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。';
+      }
       document.getElementById('strengthCard').classList.toggle('hidden', false);
 
-      const pills = getSortedUniqueExercises(EXERCISE_POOL[day.category] || []);
+      const pills = getSortedUniqueExercises(EXERCISE_POOL[currentCat] || []);
       document.getElementById('quickExercises').innerHTML = pills.length
         ? pills.map(ex => `<button class="pill" onclick="pickExercise('${ex}')">${ex}</button>`).join('')
         : '<span class="muted">可直接手動輸入動作</span>';
     }
 
     function setCategory(cat) {
-      ensureDay(selectedDate).category = cat;
-      saveDB();
+      activeCategory = cat;
+      if (db[selectedDate] && isDayRecorded(db[selectedDate])) {
+        db[selectedDate].category = cat;
+        saveDB();
+        renderOverview();
+      }
       renderCategories();
       renderDayEntries();
-      renderOverview();
+    }
+
+    function markRestDay() {
+      if (!db[selectedDate]) {
+        db[selectedDate] = { category: '低強度/休息', exercises: [], restMarked: true };
+      } else {
+        db[selectedDate].category = '低強度/休息';
+        db[selectedDate].restMarked = true;
+      }
+      saveDB();
+      renderAll();
     }
 
     function pickExercise(name) {
@@ -669,8 +731,11 @@
         weight: r.querySelector('.set-wt').value.trim()
       })).filter(s => s.reps || s.weight);
 
-      const day = ensureDay(selectedDate);
-      day.exercises.push({ name, sets });
+      if (!db[selectedDate]) {
+        db[selectedDate] = { category: activeCategory, exercises: [] };
+      }
+      db[selectedDate].category = activeCategory;
+      db[selectedDate].exercises.push({ name, sets });
       saveDB();
 
       document.getElementById('exNameInput').value = '';
@@ -682,13 +747,14 @@
     }
 
     function renderDayEntries() {
-      const day = ensureDay(selectedDate);
+      const day = db[selectedDate];
+      const currentCat = day?.category || activeCategory;
       const box = document.getElementById('dayEntriesList');
-      const totalItems = day.exercises?.length || 0;
-      document.getElementById('daySummaryBadge').textContent = `${day.category} · ${totalItems} 項`;
+      const totalItems = day?.exercises?.length || 0;
+      document.getElementById('daySummaryBadge').textContent = `${currentCat} · ${totalItems} 項`;
 
       let html = '';
-      (day.exercises || []).forEach((ex, idx) => {
+      (day?.exercises || []).forEach((ex, idx) => {
         const setsHtml = (ex.sets || []).map(s => `
           <div class="set-line">
             <span>第 ${s.set} 組</span>
@@ -706,44 +772,45 @@
         `;
       });
 
-      box.innerHTML = html || '<div class="muted">尚無紀錄</div>';
+      box.innerHTML = html || '<div class="muted">尚無紀錄（加入動作後才會記錄此日期）</div>';
     }
 
     function deleteExercise(idx) {
-      ensureDay(selectedDate).exercises.splice(idx, 1);
+      const day = db[selectedDate];
+      if (!day) return;
+      day.exercises.splice(idx, 1);
+      if (!isDayRecorded(day)) {
+        delete db[selectedDate];
+      }
       saveDB();
-      renderDayEntries();
-      renderOverview();
-      renderChartExerciseOptions();
+      renderAll();
     }
 
     function deleteOverviewDate(d, event) {
       if (event) event.stopPropagation();
       if (!confirm(`確定要刪除 ${d} 的紀錄嗎？`)) return;
       delete db[d];
-      if (selectedDate === d) {
-        ensureDay(selectedDate);
-      }
       saveDB();
       renderAll();
     }
 
     function renderOverview() {
       const box = document.getElementById('overviewList');
-      const dates = Object.keys(db).sort().reverse();
+      const dates = Object.keys(db).filter(d => isDayRecorded(db[d])).sort().reverse();
       box.innerHTML = dates.length ? dates.map(d => {
         const day = db[d];
         const exNames = (day.exercises || []).map(e => e.name).join('、');
+        const desc = exNames || (day.restMarked ? '已標記為低強度/休息日' : '無訓練項目');
         return `
           <div class="ex-item" onclick="selectDate('${d}'); switchTab('tab-log', document.querySelector('[data-tab=tab-log]'))" style="cursor:pointer;">
             <div class="ex-top">
               <span class="ex-name">${d}</span>
               <div style="display:flex; align-items:center; gap:6px;">
                 <span class="local-badge">${day.category}</span>
-                <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteOverviewDate('${d}', event)">刪除</button>
+                <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteOverviewDate('${d}', event)">刪除</button>
               </div>
             </div>
-            <div class="muted">${exNames || '無訓練項目'}</div>
+            <div class="muted">${desc}</div>
           </div>
         `;
       }).join('') : '<div class="muted">目前尚無歷史紀錄</div>';
@@ -918,9 +985,8 @@
         try {
           const parsed = JSON.parse(e.target.result);
           if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error();
-          db = parsed;
+          db = cleanEmptyRecords(parsed);
           saveDB();
-          ensureDay(selectedDate);
           renderAll();
           alert('已匯入備份資料');
         } catch {
@@ -935,7 +1001,6 @@
       if (!confirm('確定要清空手機本機所有運動紀錄嗎？建議先匯出備份。')) return;
       db = {};
       saveDB();
-      ensureDay(selectedDate);
       renderAll();
     }
 
