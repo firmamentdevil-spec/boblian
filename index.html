@@ -108,23 +108,31 @@
       letter-spacing: 0.4px;
     }
 
+    .cat-timer-row {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 8px;
+      align-items: start;
+      margin-bottom: 14px;
+    }
+
     .cat-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
     }
 
     .cat-btn {
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text);
-      border-radius: 10px;
-      padding: 10px 8px;
-      font-size: 13px;
+      border-radius: 8px;
+      padding: 7px 6px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
+      line-height: 1.2;
     }
     .cat-btn.active {
       background: var(--accent);
@@ -249,17 +257,49 @@
 
     .timer-box {
       display: flex;
+      flex-direction: column;
       justify-content: space-between;
-      align-items: center;
-      background: linear-gradient(135deg, rgba(34,211,238,0.14), rgba(163,230,53,0.12));
-      border: 1px solid rgba(34,211,238,0.35);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      margin-bottom: 14px;
-      gap: 8px;
+      background: linear-gradient(135deg, rgba(34,211,238,0.12), rgba(163,230,53,0.08));
+      border: 1px solid rgba(34,211,238,0.3);
+      border-radius: 12px;
+      padding: 8px 9px;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .timer-box .timer-sub { font-size: 10px; color: var(--muted); }
+    .timer-num {
+      font-size: 18px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      transition: font-size 0.2s ease;
+    }
+    .timer-btns {
+      display: flex;
+      gap: 4px;
       flex-wrap: wrap;
     }
-    .timer-num { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .timer-btn {
+      padding: 4px 6px;
+      font-size: 11px;
+      border-radius: 7px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .timer-box.running {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(34,211,238,0.22), rgba(163,230,53,0.16));
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(34,211,238,0.35);
+    }
+    .timer-box.running .timer-sub { font-size: 12px; color: var(--accent); font-weight: 600; }
+    .timer-box.running .timer-num { font-size: 32px; }
+    .timer-box.running .timer-btn { padding: 7px 10px; font-size: 12px; border-radius: 9px; }
 
     .chart-wrap {
       background: var(--surface-2);
@@ -336,22 +376,28 @@
     <div id="tab-log">
       <div class="date-strip" id="dateStrip"></div>
 
-      <div class="timer-box">
-        <div>
-          <div class="muted">組間休息計時器</div>
-          <div class="timer-num" id="timerDisplay">01:30</div>
-        </div>
-        <div style="display:flex; gap:6px; flex-wrap:wrap;">
-          <button class="btn btn-ghost btn-sm" onclick="setTimer(30)">30s</button>
-          <button class="btn btn-ghost btn-sm" onclick="setTimer(60)">60s</button>
-          <button class="btn btn-ghost btn-sm" onclick="setTimer(90)">90s</button>
-          <button class="btn btn-ghost btn-sm" onclick="resetTimer()">重新</button>
-          <button class="btn btn-primary btn-sm" id="timerToggleBtn" onclick="toggleTimer()">開始</button>
-        </div>
+      <div style="display:grid; grid-template-columns:1.35fr 1fr; gap:8px; margin-bottom:6px; align-items:end;">
+        <div class="section-label" style="margin-bottom:0;">當日訓練分類</div>
+        <div class="section-label" style="margin-bottom:0;">組間計時器</div>
       </div>
 
-      <div class="section-label">當日訓練分類</div>
-      <div class="cat-grid" id="catGrid"></div>
+      <div class="cat-timer-row">
+        <div class="cat-grid" id="catGrid"></div>
+
+        <div class="timer-box" id="timerBox">
+          <div>
+            <div class="timer-sub">組間休息</div>
+            <div class="timer-num" id="timerDisplay">01:30</div>
+          </div>
+          <div class="timer-btns">
+            <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(30)">30s</button>
+            <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(60)">60s</button>
+            <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(90)">90s</button>
+            <button type="button" class="btn btn-ghost timer-btn" onclick="resetTimer()">重新</button>
+            <button type="button" class="btn btn-primary timer-btn" id="timerToggleBtn" onclick="toggleTimer()">開始</button>
+          </div>
+        </div>
+      </div>
 
       <div class="card hidden" id="restCard">
         <div class="card-header" style="margin-bottom:4px;">
@@ -1016,6 +1062,11 @@
     let timerSec = 90;
     let timerId = null;
 
+    function syncTimerSize() {
+      const box = document.getElementById('timerBox');
+      if (box) box.classList.toggle('running', Boolean(timerId));
+    }
+
     function updateTimerDisplay() {
       const m = String(Math.floor(timerSec / 60)).padStart(2, '0');
       const s = String(timerSec % 60).padStart(2, '0');
@@ -1028,6 +1079,7 @@
       baseTimerSec = sec;
       timerSec = sec;
       document.getElementById('timerToggleBtn').textContent = '開始';
+      syncTimerSize();
       updateTimerDisplay();
     }
 
@@ -1036,6 +1088,7 @@
       timerId = null;
       timerSec = baseTimerSec;
       document.getElementById('timerToggleBtn').textContent = '開始';
+      syncTimerSize();
       updateTimerDisplay();
     }
 
@@ -1045,8 +1098,10 @@
         clearInterval(timerId);
         timerId = null;
         btn.textContent = '開始';
+        syncTimerSize();
       } else {
         btn.textContent = '暫停';
+        syncTimerSize();
         timerId = setInterval(() => {
           if (timerSec > 0) {
             timerSec--;
@@ -1055,6 +1110,7 @@
             clearInterval(timerId);
             timerId = null;
             btn.textContent = '開始';
+            syncTimerSize();
             if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
             alert('休息時間到！');
           }
@@ -1074,6 +1130,7 @@
 
     resetSetsUI(3);
     updateTimerDisplay();
+    syncTimerSize();
     renderAll();
   </script>
 </body>
