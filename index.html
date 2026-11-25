@@ -892,4 +892,350 @@
       const box = document.getElementById('dayEntriesList');
       if (!box) return;
       const totalItems = day?.exercises?.length || 0;
-      document.getElementById('daySummaryBadge').text
+      document.getElementById('daySummaryBadge').textContent = `${currentCat} · ${totalItems} 項`;
+
+      let html = '';
+      (day?.exercises || []).forEach((ex, idx) => {
+        const setsHtml = (ex.sets || []).map(s => `
+          <div class="set-line">
+            <span>第 ${s.set} 組</span>
+            <span>次數：<strong>${s.reps || '-'}</strong> ｜ 重量：<strong>${s.weight || '-'}</strong></span>
+          </div>
+        `).join('');
+        html += `
+          <div class="ex-item">
+            <div class="ex-top">
+              <span class="ex-name">${ex.name}</span>
+              <button class="btn btn-ghost btn-sm" onclick="deleteExercise(${idx})">移除</button>
+            </div>
+            ${setsHtml || '<div class="muted">無組數明細</div>'}
+          </div>
+        `;
+      });
+
+      box.innerHTML = html || '<div class="muted">尚無紀錄（加入動作後才會記錄此日期）</div>';
+    }
+
+    function deleteExercise(idx) {
+      const day = db[selectedDate];
+      if (!day) return;
+      day.exercises.splice(idx, 1);
+      if (!isDayRecorded(day)) {
+        delete db[selectedDate];
+      }
+      saveDB();
+      renderAll();
+    }
+
+    function deleteOverviewDate(d, event) {
+      if (event) event.stopPropagation();
+      if (!confirm(`確定要刪除 ${d} 的紀錄嗎？`)) return;
+      delete db[d];
+      saveDB();
+      renderAll();
+    }
+
+    function renderOverview() {
+      const box = document.getElementById('overviewList');
+      if (!box) return;
+      const dates = Object.keys(db).filter(d => isDayRecorded(db[d])).sort().reverse();
+      box.innerHTML = dates.length ? dates.map(d => {
+        const day = db[d];
+        const exNames = (day.exercises || []).map(e => e.name).join('、');
+        const desc = exNames || (day.restMarked ? '已標記為低強度/休息日' : '無訓練項目');
+        return `
+          <div class="ex-item" onclick="selectDate('${d}'); switchTab('tab-log', document.querySelector('[data-tab=tab-log]'))" style="cursor:pointer;">
+            <div class="ex-top">
+              <span class="ex-name">${d}</span>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span class="local-badge">${day.category}</span>
+                <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteOverviewDate('${d}', event)">刪除</button>
+              </div>
+            </div>
+            <div class="muted">${desc}</div>
+          </div>
+        `;
+      }).join('') : '<div class="muted">目前尚無歷史紀錄</div>';
+    }
+
+    function renderLibrary() {
+      const box = document.getElementById('libraryList');
+      if (!box) return;
+      box.innerHTML = Object.entries(EXERCISE_POOL).filter(([, list]) => list.length).map(([cat, list]) => {
+        const sortedList = getSortedUniqueExercises(list);
+        return `
+          <div style="margin-bottom:14px;">
+            <div class="section-label">${cat}</div>
+            <div class="pill-row">${sortedList.map(item => `<span class="pill">${item}</span>`).join('')}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function parseNum(str) {
+      if (!str) return 0;
+      const nums = String(str).match(/[\d.]+/g);
+      if (!nums || !nums.length) return 0;
+      return Math.max(...nums.map(Number).filter(n => !Number.isNaN(n)));
+    }
+
+    function renderChartExerciseOptions(preferredName = null) {
+      const sel = document.getElementById('chartExerciseSelect');
+      if (!sel) return;
+      const prevVal = preferredName || sel.value;
+      const recordedNames = new Set();
+      Object.keys(db).sort().forEach(d => {
+        (db[d].exercises || []).forEach(ex => {
+          if (ex.name) recordedNames.add(ex.name);
+        });
+      });
+
+      const list = [...recordedNames];
+      if (!list.length) {
+        sel.innerHTML = '<option value="">尚無已紀錄動作</option>';
+        renderProgressChart();
+        return;
+      }
+
+      sel.innerHTML = list.map(name => `<option value="${name}">${name}</option>`).join('');
+      if (prevVal && list.includes(prevVal)) sel.value = prevVal;
+      renderProgressChart();
+    }
+
+    function renderProgressChart() {
+      const container = document.getElementById('progressChartContainer');
+      const sel = document.getElementById('chartExerciseSelect');
+      const targetName = sel ? sel.value : '';
+      if (!container) return;
+
+      if (!targetName) {
+        container.innerHTML = '<div class="muted" style="margin-top:8px;">新增訓練紀錄後，這裡會自動顯示重量與總量趨勢曲線。</div>';
+        return;
+      }
+
+      const points = [];
+      Object.keys(db).sort().forEach(d => {
+        const matched = (db[d].exercises || []).filter(ex => ex.name === targetName);
+        if (!matched.length) return;
+        let maxWt = 0;
+        let totalVol = 0;
+        let totalReps = 0;
+        matched.forEach(ex => {
+          (ex.sets || []).forEach(s => {
+            const wt = parseNum(s.weight);
+            const rp = parseNum(s.reps);
+            if (wt > maxWt) maxWt = wt;
+            totalReps += rp;
+            totalVol += wt > 0 ? wt * rp : rp;
+          });
+        });
+        points.push({ date: d, maxWt, totalVol, totalReps });
+      });
+
+      if (!points.length) {
+        container.innerHTML = '<div class="muted" style="margin-top:8px;">此動作尚無數據</div>';
+        return;
+      }
+
+      const W = 320, H = 140, padL = 32, padR = 14, padT = 14, padB = 24;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+
+      const maxWeightVal = Math.max(...points.map(p => p.maxWt), 1);
+      const maxVolVal = Math.max(...points.map(p => p.totalVol), 1);
+
+      const getX = i => points.length === 1 ? padL + plotW / 2 : padL + (i / (points.length - 1)) * plotW;
+      const getYWeight = v => padT + plotH - (v / maxWeightVal) * plotH;
+      const getYVol = v => padT + plotH - (v / maxVolVal) * plotH;
+
+      const weightLine = points.map((p, i) => `${getX(i).toFixed(1)},${getYWeight(p.maxWt).toFixed(1)}`).join(' ');
+      const volLine = points.map((p, i) => `${getX(i).toFixed(1)},${getYVol(p.totalVol).toFixed(1)}`).join(' ');
+
+      const weightDots = points.map((p, i) => `
+        <circle cx="${getX(i).toFixed(1)}" cy="${getYWeight(p.maxWt).toFixed(1)}" r="3.5" fill="#22d3ee" />
+        <text x="${getX(i).toFixed(1)}" y="${Math.max(10, getYWeight(p.maxWt) - 6).toFixed(1)}" fill="#eef4fa" font-size="9" text-anchor="middle">${p.maxWt || p.totalReps}</text>
+      `).join('');
+
+      const volDots = points.map((p, i) => `
+        <circle cx="${getX(i).toFixed(1)}" cy="${getYVol(p.totalVol).toFixed(1)}" r="2.8" fill="#a3e635" />
+      `).join('');
+
+      const xLabels = points.map((p, i) => {
+        if (points.length > 6 && i !== 0 && i !== points.length - 1 && i % Math.ceil(points.length / 4) !== 0) return '';
+        return `<text x="${getX(i).toFixed(1)}" y="${H - 6}" fill="#8fa3b8" font-size="9" text-anchor="middle">${p.date.slice(5)}</text>`;
+      }).join('');
+
+      const first = points[0];
+      const latest = points[points.length - 1];
+      const bestWt = Math.max(...points.map(p => p.maxWt));
+      const diffWt = +(latest.maxWt - first.maxWt).toFixed(1);
+      const diffText = diffWt > 0 ? `+${diffWt}kg` : `${diffWt}kg`;
+
+      container.innerHTML = `
+        <div class="chart-wrap">
+          <div class="chart-legend">
+            <span><i class="legend-dot" style="background:#22d3ee;"></i>最高重量 (kg)</span>
+            <span><i class="legend-dot" style="background:#a3e635;"></i>單次總訓練量</span>
+          </div>
+          <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">
+            <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#273749" stroke-width="1" />
+            <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#273749" stroke-width="1" />
+            <text x="${padL - 4}" y="${padT + 4}" fill="#8fa3b8" font-size="8" text-anchor="end">${maxWeightVal}</text>
+            <text x="${padL - 4}" y="${H - padB}" fill="#8fa3b8" font-size="8" text-anchor="end">0</text>
+            ${points.length > 1 ? `<polyline fill="none" stroke="#a3e635" stroke-width="1.8" stroke-dasharray="4 3" points="${volLine}" />` : ''}
+            ${points.length > 1 ? `<polyline fill="none" stroke="#22d3ee" stroke-width="2.2" points="${weightLine}" />` : ''}
+            ${volDots}
+            ${weightDots}
+            ${xLabels}
+          </svg>
+          <div class="chart-stats">
+            <div class="stat-box">
+              <div class="val">${bestWt} kg</div>
+              <div class="lbl">歷史最高重</div>
+            </div>
+            <div class="stat-box">
+              <div class="val">${latest.maxWt} kg</div>
+              <div class="lbl">最近一次</div>
+            </div>
+            <div class="stat-box">
+              <div class="val" style="color:${diffWt >= 0 ? 'var(--accent-2)' : 'var(--danger)'};">${diffText}</div>
+              <div class="lbl">首末變化</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderJSONPreview() {
+      const el = document.getElementById('jsonPreview');
+      if (el) el.textContent = JSON.stringify(db, null, 2);
+    }
+
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `運動紀錄備份_${formatToday()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error();
+          db = cleanEmptyRecords(parsed);
+          saveDB();
+          renderAll();
+          alert('已匯入備份資料');
+        } catch {
+          alert('JSON 格式不正確');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function clearAllData() {
+      if (!confirm('確定要清空手機本機所有運動紀錄嗎？建議先匯出備份。')) return;
+      db = {};
+      saveDB();
+      renderAll();
+    }
+
+    function switchTab(tabId, btn) {
+      ['tab-log','tab-overview','tab-library','tab-chart','tab-storage'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('hidden', id !== tabId);
+      });
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    let baseTimerSec = 90;
+    let timerSec = 90;
+    let timerId = null;
+
+    function syncTimerSize() {
+      const box = document.getElementById('timerBox');
+      if (box) box.classList.toggle('running', Boolean(timerId));
+    }
+
+    function updateTimerDisplay() {
+      const m = String(Math.floor(timerSec / 60)).padStart(2, '0');
+      const s = String(timerSec % 60).padStart(2, '0');
+      const el = document.getElementById('timerDisplay');
+      if (el) el.textContent = `${m}:${s}`;
+    }
+
+    function setTimer(sec) {
+      clearInterval(timerId);
+      timerId = null;
+      baseTimerSec = sec;
+      timerSec = sec;
+      document.getElementById('timerToggleBtn').textContent = '開始';
+      syncTimerSize();
+      updateTimerDisplay();
+    }
+
+    function resetTimer() {
+      clearInterval(timerId);
+      timerId = null;
+      timerSec = baseTimerSec;
+      document.getElementById('timerToggleBtn').textContent = '開始';
+      syncTimerSize();
+      updateTimerDisplay();
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('timerToggleBtn');
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+        btn.textContent = '開始';
+        syncTimerSize();
+      } else {
+        btn.textContent = '暫停';
+        syncTimerSize();
+        timerId = setInterval(() => {
+          if (timerSec > 0) {
+            timerSec--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerId);
+            timerId = null;
+            btn.textContent = '開始';
+            syncTimerSize();
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            alert('休息時間到！');
+          }
+        }, 1000);
+      }
+    }
+
+    function renderAll() {
+      try {
+        renderDateStrip();
+        renderCategories();
+        renderDayEntries();
+        renderOverview();
+        renderLibrary();
+        renderChartExerciseOptions();
+        renderJSONPreview();
+      } catch (err) {
+        document.body.innerHTML = `<div style="padding:20px;color:#eef4fa;font-family:sans-serif;">渲染發生錯誤：${err && err.message ? err.message : err}</div>`;
+      }
+    }
+
+    resetSetsUI(3);
+    updateTimerDisplay();
+    syncTimerSize();
+    renderAll();
+  </script>
+</body>
+</html>
