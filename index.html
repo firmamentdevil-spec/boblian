@@ -330,41 +330,56 @@
     .set-line strong { color: var(--text); }
 
     .timer-box {
+      position: relative;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       background: linear-gradient(135deg, rgba(34,211,238,0.12), rgba(163,230,53,0.08));
       border: 1px solid rgba(34,211,238,0.3);
       border-radius: 12px;
-      padding: 8px 10px;
-      gap: 8px;
+      padding: 8px;
       min-width: 0;
+      min-height: 100%;
     }
     .timer-num {
-      font-size: 18px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      line-height: 1.1;
-      white-space: nowrap;
-    }
-    .circle-btn-group {
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
+      justify-content: center;
+      font-size: clamp(22px, 6.5vw, 30px);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      white-space: nowrap;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    .circle-btn-group {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
     .circle-icon-btn {
-      width: 30px;
-      height: 30px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      font-weight: 800;
+      font-size: 9px;
+      font-weight: 900;
       cursor: pointer;
       padding: 0;
       line-height: 1;
+    }
+    .circle-icon-btn svg {
+      width: 12px;
+      height: 12px;
+      display: block;
     }
 
     .chart-wrap {
@@ -458,7 +473,12 @@
           <div class="timer-num" id="timerDisplay">00:00</div>
           <div class="circle-btn-group">
             <button type="button" class="btn btn-primary circle-icon-btn" id="timerToggleBtn" title="開始 / 暫停" onclick="toggleTimer()">▶</button>
-            <button type="button" class="btn btn-ghost circle-icon-btn" title="歸零重設" onclick="resetTimer()">↺</button>
+            <button type="button" class="btn btn-ghost circle-icon-btn" title="歸零重設" aria-label="歸零重設" onclick="resetTimer()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+                <polyline points="3 3 3 8 8 8" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
