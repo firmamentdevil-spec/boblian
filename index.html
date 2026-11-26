@@ -61,6 +61,16 @@
       font-weight: 600;
     }
 
+    .rest-badge {
+      font-size: 11px;
+      background: rgba(251, 146, 60, 0.16);
+      color: var(--orange);
+      border: 1px solid rgba(251, 146, 60, 0.4);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
     .container {
       max-width: 540px;
       margin: 0 auto;
@@ -329,6 +339,15 @@
     }
     .set-line strong { color: var(--text); }
 
+    .overview-scroll-wrap {
+      overflow-x: auto;
+      cursor: grab;
+      user-select: none;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+    }
+    .overview-scroll-wrap.dragging { cursor: grabbing; }
+
     .overview-row {
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -346,15 +365,29 @@
     .overview-row-main {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       min-width: 0;
       flex: 1;
     }
     .overview-row-caret {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--muted);
-      width: 14px;
+      width: 12px;
       text-align: center;
+      flex-shrink: 0;
+    }
+    .overview-date-label {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .overview-wk-label {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
       flex-shrink: 0;
     }
     .overview-row-summary {
@@ -363,6 +396,18 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    .overview-del-btn {
+      background: none;
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      color: var(--danger);
+      border-radius: 7px;
+      padding: 3px 7px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.2;
+      cursor: pointer;
+      flex-shrink: 0;
     }
     .overview-expanded-list {
       margin-top: 10px;
@@ -503,7 +548,7 @@
   <div class="topbar">
     <div class="topbar-title">
       <span>運動紀錄</span>
-      <span class="local-badge">純本機儲存</span>
+      <span class="local-badge" id="syncStatusBadge">純本機儲存</span>
     </div>
     <span class="muted" id="activeDateText"></span>
   </div>
@@ -581,8 +626,13 @@
 
     <div id="tab-overview" class="hidden">
       <div class="card">
-        <div class="card-title" style="margin-bottom:10px;">日期紀錄總覽</div>
-        <div id="overviewList"></div>
+        <div class="card-header">
+          <div class="card-title" style="margin-bottom:0;">歷史總覽</div>
+          <span class="muted">可拖曳 · 點選展開清單</span>
+        </div>
+        <div class="overview-scroll-wrap" id="overviewScrollWrap">
+          <div id="overviewList"></div>
+        </div>
       </div>
     </div>
 
@@ -606,17 +656,24 @@
 
     <div id="tab-storage" class="hidden">
       <div class="card">
-        <div class="card-title">本機資料與備份</div>
+        <div class="card-title">跨裝置同步與本機備份</div>
         <p class="muted" style="line-height:1.6; margin:8px 0 12px;">
-          資料僅存於手機瀏覽器本機 <code>localStorage</code>，無外部伺服器或登入系統。建議定期匯出 JSON 備份。
+          預設資料存於裝置本機 <code>localStorage</code>；設定「同步金鑰」可在同瀏覽器/同源分頁即時同步，並可透過「複製同步碼 / 貼上同步碼」快速在手機與電腦版網頁間同步紀錄。
         </p>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <input type="text" id="syncKeyInput" placeholder="輸入同步金鑰（例如：my-surf-gym）" onchange="onSyncKeyChange(this.value)" />
+          <button class="btn btn-ghost btn-sm" style="white-space:nowrap;" onclick="syncNowFromStorage()">立即同步</button>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+          <button class="btn btn-primary btn-sm" onclick="copySyncBundle()">複製同步碼</button>
+          <button class="btn btn-ghost btn-sm" onclick="pasteSyncBundle()">貼上同步碼並合併/覆蓋</button>
           <button class="btn btn-ghost btn-sm" onclick="exportJSON()">匯出 JSON</button>
           <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
             匯入 JSON <input type="file" accept=".json" style="display:none;" onchange="importJSON(event)" />
           </label>
           <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="clearAllData()">清空本機資料</button>
         </div>
+        <textarea id="syncCodeBox" rows="3" placeholder="同步碼（或貼上從另一台裝置複製的同步碼）" style="width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text); border-radius:10px; padding:8px 10px; font-size:11px; resize:vertical;"></textarea>
         <pre id="jsonPreview" style="margin-top:12px; background:var(--surface-2); padding:10px; border-radius:10px; font-size:11px; max-height:220px; overflow:auto; color:var(--muted);"></pre>
       </div>
     </div>
@@ -627,7 +684,7 @@
       <span class="nav-icon">🏋️</span><span>今日紀錄</span>
     </button>
     <button class="nav-btn" data-tab="tab-overview" onclick="switchTab('tab-overview', this)">
-      <span class="nav-icon">📅</span><span>日期總覽</span>
+      <span class="nav-icon">📅</span><span>歷史總覽</span>
     </button>
     <button class="nav-btn" data-tab="tab-library" onclick="switchTab('tab-library', this)">
       <span class="nav-icon">📋</span><span>動作庫</span>
@@ -667,6 +724,8 @@
     };
 
     const STORAGE_KEY = 'personal_workout_log_v1';
+    const SYNC_KEY_STORAGE = 'personal_workout_sync_key_v1';
+    const WK_NAMES = ['日', '一', '二', '三', '四', '五', '六'];
     /* ============================ */
 
     function formatToday() {
@@ -677,10 +736,26 @@
       return `${y}-${m}-${d}`;
     }
 
+    function formatSlashDate(isoDate) {
+      const parts = String(isoDate || '').split('-');
+      if (parts.length !== 3) return isoDate || '';
+      return `${parts[0]}/${parts[1]}/${parts[2]}`;
+    }
+
+    function getWeekdayText(isoDate) {
+      const dt = new Date(isoDate + 'T00:00:00');
+      if (Number.isNaN(dt.getTime())) return '';
+      return `週${WK_NAMES[dt.getDay()]}`;
+    }
+
+    function isRestCategory(cat) {
+      return cat === '低強度/休息' || cat === '休息日' || cat === '休息';
+    }
+
     function isDayRecorded(dayObj) {
       if (!dayObj || typeof dayObj !== 'object') return false;
       const hasExercises = Array.isArray(dayObj.exercises) && dayObj.exercises.length > 0;
-      const isMarkedRest = Boolean(dayObj.restMarked);
+      const isMarkedRest = Boolean(dayObj.restMarked) || isRestCategory(dayObj.category);
       return hasExercises || isMarkedRest;
     }
 
@@ -691,10 +766,10 @@
         const item = rawObj[d];
         if (!item || typeof item !== 'object') return;
         const exercises = Array.isArray(item.exercises) ? item.exercises : [];
-        const restMarked = Boolean(item.restMarked);
+        const restMarked = Boolean(item.restMarked) || isRestCategory(item.category);
         if (exercises.length > 0 || restMarked) {
           cleaned[d] = {
-            category: item.category || '重量訓練',
+            category: item.category || (restMarked ? '低強度/休息' : '重量訓練'),
             exercises,
             ...(restMarked ? { restMarked: true } : {})
           };
@@ -703,9 +778,49 @@
       return cleaned;
     }
 
+    function getSyncKey() {
+      try {
+        return localStorage.getItem(SYNC_KEY_STORAGE) || '';
+      } catch {
+        return '';
+      }
+    }
+
+    function getEffectiveStorageKey() {
+      const sk = getSyncKey().trim();
+      return sk ? `${STORAGE_KEY}__sync_${encodeURIComponent(sk)}` : STORAGE_KEY;
+    }
+
+    function updateSyncBadge() {
+      const badge = document.getElementById('syncStatusBadge');
+      const sk = getSyncKey().trim();
+      if (badge) {
+        badge.textContent = sk ? `已啟用同步：${sk}` : '純本機儲存';
+      }
+      const keyInput = document.getElementById('syncKeyInput');
+      if (keyInput && document.activeElement !== keyInput) {
+        keyInput.value = sk;
+      }
+    }
+
+    function onSyncKeyChange(val) {
+      try {
+        const trimmed = String(val || '').trim();
+        if (trimmed) {
+          localStorage.setItem(SYNC_KEY_STORAGE, trimmed);
+        } else {
+          localStorage.removeItem(SYNC_KEY_STORAGE);
+        }
+      } catch {}
+      db = cleanEmptyRecords(loadDB());
+      activeCategory = db[selectedDate]?.category || '重量訓練';
+      updateSyncBadge();
+      renderAll();
+    }
+
     function loadDB() {
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        return JSON.parse(localStorage.getItem(getEffectiveStorageKey()) || '{}');
       } catch {
         return {};
       }
@@ -716,14 +831,56 @@
     let activeCategory = db[selectedDate]?.category || '重量訓練';
     let didDragStrip = false;
     let didDragRestBtn = false;
+    let didDragOverview = false;
     const expandedOverviewDates = new Set();
 
+    const broadcastChannel = ('BroadcastChannel' in window)
+      ? new BroadcastChannel('personal_workout_sync_channel_v1')
+      : null;
+
+    if (broadcastChannel) {
+      broadcastChannel.onmessage = event => {
+        const data = event?.data;
+        if (!data || data.storageKey !== getEffectiveStorageKey()) return;
+        db = cleanEmptyRecords(data.db || {});
+        activeCategory = db[selectedDate]?.category || '重量訓練';
+        renderAll();
+      };
+    }
+
     function saveDB() {
+      const key = getEffectiveStorageKey();
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+        localStorage.setItem(key, JSON.stringify(db));
       } catch {}
+      if (broadcastChannel) {
+        try {
+          broadcastChannel.postMessage({ storageKey: key, db });
+        } catch {}
+      }
       renderJSONPreview();
     }
+
+    function syncNowFromStorage() {
+      db = cleanEmptyRecords(loadDB());
+      activeCategory = db[selectedDate]?.category || '重量訓練';
+      updateSyncBadge();
+      renderAll();
+    }
+
+    window.addEventListener('storage', e => {
+      if (e.key === getEffectiveStorageKey() || e.key === SYNC_KEY_STORAGE) {
+        syncNowFromStorage();
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) syncNowFromStorage();
+    });
+
+    window.addEventListener('focus', () => {
+      syncNowFromStorage();
+    });
 
     function getMonthDates(ym) {
       const parts = String(ym || '').split('-');
@@ -784,16 +941,14 @@
       if (!strip) return;
       const ym = selectedDate.slice(0, 7);
       const dates = getMonthDates(ym);
-      const wkNames = ['日','一','二','三','四','五','六'];
       const todayStr = formatToday();
 
       const chipsHtml = dates.map(d => {
-        const dt = new Date(d + 'T00:00:00');
         const hasLog = isDayRecorded(db[d]);
         const isToday = d === todayStr;
         return `
           <div class="date-chip ${d === selectedDate ? 'active' : ''}" onclick="handleChipClick('${d}')">
-            <div class="wk">${isToday ? '今日' : '週' + wkNames[dt.getDay()]}</div>
+            <div class="wk">${isToday ? '今日' : getWeekdayText(d)}</div>
             <div class="dy">${d.slice(5)}</div>
             <div class="dot" style="opacity:${hasLog ? 1 : 0.15}"></div>
           </div>
@@ -802,7 +957,7 @@
 
       strip.innerHTML = `<div class="date-spacer"></div>${chipsHtml}<div class="date-spacer"></div>`;
       const activeDateEl = document.getElementById('activeDateText');
-      if (activeDateEl) activeDateEl.textContent = selectedDate;
+      if (activeDateEl) activeDateEl.textContent = `${formatSlashDate(selectedDate)} (${getWeekdayText(selectedDate)})`;
       renderMonthOptions();
       setTimeout(scrollActiveDateIntoView, 0);
     }
@@ -887,6 +1042,46 @@
       });
     })();
 
+    (function enableOverviewDrag() {
+      const wrap = document.getElementById('overviewScrollWrap');
+      if (!wrap) return;
+      let isDown = false;
+      let startX = 0;
+      let startY = 0;
+      let startScrollLeft = 0;
+      let startScrollY = 0;
+
+      wrap.addEventListener('mousedown', e => {
+        if (e.target.closest('button')) return;
+        isDown = true;
+        didDragOverview = false;
+        wrap.classList.add('dragging');
+        startX = e.pageX - wrap.offsetLeft;
+        startY = e.pageY;
+        startScrollLeft = wrap.scrollLeft;
+        startScrollY = window.scrollY;
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (!isDown) return;
+        isDown = false;
+        wrap.classList.remove('dragging');
+        setTimeout(() => { didDragOverview = false; }, 0);
+      });
+
+      wrap.addEventListener('mousemove', e => {
+        if (!isDown) return;
+        const x = e.pageX - wrap.offsetLeft;
+        const dx = (x - startX) * 1.2;
+        const dy = e.pageY - startY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 5) {
+          didDragOverview = true;
+          wrap.scrollLeft = startScrollLeft - dx;
+          window.scrollTo(0, startScrollY - dy);
+        }
+      });
+    })();
+
     function selectDate(d) {
       selectedDate = d;
       activeCategory = db[d]?.category || '重量訓練';
@@ -909,7 +1104,7 @@
       const grid = document.getElementById('catGrid');
       if (!grid) return;
       grid.innerHTML = CATEGORIES.map(cat => {
-        const isRestCat = cat === '低強度/休息';
+        const isRestCat = isRestCategory(cat);
         const activeClass = currentCat === cat ? (isRestCat ? 'active rest-cat' : 'active') : '';
         if (isRestCat) {
           return `<button type="button" id="restCatBtn" class="cat-btn rest-scroll-btn ${activeClass}" onclick="handleRestBtnClick('${cat}')">${cat}</button>`;
@@ -918,11 +1113,11 @@
       }).join('');
       bindRestBtnDrag();
 
-      const isRest = currentCat === '低強度/休息';
+      const isRest = isRestCategory(currentCat);
       const restCard = document.getElementById('restCard');
       if (restCard) restCard.classList.toggle('hidden', !isRest);
       if (isRest) {
-        const alreadyMarked = Boolean(db[selectedDate]?.restMarked);
+        const alreadyMarked = Boolean(db[selectedDate]?.restMarked) || isRestCategory(db[selectedDate]?.category);
         document.getElementById('markRestBtn').textContent = alreadyMarked ? '已記錄休息日' : '記錄為休息日';
         document.getElementById('restCardDesc').textContent = alreadyMarked
           ? '已列入休息日紀錄。'
@@ -940,6 +1135,7 @@
       activeCategory = cat;
       if (db[selectedDate] && isDayRecorded(db[selectedDate])) {
         db[selectedDate].category = cat;
+        if (isRestCategory(cat)) db[selectedDate].restMarked = true;
         saveDB();
         renderOverview();
       }
@@ -1020,6 +1216,7 @@
         db[selectedDate] = { category: activeCategory, exercises: [] };
       }
       db[selectedDate].category = activeCategory;
+      if (isRestCategory(activeCategory)) db[selectedDate].restMarked = true;
       db[selectedDate].exercises.push({ name, sets });
       saveDB();
 
@@ -1036,11 +1233,12 @@
       const currentCat = day?.category || activeCategory;
       const box = document.getElementById('dayEntriesList');
       if (!box) return;
-      const totalItems = day?.exercises?.length || 0;
+      const exList = Array.isArray(day?.exercises) ? day.exercises : [];
+      const totalItems = exList.length;
       document.getElementById('daySummaryBadge').textContent = `${currentCat} · ${totalItems} 項`;
 
       let html = '';
-      (day?.exercises || []).forEach((ex, idx) => {
+      exList.forEach((ex, idx) => {
         const setsHtml = (ex.sets || []).map(s => `
           <div class="set-line">
             <span>第 ${s.set} 組</span>
@@ -1058,7 +1256,11 @@
         `;
       });
 
-      box.innerHTML = html || '<div class="muted">尚無紀錄（加入動作後才會記錄此日期）</div>';
+      if (!exList.length && (Boolean(day?.restMarked) || isRestCategory(currentCat))) {
+        html += `<div class="ex-item"><div class="muted">今日已記錄為低強度/休息日</div></div>`;
+      }
+
+      box.innerHTML = html || '<div class="muted">尚無紀錄（加入動作或記錄休息日後才會記錄此日期）</div>';
     }
 
     function deleteExercise(idx) {
@@ -1073,6 +1275,10 @@
     }
 
     function toggleOverviewDate(d) {
+      if (didDragOverview) {
+        didDragOverview = false;
+        return;
+      }
       if (expandedOverviewDates.has(d)) {
         expandedOverviewDates.delete(d);
       } else {
@@ -1083,7 +1289,8 @@
 
     function deleteOverviewDate(d, event) {
       if (event) event.stopPropagation();
-      if (!confirm(`確定要刪除 ${d} 的紀錄嗎？`)) return;
+      if (didDragOverview) return;
+      if (!confirm(`確定要刪除 ${formatSlashDate(d)}（${getWeekdayText(d)}）的紀錄嗎？`)) return;
       delete db[d];
       expandedOverviewDates.delete(d);
       saveDB();
@@ -1097,15 +1304,25 @@
       box.innerHTML = dates.length ? dates.map(d => {
         const day = db[d];
         const exList = Array.isArray(day.exercises) ? day.exercises : [];
+        const hasRest = Boolean(day.restMarked) || isRestCategory(day.category);
         const isExpanded = expandedOverviewDates.has(d);
+
+        const exSummary = exList.length ? `${exList.length} 項：${exList.map(e => e.name).join('、')}` : '';
         const summaryText = exList.length
-          ? `${exList.length} 項：${exList.map(e => e.name).join('、')}`
-          : (day.restMarked ? '低強度/休息日' : '無項目');
+          ? (hasRest ? `休息日 · ${exSummary}` : exSummary)
+          : (hasRest ? '休息日（無訓練動作）' : '無項目');
+
+        const badgeHtml = hasRest
+          ? `<span class="rest-badge">休息日</span>`
+          : `<span class="local-badge">${day.category || '重量訓練'}</span>`;
 
         let expandedHtml = '';
         if (isExpanded) {
+          const restNoteHtml = hasRest
+            ? `<div class="muted" style="margin-bottom:6px; color:var(--orange);">狀態：低強度 / 休息日</div>`
+            : '';
           if (exList.length) {
-            expandedHtml = `<div class="overview-expanded-list">${exList.map(ex => {
+            expandedHtml = `<div class="overview-expanded-list">${restNoteHtml}${exList.map(ex => {
               const setsHtml = (ex.sets || []).map(s => `
                 <div class="set-line">
                   <span>第 ${s.set} 組</span>
@@ -1120,7 +1337,7 @@
               `;
             }).join('')}</div>`;
           } else {
-            expandedHtml = `<div class="overview-expanded-list"><div class="muted">${day.restMarked ? '已標記為低強度/休息日' : '無訓練項目'}</div></div>`;
+            expandedHtml = `<div class="overview-expanded-list">${restNoteHtml || '<div class="muted">無訓練項目</div>'}</div>`;
           }
         }
 
@@ -1129,12 +1346,13 @@
             <div class="overview-row-head">
               <div class="overview-row-main">
                 <span class="overview-row-caret">${isExpanded ? '▼' : '▶'}</span>
-                <span class="ex-name" style="font-size:14px; flex-shrink:0;">${d}</span>
+                <span class="overview-date-label">${formatSlashDate(d)}</span>
+                <span class="overview-wk-label">${getWeekdayText(d)}</span>
                 <span class="overview-row-summary">${summaryText}</span>
               </div>
               <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
-                <span class="local-badge">${day.category}</span>
-                <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteOverviewDate('${d}', event)">刪除</button>
+                ${badgeHtml}
+                <button type="button" class="overview-del-btn" onclick="deleteOverviewDate('${d}', event)">刪除</button>
               </div>
             </div>
             ${expandedHtml}
@@ -1296,6 +1514,41 @@
       if (el) el.textContent = JSON.stringify(db, null, 2);
     }
 
+    function copySyncBundle() {
+      const payload = JSON.stringify({
+        syncKey: getSyncKey().trim() || null,
+        updatedAt: new Date().toISOString(),
+        data: db
+      });
+      const box = document.getElementById('syncCodeBox');
+      if (box) box.value = payload;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(payload).then(() => alert('已複製同步碼')).catch(() => alert('已填入下方同步碼欄位，請手動複製'));
+      } else {
+        alert('已填入下方同步碼欄位，請手動複製');
+      }
+    }
+
+    function pasteSyncBundle() {
+      const box = document.getElementById('syncCodeBox');
+      const raw = box ? box.value.trim() : '';
+      if (!raw) return alert('請先在同步碼欄位貼上同步碼');
+      try {
+        const parsed = JSON.parse(raw);
+        const incomingData = parsed && typeof parsed === 'object' && parsed.data && typeof parsed.data === 'object'
+          ? parsed.data
+          : parsed;
+        if (!incomingData || typeof incomingData !== 'object' || Array.isArray(incomingData)) throw new Error();
+        const cleanedIncoming = cleanEmptyRecords(incomingData);
+        db = { ...db, ...cleanedIncoming };
+        saveDB();
+        renderAll();
+        alert('已同步並合併紀錄');
+      } catch {
+        alert('同步碼格式不正確');
+      }
+    }
+
     function exportJSON() {
       const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -1327,7 +1580,7 @@
     }
 
     function clearAllData() {
-      if (!confirm('確定要清空手機本機所有運動紀錄嗎？建議先匯出備份。')) return;
+      if (!confirm('確定要清空本機所有運動紀錄嗎？建議先匯出備份。')) return;
       db = {};
       saveDB();
       renderAll();
@@ -1391,6 +1644,7 @@
 
     function renderAll() {
       try {
+        updateSyncBadge();
         renderDateStrip();
         renderCategories();
         renderDayEntries();
