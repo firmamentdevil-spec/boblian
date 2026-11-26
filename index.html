@@ -329,6 +329,46 @@
     }
     .set-line strong { color: var(--text); }
 
+    .overview-row {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .overview-row-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .overview-row-main {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+    .overview-row-caret {
+      font-size: 11px;
+      color: var(--muted);
+      width: 14px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .overview-row-summary {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .overview-expanded-list {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
     .overview-sub-ex {
       background: rgba(11, 17, 23, 0.45);
       border: 1px solid rgba(39, 55, 73, 0.85);
@@ -676,6 +716,7 @@
     let activeCategory = db[selectedDate]?.category || '重量訓練';
     let didDragStrip = false;
     let didDragRestBtn = false;
+    const expandedOverviewDates = new Set();
 
     function saveDB() {
       try {
@@ -1031,10 +1072,20 @@
       renderAll();
     }
 
+    function toggleOverviewDate(d) {
+      if (expandedOverviewDates.has(d)) {
+        expandedOverviewDates.delete(d);
+      } else {
+        expandedOverviewDates.add(d);
+      }
+      renderOverview();
+    }
+
     function deleteOverviewDate(d, event) {
       if (event) event.stopPropagation();
       if (!confirm(`確定要刪除 ${d} 的紀錄嗎？`)) return;
       delete db[d];
+      expandedOverviewDates.delete(d);
       saveDB();
       renderAll();
     }
@@ -1046,37 +1097,47 @@
       box.innerHTML = dates.length ? dates.map(d => {
         const day = db[d];
         const exList = Array.isArray(day.exercises) ? day.exercises : [];
-        let detailHtml = '';
-        if (exList.length) {
-          detailHtml = exList.map(ex => {
-            const setsHtml = (ex.sets || []).map(s => `
-              <div class="set-line">
-                <span>第 ${s.set} 組</span>
-                <span>次數：<strong>${s.reps || '-'}</strong> ｜ 重量：<strong>${s.weight || '-'}</strong></span>
-              </div>
-            `).join('');
-            return `
-              <div class="overview-sub-ex">
-                <div class="overview-sub-title">${ex.name}</div>
-                ${setsHtml || '<div class="muted">無組數明細</div>'}
-              </div>
-            `;
-          }).join('');
-        } else {
-          detailHtml = `<div class="muted" style="margin-top:4px;">${day.restMarked ? '已標記為低強度/休息日' : '無訓練項目'}</div>`;
+        const isExpanded = expandedOverviewDates.has(d);
+        const summaryText = exList.length
+          ? `${exList.length} 項：${exList.map(e => e.name).join('、')}`
+          : (day.restMarked ? '低強度/休息日' : '無項目');
+
+        let expandedHtml = '';
+        if (isExpanded) {
+          if (exList.length) {
+            expandedHtml = `<div class="overview-expanded-list">${exList.map(ex => {
+              const setsHtml = (ex.sets || []).map(s => `
+                <div class="set-line">
+                  <span>第 ${s.set} 組</span>
+                  <span>次數：<strong>${s.reps || '-'}</strong> ｜ 重量：<strong>${s.weight || '-'}</strong></span>
+                </div>
+              `).join('');
+              return `
+                <div class="overview-sub-ex">
+                  <div class="overview-sub-title">${ex.name}</div>
+                  ${setsHtml || '<div class="muted">無組數明細</div>'}
+                </div>
+              `;
+            }).join('')}</div>`;
+          } else {
+            expandedHtml = `<div class="overview-expanded-list"><div class="muted">${day.restMarked ? '已標記為低強度/休息日' : '無訓練項目'}</div></div>`;
+          }
         }
 
         return `
-          <div class="ex-item" onclick="selectDate('${d}'); switchTab('tab-log', document.querySelector('[data-tab=tab-log]'))" style="cursor:pointer;">
-            <div class="ex-top" style="margin-bottom:4px;">
-              <span class="ex-name">${d}</span>
-              <div style="display:flex; align-items:center; gap:6px;">
+          <div class="overview-row" onclick="toggleOverviewDate('${d}')">
+            <div class="overview-row-head">
+              <div class="overview-row-main">
+                <span class="overview-row-caret">${isExpanded ? '▼' : '▶'}</span>
+                <span class="ex-name" style="font-size:14px; flex-shrink:0;">${d}</span>
+                <span class="overview-row-summary">${summaryText}</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
                 <span class="local-badge">${day.category}</span>
                 <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteOverviewDate('${d}', event)">刪除</button>
               </div>
             </div>
-            <div class="muted" style="font-size:11px;">當日紀錄清單（${exList.length} 項）</div>
-            ${detailHtml}
+            ${expandedHtml}
           </div>
         `;
       }).join('') : '<div class="muted">目前尚無歷史紀錄</div>';
@@ -1232,119 +1293,3 @@
 
     function renderJSONPreview() {
       const el = document.getElementById('jsonPreview');
-      if (el) el.textContent = JSON.stringify(db, null, 2);
-    }
-
-    function exportJSON() {
-      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `運動紀錄備份_${formatToday()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function importJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error();
-          db = cleanEmptyRecords(parsed);
-          saveDB();
-          renderAll();
-          alert('已匯入備份資料');
-        } catch {
-          alert('JSON 格式不正確');
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = '';
-    }
-
-    function clearAllData() {
-      if (!confirm('確定要清空手機本機所有運動紀錄嗎？建議先匯出備份。')) return;
-      db = {};
-      saveDB();
-      renderAll();
-    }
-
-    function switchTab(tabId, btn) {
-      ['tab-log','tab-overview','tab-library','tab-chart','tab-storage'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.toggle('hidden', id !== tabId);
-      });
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-    }
-
-    let stopwatchSec = 0;
-    let stopwatchId = null;
-
-    function formatStopwatch(sec) {
-      const hrs = Math.floor(sec / 3600);
-      const mins = Math.floor((sec % 3600) / 60);
-      const secs = sec % 60;
-      if (hrs > 0) {
-        return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-      }
-      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
-
-    function syncStopwatchUI() {
-      const isRunning = Boolean(stopwatchId);
-      const btn = document.getElementById('timerToggleBtn');
-      const numEl = document.getElementById('timerDisplay');
-      if (btn) {
-        btn.textContent = isRunning ? '❚❚' : '▶';
-        btn.setAttribute('aria-label', isRunning ? '暫停碼表' : '開始碼表');
-      }
-      if (numEl) {
-        numEl.textContent = formatStopwatch(stopwatchSec);
-      }
-    }
-
-    function resetTimer() {
-      clearInterval(stopwatchId);
-      stopwatchId = null;
-      stopwatchSec = 0;
-      syncStopwatchUI();
-    }
-
-    function toggleTimer() {
-      if (stopwatchId) {
-        clearInterval(stopwatchId);
-        stopwatchId = null;
-        syncStopwatchUI();
-      } else {
-        stopwatchId = setInterval(() => {
-          stopwatchSec++;
-          syncStopwatchUI();
-        }, 1000);
-        syncStopwatchUI();
-      }
-    }
-
-    function renderAll() {
-      try {
-        renderDateStrip();
-        renderCategories();
-        renderDayEntries();
-        renderOverview();
-        renderLibrary();
-        renderChartExerciseOptions();
-        renderJSONPreview();
-      } catch (err) {
-        document.body.innerHTML = `<div style="padding:20px;color:#eef4fa;font-family:sans-serif;">渲染發生錯誤：${err && err.message ? err.message : err}</div>`;
-      }
-    }
-
-    resetSetsUI(3);
-    syncStopwatchUI();
-    renderAll();
-  </script>
-</body>
-</html>
