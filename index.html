@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0b1117" />
   <title>運動紀錄 App</title>
+  <link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%230b1117'/%3E%3Cg fill='none' stroke='%2322d3ee' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M36 66c-6-10-4-25 6-33 8-6 20-6 28 0 6-5 16-5 22 0 8 7 8 20 1 29l-6 14H42l-6-14z'/%3E%3Cpath d='M44 76h40v18H44z' stroke='%23a3e635'/%3E%3Cpath d='M48 85h32' stroke='%23a3e635'/%3E%3Cpath d='M46 46c6-4 14-4 20 0'/%3E%3Cpath d='M24 34c-5 8-6 18-3 27' stroke='%23a3e635'/%3E%3Cpath d='M104 34c5 8 6 18 3 27' stroke='%23a3e635'/%3E%3C/g%3E%3C/svg%3E" />
+  <link id="dynamicAppleIcon" rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%230b1117'/%3E%3Cg fill='none' stroke='%2322d3ee' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M36 66c-6-10-4-25 6-33 8-6 20-6 28 0 6-5 16-5 22 0 8 7 8 20 1 29l-6 14H42l-6-14z'/%3E%3Cpath d='M44 76h40v18H44z' stroke='%23a3e635'/%3E%3Cpath d='M48 85h32' stroke='%23a3e635'/%3E%3Cpath d='M46 46c6-4 14-4 20 0'/%3E%3Cpath d='M24 34c-5 8-6 18-3 27' stroke='%23a3e635'/%3E%3Cpath d='M104 34c5 8 6 18 3 27' stroke='%23a3e635'/%3E%3C/g%3E%3C/svg%3E" />
   <style>
     :root {
       --bg: #0b1117;
@@ -344,7 +346,9 @@
       cursor: grab;
       user-select: none;
       -webkit-overflow-scrolling: touch;
-      padding-bottom: 2px;
+      padding-bottom: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
     }
     .overview-scroll-wrap.dragging { cursor: grabbing; }
 
@@ -355,19 +359,20 @@
       padding: 10px 12px;
       margin-bottom: 8px;
       cursor: pointer;
+      width: max-content;
+      min-width: 100%;
     }
     .overview-row-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 12px;
     }
     .overview-row-main {
       display: flex;
       align-items: center;
-      gap: 6px;
-      min-width: 0;
-      flex: 1;
+      gap: 8px;
+      flex-shrink: 0;
     }
     .overview-row-caret {
       font-size: 10px;
@@ -394,8 +399,7 @@
       font-size: 12px;
       color: var(--muted);
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      flex-shrink: 0;
     }
     .overview-del-btn {
       background: none;
@@ -413,6 +417,7 @@
       margin-top: 10px;
       padding-top: 8px;
       border-top: 1px solid var(--border);
+      max-width: 480px;
     }
     .overview-sub-ex {
       background: rgba(11, 17, 23, 0.45);
@@ -426,6 +431,26 @@
       font-size: 13px;
       color: var(--text);
       margin-bottom: 4px;
+    }
+
+    .app-icon-preview-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+    .app-icon-frame {
+      width: 68px;
+      height: 68px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--bg);
     }
 
     .timer-box {
@@ -628,7 +653,7 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title" style="margin-bottom:0;">歷史總覽</div>
-          <span class="muted">可拖曳 · 點選展開清單</span>
+          <span class="muted">左右拖曳看完整文字 · 點選展開清單</span>
         </div>
         <div class="overview-scroll-wrap" id="overviewScrollWrap">
           <div id="overviewList"></div>
@@ -656,6 +681,34 @@
 
     <div id="tab-storage" class="hidden">
       <div class="card">
+        <div class="card-title" style="margin-bottom:8px;">App 圖示（全圖線條畫）</div>
+        <div class="app-icon-preview-box">
+          <div class="app-icon-frame">
+            <svg id="appLineArtIconSvg" viewBox="0 0 128 128" width="68" height="68" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="0" width="128" height="128" rx="28" fill="#0b1117" />
+              <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M36 66c-6-10-4-25 6-33 8-6 20-6 28 0 6-5 16-5 22 0 8 7 8 20 1 29l-6 14H42l-6-14z" stroke="#22d3ee" stroke-width="5" />
+                <path d="M50 32c3 7 3 16 0 24" stroke="#22d3ee" stroke-width="4" />
+                <path d="M64 31c2 8 2 17 0 25" stroke="#22d3ee" stroke-width="4" />
+                <path d="M78 33c1 7 1 15 0 23" stroke="#22d3ee" stroke-width="4" />
+                <rect x="44" y="76" width="40" height="18" rx="4" stroke="#a3e635" stroke-width="4.5" />
+                <line x1="49" y1="85" x2="79" y2="85" stroke="#a3e635" stroke-width="4" />
+                <path d="M23 36c-5 8-6 18-3 27" stroke="#a3e635" stroke-width="4.5" />
+                <path d="M105 36c5 8 6 18 3 27" stroke="#a3e635" stroke-width="4.5" />
+                <path d="M40 105h48" stroke="#22d3ee" stroke-width="3.5" opacity="0.75" />
+              </g>
+            </svg>
+          </div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:13px; font-weight:700; margin-bottom:4px;">拳擊手套 × 運動線條圖示</div>
+            <div class="muted" style="margin-bottom:8px;">已套用為網頁圖示，可下載 PNG 用於捷徑或 App 圖示。</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="downloadAppIconPNG(512)">下載 512×512 PNG</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="downloadAppIconPNG(192)">下載 192×192 PNG</button>
+            </div>
+          </div>
+        </div>
+
         <div class="card-title">跨裝置同步與本機備份</div>
         <p class="muted" style="line-height:1.6; margin:8px 0 12px;">
           預設資料存於裝置本機 <code>localStorage</code>；設定「同步金鑰」可在同瀏覽器/同源分頁即時同步，並可透過「複製同步碼 / 貼上同步碼」快速在手機與電腦版網頁間同步紀錄。
@@ -727,6 +780,34 @@
     const SYNC_KEY_STORAGE = 'personal_workout_sync_key_v1';
     const WK_NAMES = ['日', '一', '二', '三', '四', '五', '六'];
     /* ============================ */
+
+    function downloadAppIconPNG(size = 512) {
+      const svgEl = document.getElementById('appLineArtIconSvg');
+      if (!svgEl) return;
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(svgEl);
+      const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, size, size);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(pngBlob => {
+          if (!pngBlob) return;
+          const pngUrl = URL.createObjectURL(pngBlob);
+          const a = document.createElement('a');
+          a.href = pngUrl;
+          a.download = `workout-lineart-icon-${size}.png`;
+          a.click();
+          URL.revokeObjectURL(pngUrl);
+        }, 'image/png');
+      };
+      img.src = url;
+    }
 
     function formatToday() {
       const now = new Date();
@@ -1072,9 +1153,9 @@
       wrap.addEventListener('mousemove', e => {
         if (!isDown) return;
         const x = e.pageX - wrap.offsetLeft;
-        const dx = (x - startX) * 1.2;
+        const dx = (x - startX) * 1.25;
         const dy = e.pageY - startY;
-        if (Math.abs(dx) > 4 || Math.abs(dy) > 5) {
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 6) {
           didDragOverview = true;
           wrap.scrollLeft = startScrollLeft - dx;
           window.scrollTo(0, startScrollY - dy);
