@@ -346,6 +346,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 4px;
+      min-height: 22px;
     }
     .timer-presets {
       display: flex;
@@ -353,6 +354,7 @@
       flex-wrap: nowrap;
       align-items: center;
     }
+    .timer-presets.hidden { display: none; }
     .timer-num {
       font-size: 15px;
       font-weight: 800;
@@ -360,6 +362,7 @@
       line-height: 1.1;
       white-space: nowrap;
       text-align: right;
+      margin-left: auto;
       transition: font-size 0.2s ease;
     }
     .timer-action-line {
@@ -389,7 +392,7 @@
       box-shadow: 0 0 0 1px rgba(34,211,238,0.35);
     }
     .timer-box.running .timer-top-line { flex: 1; gap: 12px; }
-    .timer-box.running .timer-num { font-size: 32px; }
+    .timer-box.running .timer-num { font-size: 32px; margin-left: 0; }
     .timer-box.running .timer-action-line { gap: 6px; }
     .timer-box.running .timer-btn { padding: 7px 10px; font-size: 12px; border-radius: 9px; }
 
@@ -482,12 +485,12 @@
 
         <div class="timer-box" id="timerBox">
           <div class="timer-top-line">
-            <div class="timer-presets">
-              <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(30)">30s</button>
-              <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(60)">60s</button>
-              <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(90)">90s</button>
+            <div class="timer-presets" id="timerPresets">
+              <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(30)">30</button>
+              <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(60)">60</button>
+              <button type="button" class="btn btn-ghost timer-btn" onclick="setTimer(90)">90</button>
             </div>
-            <div class="timer-num" id="timerDisplay">01:30</div>
+            <div class="timer-num" id="timerDisplay"></div>
           </div>
           <div class="timer-action-line">
             <button type="button" class="btn btn-ghost timer-btn" onclick="resetTimer()">重新</button>
@@ -1262,17 +1265,24 @@
     let baseTimerSec = 90;
     let timerSec = 90;
     let timerId = null;
+    let timerVisible = false;
 
-    function syncTimerSize() {
+    function syncTimerUI() {
+      const isRunning = Boolean(timerId);
       const box = document.getElementById('timerBox');
-      if (box) box.classList.toggle('running', Boolean(timerId));
-    }
-
-    function updateTimerDisplay() {
-      const m = String(Math.floor(timerSec / 60)).padStart(2, '0');
-      const s = String(timerSec % 60).padStart(2, '0');
-      const el = document.getElementById('timerDisplay');
-      if (el) el.textContent = `${m}:${s}`;
+      const presets = document.getElementById('timerPresets');
+      const numEl = document.getElementById('timerDisplay');
+      if (box) box.classList.toggle('running', isRunning);
+      if (presets) presets.classList.toggle('hidden', isRunning);
+      if (numEl) {
+        if (timerVisible) {
+          const m = String(Math.floor(timerSec / 60)).padStart(2, '0');
+          const s = String(timerSec % 60).padStart(2, '0');
+          numEl.textContent = `${m}:${s}`;
+        } else {
+          numEl.textContent = '';
+        }
+      }
     }
 
     function setTimer(sec) {
@@ -1280,18 +1290,18 @@
       timerId = null;
       baseTimerSec = sec;
       timerSec = sec;
+      timerVisible = true;
       document.getElementById('timerToggleBtn').textContent = '開始';
-      syncTimerSize();
-      updateTimerDisplay();
+      syncTimerUI();
     }
 
     function resetTimer() {
       clearInterval(timerId);
       timerId = null;
       timerSec = baseTimerSec;
+      timerVisible = false;
       document.getElementById('timerToggleBtn').textContent = '開始';
-      syncTimerSize();
-      updateTimerDisplay();
+      syncTimerUI();
     }
 
     function toggleTimer() {
@@ -1300,19 +1310,23 @@
         clearInterval(timerId);
         timerId = null;
         btn.textContent = '開始';
-        syncTimerSize();
+        syncTimerUI();
       } else {
+        if (!timerVisible) {
+          timerSec = baseTimerSec;
+          timerVisible = true;
+        }
         btn.textContent = '暫停';
-        syncTimerSize();
+        syncTimerUI();
         timerId = setInterval(() => {
           if (timerSec > 0) {
             timerSec--;
-            updateTimerDisplay();
+            syncTimerUI();
           } else {
             clearInterval(timerId);
             timerId = null;
             btn.textContent = '開始';
-            syncTimerSize();
+            syncTimerUI();
             if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
             alert('休息時間到！');
           }
@@ -1335,8 +1349,7 @@
     }
 
     resetSetsUI(3);
-    updateTimerDisplay();
-    syncTimerSize();
+    syncTimerUI();
     renderAll();
   </script>
 </body>
