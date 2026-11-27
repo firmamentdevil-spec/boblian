@@ -4,9 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0b1117" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="運動紀錄" />
   <title>運動紀錄 App</title>
+  <link id="dynamicManifest" rel="manifest" href="" />
   <link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%230b1117'/%3E%3Cg fill='none' stroke='%2322d3ee' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M36 66c-6-10-4-25 6-33 8-6 20-6 28 0 6-5 16-5 22 0 8 7 8 20 1 29l-6 14H42l-6-14z'/%3E%3Cpath d='M44 76h40v18H44z' stroke='%23a3e635'/%3E%3Cpath d='M48 85h32' stroke='%23a3e635'/%3E%3Cpath d='M46 46c6-4 14-4 20 0'/%3E%3Cpath d='M24 34c-5 8-6 18-3 27' stroke='%23a3e635'/%3E%3Cpath d='M104 34c5 8 6 18 3 27' stroke='%23a3e635'/%3E%3C/g%3E%3C/svg%3E" />
-  <link id="dynamicAppleIcon" rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%230b1117'/%3E%3Cg fill='none' stroke='%2322d3ee' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M36 66c-6-10-4-25 6-33 8-6 20-6 28 0 6-5 16-5 22 0 8 7 8 20 1 29l-6 14H42l-6-14z'/%3E%3Cpath d='M44 76h40v18H44z' stroke='%23a3e635'/%3E%3Cpath d='M48 85h32' stroke='%23a3e635'/%3E%3Cpath d='M46 46c6-4 14-4 20 0'/%3E%3Cpath d='M24 34c-5 8-6 18-3 27' stroke='%23a3e635'/%3E%3Cpath d='M104 34c5 8 6 18 3 27' stroke='%23a3e635'/%3E%3C/g%3E%3C/svg%3E" />
+  <link id="dynamicAppleIcon" rel="apple-touch-icon" href="" />
   <style>
     :root {
       --bg: #0b1117;
@@ -43,6 +47,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
     }
 
     .topbar-title {
@@ -51,6 +56,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      min-width: 0;
     }
 
     .local-badge {
@@ -61,6 +67,8 @@
       padding: 2px 8px;
       border-radius: 999px;
       font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .rest-badge {
@@ -71,6 +79,20 @@
       padding: 2px 8px;
       border-radius: 999px;
       font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .install-top-btn {
+      background: rgba(34, 211, 238, 0.16);
+      color: var(--accent);
+      border: 1px solid rgba(34, 211, 238, 0.45);
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
     }
 
     .container {
@@ -575,7 +597,10 @@
       <span>運動紀錄</span>
       <span class="local-badge" id="syncStatusBadge">純本機儲存</span>
     </div>
-    <span class="muted" id="activeDateText"></span>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <button type="button" class="install-top-btn" id="topInstallBtn" onclick="installPWAApp()">安裝 App</button>
+      <span class="muted" id="activeDateText"></span>
+    </div>
   </div>
 
   <div class="container">
@@ -681,7 +706,7 @@
 
     <div id="tab-storage" class="hidden">
       <div class="card">
-        <div class="card-title" style="margin-bottom:8px;">App 圖示（全圖線條畫）</div>
+        <div class="card-title" style="margin-bottom:8px;">安裝到手機與 App 圖示</div>
         <div class="app-icon-preview-box">
           <div class="app-icon-frame">
             <svg id="appLineArtIconSvg" viewBox="0 0 128 128" width="68" height="68" xmlns="http://www.w3.org/2000/svg">
@@ -700,10 +725,11 @@
             </svg>
           </div>
           <div style="flex:1; min-width:0;">
-            <div style="font-size:13px; font-weight:700; margin-bottom:4px;">拳擊手套 × 運動線條圖示</div>
-            <div class="muted" style="margin-bottom:8px;">已套用為網頁圖示，可下載 PNG 用於捷徑或 App 圖示。</div>
+            <div style="font-size:13px; font-weight:700; margin-bottom:4px;">拳擊手套 × 運動線條圖示（PWA）</div>
+            <div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">支援手機安裝成獨立全螢幕 App，並套用此線條畫圖示。</div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <button type="button" class="btn btn-primary btn-sm" onclick="downloadAppIconPNG(512)">下載 512×512 PNG</button>
+              <button type="button" class="btn btn-primary btn-sm" id="cardInstallBtn" onclick="installPWAApp()">📲 安裝到手機主畫面</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="downloadAppIconPNG(512)">下載 512×512 PNG</button>
               <button type="button" class="btn btn-ghost btn-sm" onclick="downloadAppIconPNG(192)">下載 192×192 PNG</button>
             </div>
           </div>
@@ -781,32 +807,145 @@
     const WK_NAMES = ['日', '一', '二', '三', '四', '五', '六'];
     /* ============================ */
 
+    /* ===== PWA 安裝與動態 Manifest / Service Worker ===== */
+    let deferredInstallPrompt = null;
+
+    function buildIconDataURL(size = 512) {
+      return new Promise(resolve => {
+        const svgEl = document.getElementById('appLineArtIconSvg');
+        if (!svgEl) return resolve('');
+        const svgStr = new XMLSerializer().serializeToString(svgEl);
+        const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, size, size);
+          URL.revokeObjectURL(url);
+          try {
+            resolve(canvas.toDataURL('image/png'));
+          } catch {
+            resolve('');
+          }
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve('');
+        };
+        img.src = url;
+      });
+    }
+
+    async function setupPWA() {
+      try {
+        const [icon192, icon512] = await Promise.all([
+          buildIconDataURL(192),
+          buildIconDataURL(512)
+        ]);
+        const appleLink = document.getElementById('dynamicAppleIcon');
+        if (appleLink && icon192) appleLink.href = icon192;
+
+        const icons = [];
+        if (icon192) icons.push({ src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' });
+        if (icon512) icons.push({ src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' });
+
+        const manifestObj = {
+          name: '運動紀錄 App',
+          short_name: '運動紀錄',
+          description: '個人重量訓練、衝浪與間歇運動紀錄',
+          start_url: location.href,
+          scope: location.href.substring(0, location.href.lastIndexOf('/') + 1),
+          display: 'standalone',
+          orientation: 'portrait',
+          background_color: '#0b1117',
+          theme_color: '#0b1117',
+          icons
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.getElementById('dynamicManifest');
+        if (manifestLink) manifestLink.href = manifestURL;
+      } catch {}
+
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        try {
+          const swCode = `
+            const CACHE_NAME = 'workout-pwa-v1';
+            self.addEventListener('install', e => { self.skipWaiting(); });
+            self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
+            self.addEventListener('fetch', e => {
+              if (e.request.method !== 'GET') return;
+              e.respondWith(
+                fetch(e.request).then(res => {
+                  const copy = res.clone();
+                  caches.open(CACHE_NAME).then(c => c.put(e.request, copy)).catch(() => {});
+                  return res;
+                }).catch(() => caches.match(e.request))
+              );
+            });
+          `;
+          const swBlob = new Blob([swCode], { type: 'application/javascript' });
+          const swURL = URL.createObjectURL(swBlob);
+          navigator.serviceWorker.register(swURL).catch(() => {});
+        } catch {}
+      }
+
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      if (isStandalone) {
+        const topBtn = document.getElementById('topInstallBtn');
+        const cardBtn = document.getElementById('cardInstallBtn');
+        const hint = document.getElementById('pwaInstallHint');
+        if (topBtn) topBtn.textContent = '已安裝 App';
+        if (cardBtn) cardBtn.textContent = '✓ 已在 App 模式執行';
+        if (hint) hint.textContent = '目前已透過手機主畫面獨立 App 模式開啟。';
+      }
+    }
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const topBtn = document.getElementById('topInstallBtn');
+      const cardBtn = document.getElementById('cardInstallBtn');
+      if (topBtn) topBtn.textContent = '安裝 App';
+      if (cardBtn) cardBtn.textContent = '📲 一鍵安裝到手機';
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      const topBtn = document.getElementById('topInstallBtn');
+      const cardBtn = document.getElementById('cardInstallBtn');
+      if (topBtn) topBtn.textContent = '已安裝 App';
+      if (cardBtn) cardBtn.textContent = '✓ 已安裝到手機';
+    });
+
+    async function installPWAApp() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          deferredInstallPrompt = null;
+        }
+        return;
+      }
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        alert('請點選 Safari 下方的「分享」圖示（方框向上箭頭），再選擇「加入主畫面」，即可安裝為手機 App。');
+      } else {
+        alert('請點選瀏覽器右上角「⋮」選單，選擇「安裝應用程式」或「加到主畫面」，即可安裝為手機 App。');
+      }
+    }
+
     function downloadAppIconPNG(size = 512) {
-      const svgEl = document.getElementById('appLineArtIconSvg');
-      if (!svgEl) return;
-      const serializer = new XMLSerializer();
-      const svgStr = serializer.serializeToString(svgEl);
-      const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, size, size);
-        URL.revokeObjectURL(url);
-        canvas.toBlob(pngBlob => {
-          if (!pngBlob) return;
-          const pngUrl = URL.createObjectURL(pngBlob);
-          const a = document.createElement('a');
-          a.href = pngUrl;
-          a.download = `workout-lineart-icon-${size}.png`;
-          a.click();
-          URL.revokeObjectURL(pngUrl);
-        }, 'image/png');
-      };
-      img.src = url;
+      buildIconDataURL(size).then(dataUrl => {
+        if (!dataUrl) return;
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `workout-lineart-icon-${size}.png`;
+        a.click();
+      });
     }
 
     function formatToday() {
@@ -876,7 +1015,7 @@
       const badge = document.getElementById('syncStatusBadge');
       const sk = getSyncKey().trim();
       if (badge) {
-        badge.textContent = sk ? `已啟用同步：${sk}` : '純本機儲存';
+        badge.textContent = sk ? `同步：${sk}` : '純本機';
       }
       const keyInput = document.getElementById('syncKeyInput');
       if (keyInput && document.activeElement !== keyInput) {
@@ -1038,7 +1177,7 @@
 
       strip.innerHTML = `<div class="date-spacer"></div>${chipsHtml}<div class="date-spacer"></div>`;
       const activeDateEl = document.getElementById('activeDateText');
-      if (activeDateEl) activeDateEl.textContent = `${formatSlashDate(selectedDate)} (${getWeekdayText(selectedDate)})`;
+      if (activeDateEl) activeDateEl.textContent = `${formatSlashDate(selectedDate).slice(5)} (${getWeekdayText(selectedDate)})`;
       renderMonthOptions();
       setTimeout(scrollActiveDateIntoView, 0);
     }
@@ -1429,12 +1568,10 @@
                 <span class="overview-row-caret">${isExpanded ? '▼' : '▶'}</span>
                 <span class="overview-date-label">${formatSlashDate(d)}</span>
                 <span class="overview-wk-label">${getWeekdayText(d)}</span>
+                ${badgeHtml}
                 <span class="overview-row-summary">${summaryText}</span>
               </div>
-              <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
-                ${badgeHtml}
-                <button type="button" class="overview-del-btn" onclick="deleteOverviewDate('${d}', event)">刪除</button>
-              </div>
+              <button type="button" class="overview-del-btn" onclick="deleteOverviewDate('${d}', event)">刪除</button>
             </div>
             ${expandedHtml}
           </div>
@@ -1738,6 +1875,7 @@
       }
     }
 
+    setupPWA();
     resetSetsUI(3);
     syncStopwatchUI();
     renderAll();
