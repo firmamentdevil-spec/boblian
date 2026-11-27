@@ -9,12 +9,12 @@
 <meta name="apple-mobile-web-app-title" content="運動紀錄"/>
 <title>運動紀錄 App</title>
 <link id="dynamicManifest" rel="manifest" href=""/>
-<link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='64' fill='%23131c26'/%3E%3Ccircle cx='64' cy='64' r='36' fill='none' stroke='%2322d3ee' stroke-width='12'/%3E%3C/svg%3E"/>
+<link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='62' fill='%23ffffff'/%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M44 37l-5-14 14 8' stroke='%23f97316' stroke-width='5.5'/%3E%3Cpath d='M84 37l5-14-14 8' stroke='%23f97316' stroke-width='5.5'/%3E%3Ccircle cx='64' cy='50' r='18' fill='%23ffedd5' stroke='%23f97316' stroke-width='5.5'/%3E%3Ccircle cx='57.5' cy='49' r='2.3' fill='%237c2d12' stroke='none'/%3E%3Ccircle cx='70.5' cy='49' r='2.3' fill='%237c2d12' stroke='none'/%3E%3Cpath d='M61.5 54.5q2.5 2.5 5 0' stroke='%237c2d12' stroke-width='2.4'/%3E%3Cellipse cx='64' cy='80' rx='24' ry='15' fill='%23ffedd5' stroke='%23f97316' stroke-width='5.5'/%3E%3Cline x1='28' y1='73' x2='100' y2='73' stroke='%230ea5e9' stroke-width='5.5'/%3E%3Crect x='25' y='64' width='7' height='18' rx='3' fill='%230ea5e9' stroke='none'/%3E%3Crect x='96' y='64' width='7' height='18' rx='3' fill='%230ea5e9' stroke='none'/%3E%3C/g%3E%3C/svg%3E"/>
 <link id="dynamicAppleIcon" rel="apple-touch-icon" href=""/>
 <style>
 :root{--bg:#0b1117;--surface:#131c26;--surface-2:#1b2735;--border:#273749;--text:#eef4fa;--muted:#8fa3b8;--accent:#22d3ee;--accent-2:#a3e635;--orange:#fb923c;--danger:#f87171;--radius:14px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:84px}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:84px;overflow-x:hidden}
 .topbar{position:sticky;top:0;z-index:20;background:rgba(11,17,23,0.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .topbar-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;min-width:0}
 .local-badge{font-size:11px;background:rgba(163,230,53,0.14);color:var(--accent-2);border:1px solid rgba(163,230,53,0.35);padding:2px 8px;border-radius:999px;font-weight:600;white-space:nowrap;flex-shrink:0}
@@ -36,7 +36,7 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"No
 .section-label{font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;letter-spacing:0.4px}
 .quick-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
 .quick-row .section-label{margin-bottom:0}
-.cat-timer-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start;margin-bottom:14px}
+.cat-timer-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch;margin-bottom:14px}
 .cat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;min-width:0}
 .cat-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 6px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;line-height:1.2;min-width:0}
 .cat-btn.rest-scroll-btn{display:block;overflow-x:auto;white-space:nowrap;scrollbar-width:none;cursor:grab;user-select:none;-webkit-overflow-scrolling:touch}
@@ -47,7 +47,7 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"No
 .rest-inline-card{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;margin-bottom:14px}
 .rest-inline-text{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
 .rest-inline-title{font-weight:700;font-size:13px;color:var(--orange);margin-right:6px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px;min-width:0}
 .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
 .card-title{font-size:15px;font-weight:700}
 .pill-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
@@ -72,22 +72,24 @@ input:focus,select:focus{border-color:var(--accent)}
 .overview-scroll-wrap{overflow-x:auto;cursor:grab;user-select:none;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 .overview-scroll-wrap.dragging{cursor:grabbing}
 .overview-row{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:9px 10px;margin-bottom:8px;cursor:pointer;width:max-content;min-width:100%}
-.overview-row-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.overview-row-main{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.overview-row.expanded{width:100%;max-width:100%}
+.overview-row-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.overview-row-main{display:flex;align-items:center;gap:6px;min-width:0;flex:1}
+.overview-row.expanded .overview-row-summary{overflow:hidden;text-overflow:ellipsis;flex-shrink:1}
 .overview-row-caret{font-size:10px;color:var(--muted);width:12px;text-align:center;flex-shrink:0}
 .overview-date-label{font-weight:700;font-size:13px;color:var(--text);white-space:nowrap;flex-shrink:0}
 .overview-wk-label{font-size:11px;color:var(--accent);font-weight:600;white-space:nowrap;flex-shrink:0}
 .overview-row-summary{font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0}
 .overview-del-btn{background:none;border:1px solid rgba(248,113,113,0.35);color:var(--danger);border-radius:7px;padding:3px 7px;font-size:11px;font-weight:500;line-height:1.2;cursor:pointer;flex-shrink:0}
-.overview-expanded-list{margin-top:8px;padding-top:6px;border-top:1px solid var(--border);width:min(100vw - 68px,460px);max-width:460px}
-.overview-sub-ex{background:rgba(11,17,23,0.45);border:1px solid rgba(39,55,73,0.85);border-radius:9px;padding:6px 8px;margin-top:6px}
+.overview-expanded-list{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);width:100%;max-width:100%}
+.overview-sub-ex{background:rgba(11,17,23,0.45);border:1px solid rgba(39,55,73,0.85);border-radius:9px;padding:7px 9px;margin-top:6px}
 .overview-sub-title{font-weight:700;font-size:12px;color:var(--text);margin-bottom:3px}
 .app-icon-preview-box{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px}
-.app-icon-frame{width:68px;height:68px;border-radius:50%;overflow:hidden;border:1px solid var(--border);flex-shrink:0;background:#131c26}
-.timer-box{position:relative;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(163,230,53,0.08));border:1px solid rgba(34,211,238,0.3);border-radius:12px;height:62px;padding:6px 48px 14px 10px;min-width:0;width:100%}
-.timer-num{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:clamp(20px,5.8vw,26px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap;text-align:center;letter-spacing:0.4px}
-.circle-btn-group{position:absolute;right:6px;bottom:6px;display:flex;align-items:center;gap:4px}
-.circle-icon-btn{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
+.app-icon-frame{width:72px;height:72px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#ffffff;display:flex;align-items:center;justify-content:center}
+.timer-box{display:grid;grid-template-columns:minmax(0,1fr) 26px;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(163,230,53,0.08));border:1px solid rgba(34,211,238,0.3);border-radius:12px;min-height:74px;padding:8px 8px 8px 10px;min-width:0;width:100%}
+.timer-num{width:100%;display:flex;align-items:center;justify-content:center;font-size:clamp(19px,5.2vw,25px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap;text-align:center;letter-spacing:0.3px}
+.circle-btn-group{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;flex-shrink:0}
+.circle-icon-btn{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
 .circle-icon-btn svg{width:12px;height:12px;display:block}
 .chart-wrap{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px;margin-top:10px}
 .chart-legend{display:flex;gap:14px;font-size:11px;color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
@@ -162,14 +164,25 @@ input:focus,select:focus{border-color:var(--accent)}
 <div class="card-title" style="margin-bottom:8px;">安裝到手機與 App 圖示</div>
 <div class="app-icon-preview-box">
 <div class="app-icon-frame">
-<svg id="appLineArtIconSvg" viewBox="0 0 128 128" width="68" height="68" xmlns="http://www.w3.org/2000/svg">
-<circle cx="64" cy="64" r="64" fill="#131c26"/>
-<circle cx="64" cy="64" r="36" fill="none" stroke="#22d3ee" stroke-width="12"/>
+<svg id="appLineArtIconSvg" viewBox="0 0 128 128" width="72" height="72" xmlns="http://www.w3.org/2000/svg">
+<circle cx="64" cy="64" r="62" fill="#ffffff"/>
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M44 37l-5-14 14 8" stroke="#f97316" stroke-width="5.5"/>
+<path d="M84 37l5-14-14 8" stroke="#f97316" stroke-width="5.5"/>
+<circle cx="64" cy="50" r="18" fill="#ffedd5" stroke="#f97316" stroke-width="5.5"/>
+<circle cx="57.5" cy="49" r="2.3" fill="#7c2d12" stroke="none"/>
+<circle cx="70.5" cy="49" r="2.3" fill="#7c2d12" stroke="none"/>
+<path d="M61.5 54.5q2.5 2.5 5 0" stroke="#7c2d12" stroke-width="2.4"/>
+<ellipse cx="64" cy="80" rx="24" ry="15" fill="#ffedd5" stroke="#f97316" stroke-width="5.5"/>
+<line x1="28" y1="73" x2="100" y2="73" stroke="#0ea5e9" stroke-width="5.5"/>
+<rect x="25" y="64" width="7" height="18" rx="3" fill="#0ea5e9" stroke="none"/>
+<rect x="96" y="64" width="7" height="18" rx="3" fill="#0ea5e9" stroke="none"/>
+</g>
 </svg>
 </div>
 <div style="flex:1;min-width:0;">
-<div style="font-size:13px;font-weight:700;margin-bottom:4px;">純色圓形 · O</div>
-<div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">支援手機安裝成獨立全螢幕 App，並套用此圓形 O 圖示。</div>
+<div style="font-size:13px;font-weight:700;margin-bottom:4px;">圓形置中 · 橘貓運動</div>
+<div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">純白圓形背景、置中橘貓運動圖示，無方形邊框。</div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
 <button type="button" class="btn btn-primary btn-pill-label" id="cardInstallBtn" onclick="installPWAApp()">📲 安裝到手機主畫面</button>
 <button type="button" class="btn btn-ghost btn-pill-label" onclick="downloadAppIconPNG(512)">下載 512 PNG</button>
@@ -305,7 +318,7 @@ function downloadAppIconPNG(size=512){
 buildIconDataURL(size).then(dataUrl=>{
 if(!dataUrl)return;
 const a=document.createElement('a');
-a.href=dataUrl;a.download=`workout-o-icon-${size}.png`;a.click();
+a.href=dataUrl;a.download=`workout-orange-cat-icon-${size}.png`;a.click();
 });
 }
 
@@ -492,7 +505,7 @@ strip.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();cons
 const wrap=document.getElementById('overviewScrollWrap');
 if(!wrap)return;
 let isDown=false,startX=0,startY=0,startScrollLeft=0,startScrollY=0;
-wrap.addEventListener('mousedown',e=>{if(e.target.closest('button'))return;isDown=true;didDragOverview=false;wrap.classList.add('dragging');startX=e.pageX-wrap.offsetLeft;startY=e.pageY;startScrollLeft=wrap.scrollLeft;startScrollY=window.scrollY});
+wrap.addEventListener('mousedown',e=>{if(e.target.closest('button')||e.target.closest('.overview-row.expanded'))return;isDown=true;didDragOverview=false;wrap.classList.add('dragging');startX=e.pageX-wrap.offsetLeft;startY=e.pageY;startScrollLeft=wrap.scrollLeft;startScrollY=window.scrollY});
 window.addEventListener('mouseup',()=>{if(!isDown)return;isDown=false;wrap.classList.remove('dragging');setTimeout(()=>{didDragOverview=false},0)});
 wrap.addEventListener('mousemove',e=>{if(!isDown)return;const x=e.pageX-wrap.offsetLeft,dx=(x-startX)*1.25,dy=e.pageY-startY;if(Math.abs(dx)>3||Math.abs(dy)>6){didDragOverview=true;wrap.scrollLeft=startScrollLeft-dx;window.scrollTo(0,startScrollY-dy)}});
 })();
@@ -679,7 +692,7 @@ return `<div class="overview-sub-ex"><div class="overview-sub-title">${ex.name}<
 }).join('')}</div>`
 :`<div class="overview-expanded-list">${restNoteHtml||'<div class="muted">無訓練項目</div>'}</div>`;
 }
-return `<div class="overview-row" onclick="toggleOverviewDate('${d}')"><div class="overview-row-head"><div class="overview-row-main"><span class="overview-row-caret">${isExpanded?'▼':'▶'}</span><span class="overview-date-label">${formatSlashDate(d)}</span><span class="overview-wk-label">${getWeekdayText(d)}</span>${badgeHtml}<span class="overview-row-summary">${summaryText}</span></div><button type="button" class="overview-del-btn" onclick="deleteOverviewDate('${d}',event)">刪除</button></div>${expandedHtml}</div>`;
+return `<div class="overview-row ${isExpanded?'expanded':''}" onclick="toggleOverviewDate('${d}')"><div class="overview-row-head"><div class="overview-row-main"><span class="overview-row-caret">${isExpanded?'▼':'▶'}</span><span class="overview-date-label">${formatSlashDate(d)}</span><span class="overview-wk-label">${getWeekdayText(d)}</span>${badgeHtml}<span class="overview-row-summary">${summaryText}</span></div><button type="button" class="overview-del-btn" onclick="deleteOverviewDate('${d}',event)">刪除</button></div>${expandedHtml}</div>`;
 }).join(''):'<div class="muted">目前尚無歷史紀錄</div>';
 }
 
