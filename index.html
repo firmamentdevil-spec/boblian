@@ -1,1738 +1,811 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0b1117" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="運動紀錄" />
-  <title>運動紀錄 App</title>
-  <link id="dynamicManifest" rel="manifest" href="" />
-  <link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%230b1117'/%3E%3Cg fill='none' stroke='%2322d3ee' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M36 66c-6-10-4-25 6-33 8-6 20-6 28 0 6-5 16-5 22 0 8 7 8 20 1 29l-6 14H42l-6-14z'/%3E%3Cpath d='M44 76h40v18H44z' stroke='%23a3e635'/%3E%3Cpath d='M48 85h32' stroke='%23a3e635'/%3E%3Cpath d='M46 46c6-4 14-4 20 0'/%3E%3Cpath d='M24 34c-5 8-6 18-3 27' stroke='%23a3e635'/%3E%3Cpath d='M104 34c5 8 6 18 3 27' stroke='%23a3e635'/%3E%3C/g%3E%3C/svg%3E" />
-  <link id="dynamicAppleIcon" rel="apple-touch-icon" href="" />
-  <style>
-    :root {
-      --bg: #0b1117;
-      --surface: #131c26;
-      --surface-2: #1b2735;
-      --border: #273749;
-      --text: #eef4fa;
-      --muted: #8fa3b8;
-      --accent: #22d3ee;
-      --accent-2: #a3e635;
-      --orange: #fb923c;
-      --danger: #f87171;
-      --radius: 14px;
-    }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding-bottom: 84px;
-    }
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: rgba(11, 17, 23, 0.94);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-    .topbar-title {
-      font-size: 16px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-    .local-badge {
-      font-size: 11px;
-      background: rgba(163, 230, 53, 0.14);
-      color: var(--accent-2);
-      border: 1px solid rgba(163, 230, 53, 0.35);
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-weight: 600;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .rest-badge {
-      font-size: 11px;
-      background: rgba(251, 146, 60, 0.16);
-      color: var(--orange);
-      border: 1px solid rgba(251, 146, 60, 0.4);
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-weight: 600;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .install-top-btn {
-      background: rgba(34, 211, 238, 0.16);
-      color: var(--accent);
-      border: 1px solid rgba(34, 211, 238, 0.45);
-      border-radius: 999px;
-      padding: 3px 9px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .container {
-      max-width: 540px;
-      margin: 0 auto;
-      padding: 14px 16px;
-    }
-    .date-bar-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      gap: 8px;
-    }
-    .month-select {
-      width: auto;
-      min-width: 118px;
-      padding: 5px 8px;
-      font-size: 12px;
-      border-radius: 8px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-    .date-strip {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 6px;
-      margin-bottom: 12px;
-      scrollbar-width: none;
-      cursor: grab;
-      user-select: none;
-      -webkit-overflow-scrolling: touch;
-    }
-    .date-strip::-webkit-scrollbar { display: none; }
-    .date-strip.dragging { cursor: grabbing; }
-    .date-spacer {
-      flex: 0 0 calc(50% - 31px);
-      pointer-events: none;
-    }
-    .date-chip {
-      flex: 0 0 62px;
-      min-width: 62px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 8px 6px;
-      text-align: center;
-      cursor: pointer;
-    }
-    .date-chip.active {
-      background: rgba(34, 211, 238, 0.22);
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent);
-    }
-    .date-chip .wk { font-size: 11px; color: var(--muted); }
-    .date-chip.active .wk { color: var(--accent); font-weight: 700; }
-    .date-chip .dy { font-size: 15px; font-weight: 700; margin-top: 2px; }
-    .date-chip .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      margin: 5px auto 0;
-      background: var(--accent-2);
-    }
-    .section-label {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 8px;
-      font-weight: 600;
-      letter-spacing: 0.4px;
-    }
-    .quick-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .quick-row .section-label { margin-bottom: 0; }
-    .cat-timer-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      align-items: start;
-      margin-bottom: 14px;
-    }
-    .cat-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 6px;
-      min-width: 0;
-    }
-    .cat-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 8px;
-      padding: 7px 6px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      line-height: 1.2;
-      min-width: 0;
-    }
-    .cat-btn.rest-scroll-btn {
-      display: block;
-      overflow-x: auto;
-      white-space: nowrap;
-      scrollbar-width: none;
-      cursor: grab;
-      user-select: none;
-      -webkit-overflow-scrolling: touch;
-    }
-    .cat-btn.rest-scroll-btn::-webkit-scrollbar { display: none; }
-    .cat-btn.rest-scroll-btn.dragging { cursor: grabbing; }
-    .cat-btn.active {
-      background: var(--accent);
-      color: #071018;
-      border-color: var(--accent);
-    }
-    .cat-btn.active.rest-cat {
-      background: var(--orange);
-      color: #160b04;
-      border-color: var(--orange);
-    }
-    .rest-inline-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 10px 12px;
-      margin-bottom: 14px;
-    }
-    .rest-inline-text {
-      min-width: 0;
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-size: 12px;
-    }
-    .rest-inline-title {
-      font-weight: 700;
-      font-size: 13px;
-      color: var(--orange);
-      margin-right: 6px;
-    }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px;
-      margin-bottom: 14px;
-    }
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      gap: 8px;
-    }
-    .card-title { font-size: 15px; font-weight: 700; }
-    .pill-row {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-    .pill {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .pill:hover { border-color: var(--accent); }
-    .row-3 {
-      display: grid;
-      grid-template-columns: 52px 1fr 1fr 28px;
-      gap: 6px;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .del-set-btn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--danger);
-      border-radius: 8px;
-      height: 34px;
-      width: 28px;
-      font-size: 12px;
-      cursor: pointer;
-      padding: 0;
-    }
-    input, select {
-      width: 100%;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 10px;
-      padding: 9px 10px;
-      font-size: 14px;
-      outline: none;
-    }
-    input:focus, select:focus { border-color: var(--accent); }
-    .btn {
-      border: none;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-primary { background: var(--accent); color: #071018; }
-    .btn-orange { background: var(--orange); color: #160b04; }
-    .btn-ghost {
-      background: var(--surface-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-sm { padding: 6px 10px; font-size: 12px; }
-    .ex-item {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 10px;
-    }
-    .ex-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      gap: 8px;
-    }
-    .ex-name { font-weight: 700; font-size: 15px; }
-    .set-line {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      color: var(--muted);
-      padding: 4px 0;
-      border-top: 1px dashed rgba(143, 163, 184, 0.16);
-    }
-    .set-line strong { color: var(--text); }
-    .overview-scroll-wrap {
-      overflow-x: auto;
-      cursor: grab;
-      user-select: none;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 4px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
-    }
-    .overview-scroll-wrap.dragging { cursor: grabbing; }
-    .overview-row {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      width: max-content;
-      min-width: 100%;
-    }
-    .overview-row-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .overview-row-main {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-    .overview-row-caret {
-      font-size: 10px;
-      color: var(--muted);
-      width: 12px;
-      text-align: center;
-      flex-shrink: 0;
-    }
-    .overview-date-label {
-      font-weight: 700;
-      font-size: 14px;
-      color: var(--text);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .overview-wk-label {
-      font-size: 12px;
-      color: var(--accent);
-      font-weight: 600;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .overview-row-summary {
-      font-size: 12px;
-      color: var(--muted);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .overview-del-btn {
-      background: none;
-      border: 1px solid rgba(248, 113, 113, 0.35);
-      color: var(--danger);
-      border-radius: 7px;
-      padding: 3px 7px;
-      font-size: 11px;
-      font-weight: 500;
-      line-height: 1.2;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .overview-expanded-list {
-      margin-top: 10px;
-      padding-top: 8px;
-      border-top: 1px solid var(--border);
-      max-width: 480px;
-    }
-    .overview-sub-ex {
-      background: rgba(11, 17, 23, 0.45);
-      border: 1px solid rgba(39, 55, 73, 0.85);
-      border-radius: 10px;
-      padding: 8px 10px;
-      margin-top: 8px;
-    }
-    .overview-sub-title {
-      font-weight: 700;
-      font-size: 13px;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-    .app-icon-preview-box {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-    }
-    .app-icon-frame {
-      width: 68px;
-      height: 68px;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      flex-shrink: 0;
-      background: var(--bg);
-    }
-    .timer-box {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, rgba(34,211,238,0.12), rgba(163,230,53,0.08));
-      border: 1px solid rgba(34,211,238,0.3);
-      border-radius: 12px;
-      height: 62px;
-      padding: 6px 48px 14px 10px;
-      min-width: 0;
-      width: 100%;
-    }
-    .timer-num {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: clamp(20px, 5.8vw, 26px);
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      line-height: 1;
-      white-space: nowrap;
-      text-align: center;
-      letter-spacing: 0.4px;
-    }
-    .circle-btn-group {
-      position: absolute;
-      right: 6px;
-      bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .circle-icon-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      font-weight: 900;
-      cursor: pointer;
-      padding: 0;
-      line-height: 1;
-    }
-    .circle-icon-btn svg {
-      width: 12px;
-      height: 12px;
-      display: block;
-    }
-    .chart-wrap {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px;
-      margin-top: 10px;
-    }
-    .chart-legend {
-      display: flex;
-      gap: 14px;
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 6px;
-      flex-wrap: wrap;
-    }
-    .legend-dot {
-      display: inline-block;
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      margin-right: 4px;
-      vertical-align: middle;
-    }
-    .chart-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-top: 8px;
-      text-align: center;
-    }
-    .stat-box {
-      background: rgba(11, 17, 23, 0.55);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 6px 4px;
-    }
-    .stat-box .val { font-size: 13px; font-weight: 700; color: var(--text); }
-    .stat-box .lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(11, 17, 23, 0.96);
-      backdrop-filter: blur(12px);
-      border-top: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      padding: 8px 0 10px;
-      z-index: 30;
-    }
-    .nav-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-    }
-    .nav-btn.active { color: var(--accent); }
-    .nav-icon { font-size: 17px; }
-    .hidden { display: none; }
-    .muted { color: var(--muted); font-size: 12px; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="theme-color" content="#0b1117"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="運動紀錄"/>
+<title>運動紀錄 App</title>
+<link id="dynamicManifest" rel="manifest" href=""/>
+<link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Ccircle cx='64' cy='64' r='64'/%3E%3C/clipPath%3E%3C/defs%3E%3Cg clip-path='url(%23c)'%3E%3Ccircle cx='64' cy='64' r='64' fill='%23131c26'/%3E%3Cellipse cx='64' cy='76' rx='34' ry='28' fill='%2322d3ee' fill-opacity='0.18' stroke='%2322d3ee' stroke-width='4.5'/%3E%3Ccircle cx='64' cy='44' r='21' fill='%231b2735' stroke='%2322d3ee' stroke-width='4.5'/%3E%3Cpolygon points='45,30 41,14 56,24' fill='%231b2735' stroke='%2322d3ee' stroke-width='4' stroke-linejoin='round'/%3E%3Cpolygon points='83,30 87,14 72,24' fill='%231b2735' stroke='%2322d3ee' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='57' cy='43' r='2.6' fill='%23eef4fa'/%3E%3Ccircle cx='71' cy='43' r='2.6' fill='%23eef4fa'/%3E%3Cpath d='M61 48h6l-3 4z' fill='%23fb923c'/%3E%3Cpath d='M57 53q4 4 7 0q3 4 7 0' fill='none' stroke='%23eef4fa' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='24' y1='64' x2='104' y2='64' stroke='%23a3e635' stroke-width='5' stroke-linecap='round'/%3E%3Crect x='20' y='56' width='8' height='16' rx='3' fill='%23a3e635'/%3E%3Crect x='100' y='56' width='8' height='16' rx='3' fill='%23a3e635'/%3E%3Cpath d='M48 102v8M80 102v8' stroke='%23a3e635' stroke-width='5' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E"/>
+<link id="dynamicAppleIcon" rel="apple-touch-icon" href=""/>
+<style>
+:root{--bg:#0b1117;--surface:#131c26;--surface-2:#1b2735;--border:#273749;--text:#eef4fa;--muted:#8fa3b8;--accent:#22d3ee;--accent-2:#a3e635;--orange:#fb923c;--danger:#f87171;--radius:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:84px}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(11,17,23,0.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.topbar-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;min-width:0}
+.local-badge{font-size:11px;background:rgba(163,230,53,0.14);color:var(--accent-2);border:1px solid rgba(163,230,53,0.35);padding:2px 8px;border-radius:999px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.rest-badge{font-size:11px;background:rgba(251,146,60,0.16);color:var(--orange);border:1px solid rgba(251,146,60,0.4);padding:2px 8px;border-radius:999px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.install-top-btn{background:rgba(34,211,238,0.16);color:var(--accent);border:1px solid rgba(34,211,238,0.45);border-radius:999px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.container{max-width:540px;margin:0 auto;padding:14px 16px}
+.date-bar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+.month-select{width:auto;min-width:118px;padding:5px 8px;font-size:12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text)}
+.date-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none;cursor:grab;user-select:none;-webkit-overflow-scrolling:touch}
+.date-strip::-webkit-scrollbar{display:none}
+.date-strip.dragging{cursor:grabbing}
+.date-spacer{flex:0 0 calc(50% - 31px);pointer-events:none}
+.date-chip{flex:0 0 62px;min-width:62px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 6px;text-align:center;cursor:pointer}
+.date-chip.active{background:rgba(34,211,238,0.22);border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.date-chip .wk{font-size:11px;color:var(--muted)}
+.date-chip.active .wk{color:var(--accent);font-weight:700}
+.date-chip .dy{font-size:15px;font-weight:700;margin-top:2px}
+.date-chip .dot{width:6px;height:6px;border-radius:50%;margin:5px auto 0;background:var(--accent-2)}
+.section-label{font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;letter-spacing:0.4px}
+.quick-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.quick-row .section-label{margin-bottom:0}
+.cat-timer-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start;margin-bottom:14px}
+.cat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;min-width:0}
+.cat-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 6px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;line-height:1.2;min-width:0}
+.cat-btn.rest-scroll-btn{display:block;overflow-x:auto;white-space:nowrap;scrollbar-width:none;cursor:grab;user-select:none;-webkit-overflow-scrolling:touch}
+.cat-btn.rest-scroll-btn::-webkit-scrollbar{display:none}
+.cat-btn.rest-scroll-btn.dragging{cursor:grabbing}
+.cat-btn.active{background:var(--accent);color:#071018;border-color:var(--accent)}
+.cat-btn.active.rest-cat{background:var(--orange);color:#160b04;border-color:var(--orange)}
+.rest-inline-card{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;margin-bottom:14px}
+.rest-inline-text{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.rest-inline-title{font-weight:700;font-size:13px;color:var(--orange);margin-right:6px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.card-title{font-size:15px;font-weight:700}
+.pill-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:999px;font-size:12px;cursor:pointer}
+.pill:hover{border-color:var(--accent)}
+.row-3{display:grid;grid-template-columns:52px 1fr 1fr 28px;gap:6px;align-items:center;margin-bottom:8px}
+.del-set-btn{background:none;border:1px solid var(--border);color:var(--danger);border-radius:8px;height:34px;width:28px;font-size:12px;cursor:pointer;padding:0}
+input,select{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 10px;font-size:14px;outline:none}
+input:focus,select:focus{border-color:var(--accent)}
+.btn{border:none;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-primary{background:var(--accent);color:#071018}
+.btn-orange{background:var(--orange);color:#160b04}
+.btn-ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
+.btn-sm{padding:6px 10px;font-size:12px}
+.ex-item{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px}
+.ex-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+.ex-name{font-weight:700;font-size:15px}
+.set-line{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);padding:4px 0;border-top:1px dashed rgba(143,163,184,0.16)}
+.set-line strong{color:var(--text)}
+.overview-scroll-wrap{overflow-x:auto;cursor:grab;user-select:none;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.overview-scroll-wrap.dragging{cursor:grabbing}
+.overview-row{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;width:max-content;min-width:100%}
+.overview-row-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.overview-row-main{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.overview-row-caret{font-size:10px;color:var(--muted);width:12px;text-align:center;flex-shrink:0}
+.overview-date-label{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;flex-shrink:0}
+.overview-wk-label{font-size:12px;color:var(--accent);font-weight:600;white-space:nowrap;flex-shrink:0}
+.overview-row-summary{font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.overview-del-btn{background:none;border:1px solid rgba(248,113,113,0.35);color:var(--danger);border-radius:7px;padding:3px 7px;font-size:11px;font-weight:500;line-height:1.2;cursor:pointer;flex-shrink:0}
+.overview-expanded-list{margin-top:10px;padding-top:8px;border-top:1px solid var(--border);max-width:480px}
+.overview-sub-ex{background:rgba(11,17,23,0.45);border:1px solid rgba(39,55,73,0.85);border-radius:10px;padding:8px 10px;margin-top:8px}
+.overview-sub-title{font-weight:700;font-size:13px;color:var(--text);margin-bottom:4px}
+.app-icon-preview-box{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.app-icon-frame{width:68px;height:68px;border-radius:50%;overflow:hidden;border:1px solid var(--border);flex-shrink:0;background:var(--bg)}
+.timer-box{position:relative;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(163,230,53,0.08));border:1px solid rgba(34,211,238,0.3);border-radius:12px;height:62px;padding:6px 48px 14px 10px;min-width:0;width:100%}
+.timer-num{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:clamp(20px,5.8vw,26px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap;text-align:center;letter-spacing:0.4px}
+.circle-btn-group{position:absolute;right:6px;bottom:6px;display:flex;align-items:center;gap:4px}
+.circle-icon-btn{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
+.circle-icon-btn svg{width:12px;height:12px;display:block}
+.chart-wrap{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px;margin-top:10px}
+.chart-legend{display:flex;gap:14px;font-size:11px;color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
+.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.chart-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;text-align:center}
+.stat-box{background:rgba(11,17,23,0.55);border:1px solid var(--border);border-radius:8px;padding:6px 4px}
+.stat-box .val{font-size:13px;font-weight:700;color:var(--text)}
+.stat-box .lbl{font-size:10px;color:var(--muted);margin-top:2px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,17,23,0.96);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 0 10px;z-index:30}
+.nav-btn{background:none;border:none;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav-btn.active{color:var(--accent)}
+.nav-icon{font-size:17px}
+.hidden{display:none}
+.muted{color:var(--muted);font-size:12px}
+</style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="topbar-title">
-      <span>運動紀錄</span>
-      <span class="local-badge" id="syncStatusBadge">純本機儲存</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;">
-      <button type="button" class="install-top-btn" id="topInstallBtn" onclick="installPWAApp()">安裝 App</button>
-      <span class="muted" id="activeDateText"></span>
-    </div>
-  </div>
-  <div class="container">
-    <div id="tab-log">
-      <div class="date-bar-top">
-        <span class="muted">拖曳或點選日期</span>
-        <select id="monthSelect" class="month-select" onchange="onMonthChange(this.value)"></select>
-      </div>
-      <div class="date-strip" id="dateStrip"></div>
-      <div class="cat-timer-row" style="margin-bottom:6px;">
-        <div class="section-label" style="margin-bottom:0;">當日訓練分類</div>
-        <div class="section-label" style="margin-bottom:0;text-align:right;">組間碼表</div>
-      </div>
-      <div class="cat-timer-row">
-        <div class="cat-grid" id="catGrid"></div>
-        <div class="timer-box" id="timerBox">
-          <div class="timer-num" id="timerDisplay">00:00</div>
-          <div class="circle-btn-group">
-            <button type="button" class="btn btn-primary circle-icon-btn" id="timerToggleBtn" title="開始 / 暫停" onclick="toggleTimer()">▶</button>
-            <button type="button" class="btn btn-ghost circle-icon-btn" title="歸零重設" aria-label="歸零重設" onclick="resetTimer()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
-                <polyline points="3 3 3 8 8 8" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="card rest-inline-card hidden" id="restCard">
-        <div class="rest-inline-text" id="restInlineText">
-          <span class="rest-inline-title">今日狀態：低強度/休息</span>
-          <span class="muted" id="restCardDesc">點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。</span>
-        </div>
-        <button type="button" class="btn btn-orange btn-sm" style="flex:0 0 auto;white-space:nowrap;" id="markRestBtn" onclick="markRestDay()">記錄為休息日</button>
-      </div>
-      <div class="card" id="strengthCard">
-        <div class="card-header">
-          <div class="card-title">新增動作組數</div>
-          <span class="muted">次數 / 重量kg</span>
-        </div>
-        <div class="quick-row">
-          <span class="section-label">常用動作快選</span>
-          <span class="muted">可直接手動輸入動作</span>
-        </div>
-        <div class="pill-row" id="quickExercises"></div>
-        <div style="margin-bottom:10px;">
-          <input type="text" id="exNameInput" placeholder="動作名稱" />
-        </div>
-        <div id="setsContainer"></div>
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <button class="btn btn-ghost btn-sm" onclick="addSetRow()">＋ 增加一組</button>
-          <button class="btn btn-primary" style="flex:1;" onclick="saveStrengthEntry()">加入今日紀錄</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">當日紀錄清單</div>
-          <span class="muted" id="daySummaryBadge"></span>
-        </div>
-        <div id="dayEntriesList"></div>
-      </div>
-    </div>
-    <div id="tab-overview" class="hidden">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title" style="margin-bottom:0;">歷史總覽</div>
-          <span class="muted">左右拖曳看完整文字 · 點選展開清單</span>
-        </div>
-        <div class="overview-scroll-wrap" id="overviewScrollWrap">
-          <div id="overviewList"></div>
-        </div>
-      </div>
-    </div>
-    <div id="tab-library" class="hidden">
-      <div class="card">
-        <div class="card-title" style="margin-bottom:8px;">分類動作庫</div>
-        <div id="libraryList"></div>
-      </div>
-    </div>
-    <div id="tab-chart" class="hidden">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">訓練進步曲線圖</div>
-          <span class="muted">依歷次紀錄自動統計</span>
-        </div>
-        <select id="chartExerciseSelect" onchange="renderProgressChart()"></select>
-        <div id="progressChartContainer"></div>
-      </div>
-    </div>
-    <div id="tab-storage" class="hidden">
-      <div class="card">
-        <div class="card-title" style="margin-bottom:8px;">安裝到手機與 App 圖示</div>
-        <div class="app-icon-preview-box">
-          <div class="app-icon-frame">
-            <svg id="appLineArtIconSvg" viewBox="0 0 128 128" width="68" height="68" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="0" width="128" height="128" rx="28" fill="#0b1117" />
-              <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M36 66c-6-10-4-25 6-33 8-6 20-6 28 0 6-5 16-5 22 0 8 7 8 20 1 29l-6 14H42l-6-14z" stroke="#22d3ee" stroke-width="5" />
-                <path d="M50 32c3 7 3 16 0 24" stroke="#22d3ee" stroke-width="4" />
-                <path d="M64 31c2 8 2 17 0 25" stroke="#22d3ee" stroke-width="4" />
-                <path d="M78 33c1 7 1 15 0 23" stroke="#22d3ee" stroke-width="4" />
-                <rect x="44" y="76" width="40" height="18" rx="4" stroke="#a3e635" stroke-width="4.5" />
-                <line x1="49" y1="85" x2="79" y2="85" stroke="#a3e635" stroke-width="4" />
-                <path d="M23 36c-5 8-6 18-3 27" stroke="#a3e635" stroke-width="4.5" />
-                <path d="M105 36c5 8 6 18 3 27" stroke="#a3e635" stroke-width="4.5" />
-                <path d="M40 105h48" stroke="#22d3ee" stroke-width="3.5" opacity="0.75" />
-              </g>
-            </svg>
-          </div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:13px;font-weight:700;margin-bottom:4px;">拳擊手套 × 運動線條圖示（PWA）</div>
-            <div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">支援手機安裝成獨立全螢幕 App，並套用此線條畫圖示。</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button type="button" class="btn btn-primary btn-sm" id="cardInstallBtn" onclick="installPWAApp()">📲 安裝到手機主畫面</button>
-              <button type="button" class="btn btn-ghost btn-sm" onclick="downloadAppIconPNG(512)">下載 512×512 PNG</button>
-              <button type="button" class="btn btn-ghost btn-sm" onclick="downloadAppIconPNG(192)">下載 192×192 PNG</button>
-            </div>
-          </div>
-        </div>
-        <div class="card-title">跨裝置同步與本機備份</div>
-        <p class="muted" style="line-height:1.6;margin:8px 0 12px;">
-          預設資料存於裝置本機<code>localStorage</code>；設定「同步金鑰」可在同瀏覽器/同源分頁即時同步，並可透過「複製同步碼 / 貼上同步碼」快速在手機與電腦版網頁間同步紀錄。
-        </p>
-        <div style="display:flex;gap:8px;margin-bottom:10px;">
-          <input type="text" id="syncKeyInput" placeholder="輸入同步金鑰（例如：my-surf-gym）" onchange="onSyncKeyChange(this.value)" />
-          <button class="btn btn-ghost btn-sm" style="white-space:nowrap;" onclick="syncNowFromStorage()">立即同步</button>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-          <button class="btn btn-primary btn-sm" onclick="copySyncBundle()">複製同步碼</button>
-          <button class="btn btn-ghost btn-sm" onclick="pasteSyncBundle()">貼上同步碼並合併/覆蓋</button>
-          <button class="btn btn-ghost btn-sm" onclick="exportJSON()">匯出 JSON</button>
-          <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
-            匯入 JSON <input type="file" accept=".json" style="display:none;" onchange="importJSON(event)" />
-          </label>
-          <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="clearAllData()">清空本機資料</button>
-        </div>
-        <textarea id="syncCodeBox" rows="3" placeholder="同步碼（或貼上從另一台裝置複製的同步碼）" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 10px;font-size:11px;resize:vertical;"></textarea>
-        <pre id="jsonPreview" style="margin-top:12px;background:var(--surface-2);padding:10px;border-radius:10px;font-size:11px;max-height:220px;overflow:auto;color:var(--muted);"></pre>
-      </div>
-    </div>
-  </div>
-  <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="tab-log" onclick="switchTab('tab-log',this)">
-      <span class="nav-icon">🏋️</span><span>今日紀錄</span>
-    </button>
-    <button class="nav-btn" data-tab="tab-overview" onclick="switchTab('tab-overview',this)">
-      <span class="nav-icon">📅</span><span>歷史總覽</span>
-    </button>
-    <button class="nav-btn" data-tab="tab-library" onclick="switchTab('tab-library',this)">
-      <span class="nav-icon">📋</span><span>動作庫</span>
-    </button>
-    <button class="nav-btn" data-tab="tab-chart" onclick="switchTab('tab-chart',this)">
-      <span class="nav-icon">📈</span><span>曲線圖</span>
-    </button>
-    <button class="nav-btn" data-tab="tab-storage" onclick="switchTab('tab-storage',this)">
-      <span class="nav-icon">🔒</span><span>本機資料</span>
-    </button>
-  </nav>
-  <script>
-    const CATEGORIES = ['重量訓練', '衝浪訓練', '高強度間接', '有氧訓練', '低強度/休息'];
-    const EXERCISE_POOL = {
-      '重量訓練': [
-        '槓鈴握推', '槓鈴深蹲', '槓鈴肩推', '槓鈴RDL', '槓鈴大腿側蹲',
-        '啞鈴坐式肩推', '啞鈴胸推',
-        '滑輪下拉(機械)', '水平划船(機械)', '肩側部(機械)',
-        '捲腹(重訓椅&懸吊)', '引體向上'
-      ],
-      '衝浪訓練': [
-        '啞鈴肩推(滑水)', '趴式Y式啞鈴',
-        '滑輪側腹轉體', '滑輪下拉划水', '地雷管爆發上推', '地雷管單手肩推', '地雷管軀幹旋轉', '單腿RDL', '哥本哈根側棒式'
-      ],
-      '高強度間接': [
-        '槓鈴分腿蹲',
-        '啞鈴肩推(滑水)', '啞鈴反向飛鳥(Y式)',
-        '大腿寬內外收(機械)', '直臂下拉(機械)',
-        '肩推深蹲(複合)', '單腿RDL', '捲腹(重訓椅&懸吊)', '地雷管爆發上推'
-      ],
-      '有氧訓練': ['慢跑', '游泳', '20分間歇'],
-      '低強度/休息': []
-    };
-    const STORAGE_KEY = 'personal_workout_log_v1';
-    const SYNC_KEY_STORAGE = 'personal_workout_sync_key_v1';
-    const WK_NAMES = ['日', '一', '二', '三', '四', '五', '六'];
-    let deferredInstallPrompt = null;
-
-    function buildIconDataURL(size = 512) {
-      return new Promise(resolve => {
-        const svgEl = document.getElementById('appLineArtIconSvg');
-        if (!svgEl) return resolve('');
-        const svgStr = new XMLSerializer().serializeToString(svgEl);
-        const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = size;
-          canvas.height = size;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, size, size);
-          URL.revokeObjectURL(url);
-          try {
-            resolve(canvas.toDataURL('image/png'));
-          } catch {
-            resolve('');
-          }
-        };
-        img.onerror = () => {
-          URL.revokeObjectURL(url);
-          resolve('');
-        };
-        img.src = url;
-      });
-    }
-
-    async function setupPWA() {
-      try {
-        const [icon192, icon512] = await Promise.all([buildIconDataURL(192), buildIconDataURL(512)]);
-        const appleLink = document.getElementById('dynamicAppleIcon');
-        if (appleLink && icon192) appleLink.href = icon192;
-        const icons = [];
-        if (icon192) icons.push({ src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' });
-        if (icon512) icons.push({ src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' });
-        const manifestObj = {
-          name: '運動紀錄 App',
-          short_name: '運動紀錄',
-          description: '個人重量訓練、衝浪與間歇運動紀錄',
-          start_url: location.href,
-          scope: location.href.substring(0, location.href.lastIndexOf('/') + 1),
-          display: 'standalone',
-          orientation: 'portrait',
-          background_color: '#0b1117',
-          theme_color: '#0b1117',
-          icons
-        };
-        const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
-        const manifestURL = URL.createObjectURL(manifestBlob);
-        const manifestLink = document.getElementById('dynamicManifest');
-        if (manifestLink) manifestLink.href = manifestURL;
-      } catch {}
-
-      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-        try {
-          const swCode = `
-            const CACHE_NAME = 'workout-pwa-v1';
-            self.addEventListener('install', e => { self.skipWaiting(); });
-            self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
-            self.addEventListener('fetch', e => {
-              if (e.request.method !== 'GET') return;
-              e.respondWith(
-                fetch(e.request).then(res => {
-                  const copy = res.clone();
-                  caches.open(CACHE_NAME).then(c => c.put(e.request, copy)).catch(() => {});
-                  return res;
-                }).catch(() => caches.match(e.request))
-              );
-            });
-          `;
-          const swBlob = new Blob([swCode], { type: 'application/javascript' });
-          const swURL = URL.createObjectURL(swBlob);
-          navigator.serviceWorker.register(swURL).catch(() => {});
-        } catch {}
-      }
-
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-      if (isStandalone) {
-        const topBtn = document.getElementById('topInstallBtn');
-        const cardBtn = document.getElementById('cardInstallBtn');
-        const hint = document.getElementById('pwaInstallHint');
-        if (topBtn) topBtn.textContent = '已安裝 App';
-        if (cardBtn) cardBtn.textContent = '✓ 已在 App 模式執行';
-        if (hint) hint.textContent = '目前已透過手機主畫面獨立 App 模式開啟。';
-      }
-    }
-
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      deferredInstallPrompt = e;
-      const topBtn = document.getElementById('topInstallBtn');
-      const cardBtn = document.getElementById('cardInstallBtn');
-      if (topBtn) topBtn.textContent = '安裝 App';
-      if (cardBtn) cardBtn.textContent = '📲 一鍵安裝到手機';
-    });
-
-    window.addEventListener('appinstalled', () => {
-      deferredInstallPrompt = null;
-      const topBtn = document.getElementById('topInstallBtn');
-      const cardBtn = document.getElementById('cardInstallBtn');
-      if (topBtn) topBtn.textContent = '已安裝 App';
-      if (cardBtn) cardBtn.textContent = '✓ 已安裝到手機';
-    });
-
-    async function installPWAApp() {
-      if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        const choice = await deferredInstallPrompt.userChoice;
-        if (choice && choice.outcome === 'accepted') deferredInstallPrompt = null;
-        return;
-      }
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if (isIOS) {
-        alert('請點選 Safari 下方的「分享」圖示（方框向上箭頭），再選擇「加入主畫面」，即可安裝為手機 App。');
-      } else {
-        alert('請點選瀏覽器右上角「⋮」選單，選擇「安裝應用程式」或「加到主畫面」，即可安裝為手機 App。');
-      }
-    }
-
-    function downloadAppIconPNG(size = 512) {
-      buildIconDataURL(size).then(dataUrl => {
-        if (!dataUrl) return;
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = `workout-lineart-icon-${size}.png`;
-        a.click();
-      });
-    }
-
-    function formatToday() {
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, '0');
-      const d = String(now.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-
-    function formatSlashDate(isoDate) {
-      const parts = String(isoDate || '').split('-');
-      if (parts.length !== 3) return isoDate || '';
-      return `${parts[0]}/${parts[1]}/${parts[2]}`;
-    }
-
-    function getWeekdayText(isoDate) {
-      const dt = new Date(isoDate + 'T00:00:00');
-      if (Number.isNaN(dt.getTime())) return '';
-      return `週${WK_NAMES[dt.getDay()]}`;
-    }
-
-    function isRestCategory(cat) {
-      return cat === '低強度/休息' || cat === '休息日' || cat === '休息';
-    }
-
-    function isDayRecorded(dayObj) {
-      if (!dayObj || typeof dayObj !== 'object') return false;
-      const hasExercises = Array.isArray(dayObj.exercises) && dayObj.exercises.length > 0;
-      const isMarkedRest = Boolean(dayObj.restMarked) || isRestCategory(dayObj.category);
-      return hasExercises || isMarkedRest;
-    }
-
-    function cleanEmptyRecords(rawObj) {
-      const cleaned = {};
-      if (!rawObj || typeof rawObj !== 'object' || Array.isArray(rawObj)) return cleaned;
-      Object.keys(rawObj).forEach(d => {
-        const item = rawObj[d];
-        if (!item || typeof item !== 'object') return;
-        const exercises = Array.isArray(item.exercises) ? item.exercises : [];
-        const restMarked = Boolean(item.restMarked) || isRestCategory(item.category);
-        if (exercises.length > 0 || restMarked) {
-          cleaned[d] = {
-            category: item.category || (restMarked ? '低強度/休息' : '重量訓練'),
-            exercises,
-            ...(restMarked ? { restMarked: true } : {})
-          };
-        }
-      });
-      return cleaned;
-    }
-
-    function getSyncKey() {
-      try {
-        return localStorage.getItem(SYNC_KEY_STORAGE) || '';
-      } catch {
-        return '';
-      }
-    }
-
-    function getEffectiveStorageKey() {
-      const sk = getSyncKey().trim();
-      return sk ? `${STORAGE_KEY}__sync_${encodeURIComponent(sk)}` : STORAGE_KEY;
-    }
-
-    function updateSyncBadge() {
-      const badge = document.getElementById('syncStatusBadge');
-      const sk = getSyncKey().trim();
-      if (badge) badge.textContent = sk ? `同步：${sk}` : '純本機';
-      const keyInput = document.getElementById('syncKeyInput');
-      if (keyInput && document.activeElement !== keyInput) keyInput.value = sk;
-    }
-
-    function onSyncKeyChange(val) {
-      try {
-        const trimmed = String(val || '').trim();
-        if (trimmed) localStorage.setItem(SYNC_KEY_STORAGE, trimmed);
-        else localStorage.removeItem(SYNC_KEY_STORAGE);
-      } catch {}
-      db = cleanEmptyRecords(loadDB());
-      activeCategory = db[selectedDate]?.category || '重量訓練';
-      updateSyncBadge();
-      renderAll();
-    }
-
-    function loadDB() {
-      try {
-        return JSON.parse(localStorage.getItem(getEffectiveStorageKey()) || '{}');
-      } catch {
-        return {};
-      }
-    }
-
-    let db = cleanEmptyRecords(loadDB());
-    let selectedDate = formatToday();
-    let activeCategory = db[selectedDate]?.category || '重量訓練';
-    let didDragStrip = false;
-    let didDragRestBtn = false;
-    let didDragOverview = false;
-    const expandedOverviewDates = new Set();
-
-    const broadcastChannel = ('BroadcastChannel' in window)
-      ? new BroadcastChannel('personal_workout_sync_channel_v1')
-      : null;
-
-    if (broadcastChannel) {
-      broadcastChannel.onmessage = event => {
-        const data = event?.data;
-        if (!data || data.storageKey !== getEffectiveStorageKey()) return;
-        db = cleanEmptyRecords(data.db || {});
-        activeCategory = db[selectedDate]?.category || '重量訓練';
-        renderAll();
-      };
-    }
-
-    function saveDB() {
-      const key = getEffectiveStorageKey();
-      try {
-        localStorage.setItem(key, JSON.stringify(db));
-      } catch {}
-      if (broadcastChannel) {
-        try {
-          broadcastChannel.postMessage({ storageKey: key, db });
-        } catch {}
-      }
-      renderJSONPreview();
-    }
-
-    function syncNowFromStorage() {
-      db = cleanEmptyRecords(loadDB());
-      activeCategory = db[selectedDate]?.category || '重量訓練';
-      updateSyncBadge();
-      renderAll();
-    }
-
-    window.addEventListener('storage', e => {
-      if (e.key === getEffectiveStorageKey() || e.key === SYNC_KEY_STORAGE) syncNowFromStorage();
-    });
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) syncNowFromStorage();
-    });
-    window.addEventListener('focus', () => syncNowFromStorage());
-
-    function getMonthDates(ym) {
-      const parts = String(ym || '').split('-');
-      const y = Number(parts[0]) || new Date().getFullYear();
-      const m = Number(parts[1]) || (new Date().getMonth() + 1);
-      const yStr = String(y);
-      const mStr = String(m).padStart(2, '0');
-      const daysInMonth = new Date(y, m, 0).getDate();
-      const list = [];
-      for (let d = 1; d <= daysInMonth; d++) list.push(`${yStr}-${mStr}-${String(d).padStart(2, '0')}`);
-      return list;
-    }
-
-    function renderMonthOptions() {
-      const sel = document.getElementById('monthSelect');
-      if (!sel) return;
-      const todayStr = formatToday();
-      const currentYM = todayStr.slice(0, 7);
-      const selectedYM = selectedDate.slice(0, 7);
-      const months = new Set([currentYM, selectedYM]);
-      const baseDate = new Date(todayStr + 'T00:00:00');
-      for (let offset = -5; offset <= 1; offset++) {
-        const dt = new Date(baseDate.getFullYear(), baseDate.getMonth() + offset, 1);
-        months.add(`${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`);
-      }
-      Object.keys(db).forEach(d => {
-        if (isDayRecorded(db[d]) && d.length >= 7) months.add(d.slice(0, 7));
-      });
-      const sorted = [...months].sort();
-      sel.innerHTML = sorted.map(ym => `<option value="${ym}">${ym}</option>`).join('');
-      sel.value = selectedYM;
-    }
-
-    function onMonthChange(ym) {
-      if (!ym) return;
-      const todayStr = formatToday();
-      selectedDate = ym === todayStr.slice(0, 7) ? todayStr : `${ym}-01`;
-      activeCategory = db[selectedDate]?.category || '重量訓練';
-      renderAll();
-    }
-
-    function scrollActiveDateIntoView() {
-      const strip = document.getElementById('dateStrip');
-      if (!strip) return;
-      const activeChip = strip.querySelector('.date-chip.active');
-      if (activeChip) {
-        const left = activeChip.offsetLeft - (strip.clientWidth / 2) + (activeChip.offsetWidth / 2);
-        strip.scrollLeft = Math.max(0, left);
-      }
-    }
-
-    function renderDateStrip() {
-      const strip = document.getElementById('dateStrip');
-      if (!strip) return;
-      const ym = selectedDate.slice(0, 7);
-      const dates = getMonthDates(ym);
-      const todayStr = formatToday();
-      const chipsHtml = dates.map(d => {
-        const hasLog = isDayRecorded(db[d]);
-        const isToday = d === todayStr;
-        return `
-          <div class="date-chip ${d === selectedDate ? 'active' : ''}" onclick="handleChipClick('${d}')">
-            <div class="wk">${isToday ? '今日' : getWeekdayText(d)}</div>
-            <div class="dy">${d.slice(5)}</div>
-            <div class="dot" style="opacity:${hasLog ? 1 : 0.15}"></div>
-          </div>
-        `;
-      }).join('');
-      strip.innerHTML = `<div class="date-spacer"></div>${chipsHtml}<div class="date-spacer"></div>`;
-      const activeDateEl = document.getElementById('activeDateText');
-      if (activeDateEl) activeDateEl.textContent = `${formatSlashDate(selectedDate).slice(5)} (${getWeekdayText(selectedDate)})`;
-      renderMonthOptions();
-      setTimeout(scrollActiveDateIntoView, 0);
-    }
-
-    function handleChipClick(d) {
-      if (didDragStrip) {
-        didDragStrip = false;
-        return;
-      }
-      selectDate(d);
-    }
-
-    function handleRestBtnClick(cat) {
-      if (didDragRestBtn) {
-        didDragRestBtn = false;
-        return;
-      }
-      setCategory(cat);
-    }
-
-    function bindRestBtnDrag() {
-      const btn = document.getElementById('restCatBtn');
-      if (!btn || btn.dataset.dragBound) return;
-      btn.dataset.dragBound = '1';
-      let isDown = false;
-      let startX = 0;
-      let startScrollLeft = 0;
-      btn.addEventListener('mousedown', e => {
-        isDown = true;
-        didDragRestBtn = false;
-        btn.classList.add('dragging');
-        startX = e.pageX - btn.offsetLeft;
-        startScrollLeft = btn.scrollLeft;
-      });
-      window.addEventListener('mouseup', () => {
-        if (!isDown) return;
-        isDown = false;
-        btn.classList.remove('dragging');
-        setTimeout(() => { didDragRestBtn = false; }, 0);
-      });
-      btn.addEventListener('mousemove', e => {
-        if (!isDown) return;
-        const x = e.pageX - btn.offsetLeft;
-        const walk = (x - startX) * 1.2;
-        if (Math.abs(walk) > 4) didDragRestBtn = true;
-        btn.scrollLeft = startScrollLeft - walk;
-      });
-    }
-
-    (function enableStripDrag() {
-      const strip = document.getElementById('dateStrip');
-      if (!strip) return;
-      let isDown = false;
-      let startX = 0;
-      let startScrollLeft = 0;
-      strip.addEventListener('mousedown', e => {
-        isDown = true;
-        didDragStrip = false;
-        strip.classList.add('dragging');
-        startX = e.pageX - strip.offsetLeft;
-        startScrollLeft = strip.scrollLeft;
-      });
-      window.addEventListener('mouseup', () => {
-        if (!isDown) return;
-        isDown = false;
-        strip.classList.remove('dragging');
-        setTimeout(() => { didDragStrip = false; }, 0);
-      });
-      strip.addEventListener('mousemove', e => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - strip.offsetLeft;
-        const walk = (x - startX) * 1.2;
-        if (Math.abs(walk) > 4) didDragStrip = true;
-        strip.scrollLeft = startScrollLeft - walk;
-      });
-    })();
-
-    (function enableOverviewDrag() {
-      const wrap = document.getElementById('overviewScrollWrap');
-      if (!wrap) return;
-      let isDown = false;
-      let startX = 0;
-      let startY = 0;
-      let startScrollLeft = 0;
-      let startScrollY = 0;
-      wrap.addEventListener('mousedown', e => {
-        if (e.target.closest('button')) return;
-        isDown = true;
-        didDragOverview = false;
-        wrap.classList.add('dragging');
-        startX = e.pageX - wrap.offsetLeft;
-        startY = e.pageY;
-        startScrollLeft = wrap.scrollLeft;
-        startScrollY = window.scrollY;
-      });
-      window.addEventListener('mouseup', () => {
-        if (!isDown) return;
-        isDown = false;
-        wrap.classList.remove('dragging');
-        setTimeout(() => { didDragOverview = false; }, 0);
-      });
-      wrap.addEventListener('mousemove', e => {
-        if (!isDown) return;
-        const x = e.pageX - wrap.offsetLeft;
-        const dx = (x - startX) * 1.25;
-        const dy = e.pageY - startY;
-        if (Math.abs(dx) > 3 || Math.abs(dy) > 6) {
-          didDragOverview = true;
-          wrap.scrollLeft = startScrollLeft - dx;
-          window.scrollTo(0, startScrollY - dy);
-        }
-      });
-    })();
-
-    function selectDate(d) {
-      selectedDate = d;
-      activeCategory = db[d]?.category || '重量訓練';
-      renderAll();
-    }
-
-    function getSortedUniqueExercises(list) {
-      const unique = [...new Set(list || [])];
-      const rank = name => {
-        if (name.includes('槓鈴')) return 1;
-        if (name.includes('啞鈴')) return 2;
-        if (name.includes('機械')) return 3;
-        return 4;
-      };
-      return unique.sort((a, b) => rank(a) - rank(b));
-    }
-
-    function renderCategories() {
-      const currentCat = db[selectedDate]?.category || activeCategory;
-      const grid = document.getElementById('catGrid');
-      if (!grid) return;
-      grid.innerHTML = CATEGORIES.map(cat => {
-        const isRestCat = isRestCategory(cat);
-        const activeClass = currentCat === cat ? (isRestCat ? 'active rest-cat' : 'active') : '';
-        if (isRestCat) {
-          return `<button type="button" id="restCatBtn" class="cat-btn rest-scroll-btn ${activeClass}" onclick="handleRestBtnClick('${cat}')">${cat}</button>`;
-        }
-        return `<button type="button" class="cat-btn ${activeClass}" onclick="setCategory('${cat}')">${cat}</button>`;
-      }).join('');
-      bindRestBtnDrag();
-      const isRest = isRestCategory(currentCat);
-      const restCard = document.getElementById('restCard');
-      if (restCard) restCard.classList.toggle('hidden', !isRest);
-      if (isRest) {
-        const alreadyMarked = Boolean(db[selectedDate]?.restMarked) || isRestCategory(db[selectedDate]?.category);
-        document.getElementById('markRestBtn').textContent = alreadyMarked ? '已記錄休息日' : '記錄為休息日';
-        document.getElementById('restCardDesc').textContent = alreadyMarked
-          ? '已列入休息日紀錄。'
-          : '點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。';
-      }
-      document.getElementById('strengthCard').classList.toggle('hidden', false);
-      const pills = getSortedUniqueExercises(EXERCISE_POOL[currentCat] || []);
-      document.getElementById('quickExercises').innerHTML = pills.length
-        ? pills.map(ex => `<button class="pill" onclick="pickExercise('${ex}')">${ex}</button>`).join('')
-        : '<span class="muted">此分類無預設快選</span>';
-    }
-
-    function setCategory(cat) {
-      activeCategory = cat;
-      if (db[selectedDate] && isDayRecorded(db[selectedDate])) {
-        db[selectedDate].category = cat;
-        if (isRestCategory(cat)) db[selectedDate].restMarked = true;
-        saveDB();
-        renderOverview();
-      }
-      renderCategories();
-      renderDayEntries();
-    }
-
-    function markRestDay() {
-      if (!db[selectedDate]) db[selectedDate] = { category: '低強度/休息', exercises: [], restMarked: true };
-      else {
-        db[selectedDate].category = '低強度/休息';
-        db[selectedDate].restMarked = true;
-      }
-      saveDB();
-      renderAll();
-    }
-
-    function pickExercise(name) {
-      document.getElementById('exNameInput').value = name;
-      const sel = document.getElementById('chartExerciseSelect');
-      if (sel && [...sel.options].some(o => o.value === name)) {
-        sel.value = name;
-        renderProgressChart();
-      }
-    }
-
-    function resetSetsUI(count = 3) {
-      const container = document.getElementById('setsContainer');
-      if (!container) return;
-      container.innerHTML = '';
-      for (let i = 1; i <= count; i++) addSetRow(i);
-    }
-
-    function refreshSetLabels() {
-      const rows = [...document.querySelectorAll('#setsContainer .row-3')];
-      rows.forEach((r, i) => {
-        r.querySelector('.set-idx-label').textContent = `第 ${i + 1} 組`;
-        const delBtn = r.querySelector('.del-set-btn');
-        if (delBtn) delBtn.style.visibility = rows.length > 1 ? 'visible' : 'hidden';
-      });
-    }
-
-    function addSetRow(forcedNum = null) {
-      const container = document.getElementById('setsContainer');
-      if (!container) return;
-      const idx = forcedNum || (container.children.length + 1);
-      const div = document.createElement('div');
-      div.className = 'row-3';
-      div.innerHTML = `
-        <span class="muted set-idx-label">第 ${idx} 組</span>
-        <input type="text" inputmode="decimal" class="set-reps" placeholder="次數" />
-        <input type="text" inputmode="decimal" class="set-wt" placeholder="重量kg" />
-        <button type="button" class="del-set-btn" title="刪除此組" onclick="removeSpecificSetRow(this)">✕</button>
-      `;
-      container.appendChild(div);
-      refreshSetLabels();
-    }
-
-    function removeSpecificSetRow(btn) {
-      const container = document.getElementById('setsContainer');
-      if (!container || container.children.length <= 1) return;
-      btn.closest('.row-3').remove();
-      refreshSetLabels();
-    }
-
-    function saveStrengthEntry() {
-      const name = document.getElementById('exNameInput').value.trim();
-      if (!name) return alert('請輸入動作名稱');
-      const rows = [...document.querySelectorAll('#setsContainer .row-3')];
-      const sets = rows.map((r, i) => ({
-        set: i + 1,
-        reps: r.querySelector('.set-reps').value.trim(),
-        weight: r.querySelector('.set-wt').value.trim()
-      })).filter(s => s.reps || s.weight);
-      if (!db[selectedDate]) db[selectedDate] = { category: activeCategory, exercises: [] };
-      db[selectedDate].category = activeCategory;
-      if (isRestCategory(activeCategory)) db[selectedDate].restMarked = true;
-      db[selectedDate].exercises.push({ name, sets });
-      saveDB();
-      document.getElementById('exNameInput').value = '';
-      resetSetsUI(3);
-      renderDayEntries();
-      renderDateStrip();
-      renderOverview();
-      renderChartExerciseOptions(name);
-    }
-
-    function renderDayEntries() {
-      const day = db[selectedDate];
-      const currentCat = day?.category || activeCategory;
-      const box = document.getElementById('dayEntriesList');
-      if (!box) return;
-      const exList = Array.isArray(day?.exercises) ? day.exercises : [];
-      const totalItems = exList.length;
-      document.getElementById('daySummaryBadge').textContent = `${currentCat} · ${totalItems} 項`;
-      let html = '';
-      exList.forEach((ex, idx) => {
-        const setsHtml = (ex.sets || []).map(s => `
-          <div class="set-line">
-            <span>第 ${s.set} 組</span>
-            <span>次數：<strong>${s.reps || '-'}</strong> ｜ 重量：<strong>${s.weight || '-'}</strong></span>
-          </div>
-        `).join('');
-        html += `
-          <div class="ex-item">
-            <div class="ex-top">
-              <span class="ex-name">${ex.name}</span>
-              <button class="btn btn-ghost btn-sm" onclick="deleteExercise(${idx})">移除</button>
-            </div>
-            ${setsHtml || '<div class="muted">無組數明細</div>'}
-          </div>
-        `;
-      });
-      if (!exList.length && (Boolean(day?.restMarked) || isRestCategory(currentCat))) {
-        html += `<div class="ex-item"><div class="muted">今日已記錄為低強度/休息日</div></div>`;
-      }
-      box.innerHTML = html || '<div class="muted">尚無紀錄（加入動作或記錄休息日後才會記錄此日期）</div>';
-    }
-
-    function deleteExercise(idx) {
-      const day = db[selectedDate];
-      if (!day) return;
-      day.exercises.splice(idx, 1);
-      if (!isDayRecorded(day)) delete db[selectedDate];
-      saveDB();
-      renderAll();
-    }
-
-    function toggleOverviewDate(d) {
-      if (didDragOverview) {
-        didDragOverview = false;
-        return;
-      }
-      if (expandedOverviewDates.has(d)) expandedOverviewDates.delete(d);
-      else expandedOverviewDates.add(d);
-      renderOverview();
-    }
-
-    function deleteOverviewDate(d, event) {
-      if (event) event.stopPropagation();
-      if (didDragOverview) return;
-      if (!confirm(`確定要刪除 ${formatSlashDate(d)}（${getWeekdayText(d)}）的紀錄嗎？`)) return;
-      delete db[d];
-      expandedOverviewDates.delete(d);
-      saveDB();
-      renderAll();
-    }
-
-    function renderOverview() {
-      const box = document.getElementById('overviewList');
-      if (!box) return;
-      const dates = Object.keys(db).filter(d => isDayRecorded(db[d])).sort().reverse();
-      box.innerHTML = dates.length ? dates.map(d => {
-        const day = db[d];
-        const exList = Array.isArray(day.exercises) ? day.exercises : [];
-        const hasRest = Boolean(day.restMarked) || isRestCategory(day.category);
-        const isExpanded = expandedOverviewDates.has(d);
-        const exSummary = exList.length ? `${exList.length} 項：${exList.map(e => e.name).join('、')}` : '';
-        const summaryText = exList.length
-          ? (hasRest ? `休息日 · ${exSummary}` : exSummary)
-          : (hasRest ? '休息日（無訓練動作）' : '無項目');
-        const badgeHtml = hasRest
-          ? `<span class="rest-badge">休息日</span>`
-          : `<span class="local-badge">${day.category || '重量訓練'}</span>`;
-        let expandedHtml = '';
-        if (isExpanded) {
-          const restNoteHtml = hasRest ? `<div class="muted" style="margin-bottom:6px;color:var(--orange);">狀態：低強度 / 休息日</div>` : '';
-          if (exList.length) {
-            expandedHtml = `<div class="overview-expanded-list">${restNoteHtml}${exList.map(ex => {
-              const setsHtml = (ex.sets || []).map(s => `
-                <div class="set-line">
-                  <span>第 ${s.set} 組</span>
-                  <span>次數：<strong>${s.reps || '-'}</strong> ｜ 重量：<strong>${s.weight || '-'}</strong></span>
-                </div>
-              `).join('');
-              return `
-                <div class="overview-sub-ex">
-                  <div class="overview-sub-title">${ex.name}</div>
-                  ${setsHtml || '<div class="muted">無組數明細</div>'}
-                </div>
-              `;
-            }).join('')}</div>`;
-          } else {
-            expandedHtml = `<div class="overview-expanded-list">${restNoteHtml || '<div class="muted">無訓練項目</div>'}</div>`;
-          }
-        }
-        return `
-          <div class="overview-row" onclick="toggleOverviewDate('${d}')">
-            <div class="overview-row-head">
-              <div class="overview-row-main">
-                <span class="overview-row-caret">${isExpanded ? '▼' : '▶'}</span>
-                <span class="overview-date-label">${formatSlashDate(d)}</span>
-                <span class="overview-wk-label">${getWeekdayText(d)}</span>
-                ${badgeHtml}
-                <span class="overview-row-summary">${summaryText}</span>
-              </div>
-              <button type="button" class="overview-del-btn" onclick="deleteOverviewDate('${d}',event)">刪除</button>
-            </div>
-            ${expandedHtml}
-          </div>
-        `;
-      }).join('') : '<div class="muted">目前尚無歷史紀錄</div>';
-    }
-
-    function renderLibrary() {
-      const box = document.getElementById('libraryList');
-      if (!box) return;
-      box.innerHTML = Object.entries(EXERCISE_POOL).filter(([, list]) => list.length).map(([cat, list]) => {
-        const sortedList = getSortedUniqueExercises(list);
-        return `
-          <div style="margin-bottom:14px;">
-            <div class="section-label">${cat}</div>
-            <div class="pill-row">${sortedList.map(item => `<span class="pill">${item}</span>`).join('')}</div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function parseNum(str) {
-      if (!str) return 0;
-      const nums = String(str).match(/[\d.]+/g);
-      if (!nums || !nums.length) return 0;
-      return Math.max(...nums.map(Number).filter(n => !Number.isNaN(n)));
-    }
-
-    function renderChartExerciseOptions(preferredName = null) {
-      const sel = document.getElementById('chartExerciseSelect');
-      if (!sel) return;
-      const prevVal = preferredName || sel.value;
-      const recordedNames = new Set();
-      Object.keys(db).sort().forEach(d => {
-        (db[d].exercises || []).forEach(ex => {
-          if (ex.name) recordedNames.add(ex.name);
-        });
-      });
-      const list = [...recordedNames];
-      if (!list.length) {
-        sel.innerHTML = '<option value="">尚無已紀錄動作</option>';
-        renderProgressChart();
-        return;
-      }
-      sel.innerHTML = list.map(name => `<option value="${name}">${name}</option>`).join('');
-      if (prevVal && list.includes(prevVal)) sel.value = prevVal;
-      renderProgressChart();
-    }
-
-    function renderProgressChart() {
-      const container = document.getElementById('progressChartContainer');
-      const sel = document.getElementById('chartExerciseSelect');
-      const targetName = sel ? sel.value : '';
-      if (!container) return;
-      if (!targetName) {
-        container.innerHTML = '<div class="muted" style="margin-top:8px;">新增訓練紀錄後，這裡會自動顯示重量與總量趨勢曲線。</div>';
-        return;
-      }
-      const points = [];
-      Object.keys(db).sort().forEach(d => {
-        const matched = (db[d].exercises || []).filter(ex => ex.name === targetName);
-        if (!matched.length) return;
-        let maxWt = 0, totalVol = 0, totalReps = 0;
-        matched.forEach(ex => {
-          (ex.sets || []).forEach(s => {
-            const wt = parseNum(s.weight);
-            const rp = parseNum(s.reps);
-            if (wt > maxWt) maxWt = wt;
-            totalReps += rp;
-            totalVol += wt > 0 ? wt * rp : rp;
-          });
-        });
-        points.push({ date: d, maxWt, totalVol, totalReps });
-      });
-      if (!points.length) {
-        container.innerHTML = '<div class="muted" style="margin-top:8px;">此動作尚無數據</div>';
-        return;
-      }
-      const W = 320, H = 140, padL = 32, padR = 14, padT = 14, padB = 24;
-      const plotW = W - padL - padR, plotH = H - padT - padB;
-      const maxWeightVal = Math.max(...points.map(p => p.maxWt), 1);
-      const maxVolVal = Math.max(...points.map(p => p.totalVol), 1);
-      const getX = i => points.length === 1 ? padL + plotW / 2 : padL + (i / (points.length - 1)) * plotW;
-      const getYWeight = v => padT + plotH - (v / maxWeightVal) * plotH;
-      const getYVol = v => padT + plotH - (v / maxVolVal) * plotH;
-      const weightLine = points.map((p, i) => `${getX(i).toFixed(1)},${getYWeight(p.maxWt).toFixed(1)}`).join(' ');
-      const volLine = points.map((p, i) => `${getX(i).toFixed(1)},${getYVol(p.totalVol).toFixed(1)}`).join(' ');
-      const weightDots = points.map((p, i) => `
-        <circle cx="${getX(i).toFixed(1)}" cy="${getYWeight(p.maxWt).toFixed(1)}" r="3.5" fill="#22d3ee" />
-        <text x="${getX(i).toFixed(1)}" y="${Math.max(10, getYWeight(p.maxWt) - 6).toFixed(1)}" fill="#eef4fa" font-size="9" text-anchor="middle">${p.maxWt || p.totalReps}</text>
-      `).join('');
-      const volDots = points.map((p, i) => `<circle cx="${getX(i).toFixed(1)}" cy="${getYVol(p.totalVol).toFixed(1)}" r="2.8" fill="#a3e635" />`).join('');
-      const xLabels = points.map((p, i) => {
-        if (points.length > 6 && i !== 0 && i !== points.length - 1 && i % Math.ceil(points.length / 4) !== 0) return '';
-        return `<text x="${getX(i).toFixed(1)}" y="${H - 6}" fill="#8fa3b8" font-size="9" text-anchor="middle">${p.date.slice(5)}</text>`;
-      }).join('');
-      const first = points[0], latest = points[points.length - 1];
-      const bestWt = Math.max(...points.map(p => p.maxWt));
-      const diffWt = +(latest.maxWt - first.maxWt).toFixed(1);
-      const diffText = diffWt > 0 ? `+${diffWt}kg` : `${diffWt}kg`;
-      container.innerHTML = `
-        <div class="chart-wrap">
-          <div class="chart-legend">
-            <span><i class="legend-dot" style="background:#22d3ee;"></i>最高重量 (kg)</span>
-            <span><i class="legend-dot" style="background:#a3e635;"></i>單次總訓練量</span>
-          </div>
-          <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;">
-            <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#273749" stroke-width="1" />
-            <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#273749" stroke-width="1" />
-            <text x="${padL - 4}" y="${padT + 4}" fill="#8fa3b8" font-size="8" text-anchor="end">${maxWeightVal}</text>
-            <text x="${padL - 4}" y="${H - padB}" fill="#8fa3b8" font-size="8" text-anchor="end">0</text>
-            ${points.length > 1 ? `<polyline fill="none" stroke="#a3e635" stroke-width="1.8" stroke-dasharray="4 3" points="${volLine}" />` : ''}
-            ${points.length > 1 ? `<polyline fill="none" stroke="#22d3ee" stroke-width="2.2" points="${weightLine}" />` : ''}
-            ${volDots}
-            ${weightDots}
-            ${xLabels}
-          </svg>
-          <div class="chart-stats">
-            <div class="stat-box"><div class="val">${bestWt} kg</div><div class="lbl">歷史最高重</div></div>
-            <div class="stat-box"><div class="val">${latest.maxWt} kg</div><div class="lbl">最近一次</div></div>
-            <div class="stat-box"><div class="val" style="color:${diffWt >= 0 ? 'var(--accent-2)' : 'var(--danger)'};">${diffText}</div><div class="lbl">首末變化</div></div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderJSONPreview() {
-      const el = document.getElementById('jsonPreview');
-      if (el) el.textContent = JSON.stringify(db, null, 2);
-    }
-
-    function copySyncBundle() {
-      const payload = JSON.stringify({ syncKey: getSyncKey().trim() || null, updatedAt: new Date().toISOString(), data: db });
-      const box = document.getElementById('syncCodeBox');
-      if (box) box.value = payload;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(payload).then(() => alert('已複製同步碼')).catch(() => alert('已填入下方同步碼欄位，請手動複製'));
-      } else {
-        alert('已填入下方同步碼欄位，請手動複製');
-      }
-    }
-
-    function pasteSyncBundle() {
-      const box = document.getElementById('syncCodeBox');
-      const raw = box ? box.value.trim() : '';
-      if (!raw) return alert('請先在同步碼欄位貼上同步碼');
-      try {
-        const parsed = JSON.parse(raw);
-        const incomingData = parsed && typeof parsed === 'object' && parsed.data && typeof parsed.data === 'object' ? parsed.data : parsed;
-        if (!incomingData || typeof incomingData !== 'object' || Array.isArray(incomingData)) throw new Error();
-        db = { ...db, ...cleanEmptyRecords(incomingData) };
-        saveDB();
-        renderAll();
-        alert('已同步並合併紀錄');
-      } catch {
-        alert('同步碼格式不正確');
-      }
-    }
-
-    function exportJSON() {
-      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `運動紀錄備份_${formatToday()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function importJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error();
-          db = cleanEmptyRecords(parsed);
-          saveDB();
-          renderAll();
-          alert('已匯入備份資料');
-        } catch {
-          alert('JSON 格式不正確');
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = '';
-    }
-
-    function clearAllData() {
-      if (!confirm('確定要清空本機所有運動紀錄嗎？建議先匯出備份。')) return;
-      db = {};
-      saveDB();
-      renderAll();
-    }
-
-    function switchTab(tabId, btn) {
-      ['tab-log', 'tab-overview', 'tab-library', 'tab-chart', 'tab-storage'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.toggle('hidden', id !== tabId);
-      });
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-    }
-
-    let stopwatchSec = 0;
-    let stopwatchId = null;
-
-    function formatStopwatch(sec) {
-      const hrs = Math.floor(sec / 3600);
-      const mins = Math.floor((sec % 3600) / 60);
-      const secs = sec % 60;
-      if (hrs > 0) return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
-
-    function syncStopwatchUI() {
-      const isRunning = Boolean(stopwatchId);
-      const btn = document.getElementById('timerToggleBtn');
-      const numEl = document.getElementById('timerDisplay');
-      if (btn) {
-        btn.textContent = isRunning ? '❚❚' : '▶';
-        btn.setAttribute('aria-label', isRunning ? '暫停碼表' : '開始碼表');
-      }
-      if (numEl) numEl.textContent = formatStopwatch(stopwatchSec);
-    }
-
-    function resetTimer() {
-      clearInterval(stopwatchId);
-      stopwatchId = null;
-      stopwatchSec = 0;
-      syncStopwatchUI();
-    }
-
-    function toggleTimer() {
-      if (stopwatchId) {
-        clearInterval(stopwatchId);
-        stopwatchId = null;
-        syncStopwatchUI();
-      } else {
-        stopwatchId = setInterval(() => {
-          stopwatchSec++;
-          syncStopwatchUI();
-        }, 1000);
-        syncStopwatchUI();
-      }
-    }
-
-    function renderAll() {
-      try {
-        updateSyncBadge();
-        renderDateStrip();
-        renderCategories();
-        renderDayEntries();
-        renderOverview();
-        renderLibrary();
-        renderChartExerciseOptions();
-        renderJSONPreview();
-      } catch (err) {
-        document.body.innerHTML = `<div style="padding:20px;color:#eef4fa;font-family:sans-serif;">渲染發生錯誤：${err && err.message ? err.message : err}</div>`;
-      }
-    }
-
-    setupPWA();
-    resetSetsUI(3);
-    syncStopwatchUI();
-    renderAll();
-  </script>
+<div class="topbar">
+<div class="topbar-title"><span>運動紀錄</span><span class="local-badge" id="syncStatusBadge">純本機儲存</span></div>
+<div style="display:flex;align-items:center;gap:6px;"><button type="button" class="install-top-btn" id="topInstallBtn" onclick="installPWAApp()">安裝 App</button><span class="muted" id="activeDateText"></span></div>
+</div>
+<div class="container">
+<div id="tab-log">
+<div class="date-bar-top"><span class="muted">拖曳或點選日期</span><select id="monthSelect" class="month-select" onchange="onMonthChange(this.value)"></select></div>
+<div class="date-strip" id="dateStrip"></div>
+<div class="cat-timer-row" style="margin-bottom:6px;"><div class="section-label" style="margin-bottom:0;">當日訓練分類</div><div class="section-label" style="margin-bottom:0;text-align:right;">組間碼表</div></div>
+<div class="cat-timer-row">
+<div class="cat-grid" id="catGrid"></div>
+<div class="timer-box" id="timerBox">
+<div class="timer-num" id="timerDisplay">00:00</div>
+<div class="circle-btn-group">
+<button type="button" class="btn btn-primary circle-icon-btn" id="timerToggleBtn" title="開始 / 暫停" onclick="toggleTimer()">▶</button>
+<button type="button" class="btn btn-ghost circle-icon-btn" title="歸零重設" aria-label="歸零重設" onclick="resetTimer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><polyline points="3 3 3 8 8 8"/></svg></button>
+</div>
+</div>
+</div>
+<div class="card rest-inline-card hidden" id="restCard">
+<div class="rest-inline-text" id="restInlineText"><span class="rest-inline-title">今日狀態：低強度/休息</span><span class="muted" id="restCardDesc">點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。</span></div>
+<button type="button" class="btn btn-orange btn-sm" style="flex:0 0 auto;white-space:nowrap;" id="markRestBtn" onclick="markRestDay()">記錄為休息日</button>
+</div>
+<div class="card" id="strengthCard">
+<div class="card-header"><div class="card-title">新增動作組數</div><span class="muted">次數 / 重量kg</span></div>
+<div class="quick-row"><span class="section-label">常用動作快選</span><span class="muted">可直接手動輸入動作</span></div>
+<div class="pill-row" id="quickExercises"></div>
+<div style="margin-bottom:10px;"><input type="text" id="exNameInput" placeholder="動作名稱"/></div>
+<div id="setsContainer"></div>
+<div style="display:flex;gap:8px;margin-top:10px;"><button class="btn btn-ghost btn-sm" onclick="addSetRow()">＋ 增加一組</button><button class="btn btn-primary" style="flex:1;" onclick="saveStrengthEntry()">加入今日紀錄</button></div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title">當日紀錄清單</div><span class="muted" id="daySummaryBadge"></span></div>
+<div id="dayEntriesList"></div>
+</div>
+</div>
+<div id="tab-overview" class="hidden">
+<div class="card">
+<div class="card-header"><div class="card-title" style="margin-bottom:0;">歷史總覽</div><span class="muted">左右拖曳看完整文字 · 點選展開清單</span></div>
+<div class="overview-scroll-wrap" id="overviewScrollWrap"><div id="overviewList"></div></div>
+</div>
+</div>
+<div id="tab-library" class="hidden">
+<div class="card"><div class="card-title" style="margin-bottom:8px;">分類動作庫</div><div id="libraryList"></div></div>
+</div>
+<div id="tab-chart" class="hidden">
+<div class="card">
+<div class="card-header"><div class="card-title">訓練進步曲線圖</div><span class="muted">依歷次紀錄自動統計</span></div>
+<select id="chartExerciseSelect" onchange="renderProgressChart()"></select>
+<div id="progressChartContainer"></div>
+</div>
+</div>
+<div id="tab-storage" class="hidden">
+<div class="card">
+<div class="card-title" style="margin-bottom:8px;">安裝到手機與 App 圖示</div>
+<div class="app-icon-preview-box">
+<div class="app-icon-frame">
+<svg id="appLineArtIconSvg" viewBox="0 0 128 128" width="68" height="68" xmlns="http://www.w3.org/2000/svg">
+<defs><clipPath id="fatCatCircleClip"><circle cx="64" cy="64" r="64"/></clipPath></defs>
+<g clip-path="url(#fatCatCircleClip)">
+<circle cx="64" cy="64" r="64" fill="#131c26"/>
+<ellipse cx="64" cy="77" rx="35" ry="29" fill="#22d3ee" fill-opacity="0.16" stroke="#22d3ee" stroke-width="4.5"/>
+<circle cx="64" cy="43" r="20" fill="#1b2735" stroke="#22d3ee" stroke-width="4.5"/>
+<polygon points="46,29 42,13 57,23" fill="#1b2735" stroke="#22d3ee" stroke-width="4" stroke-linejoin="round"/>
+<polygon points="82,29 86,13 71,23" fill="#1b2735" stroke="#22d3ee" stroke-width="4" stroke-linejoin="round"/>
+<circle cx="57" cy="42" r="2.6" fill="#eef4fa"/>
+<circle cx="71" cy="42" r="2.6" fill="#eef4fa"/>
+<path d="M61 47h6l-3 4z" fill="#fb923c"/>
+<path d="M56 52q4 4 8 0q4 4 8 0" fill="none" stroke="#eef4fa" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="22" y1="64" x2="106" y2="64" stroke="#a3e635" stroke-width="5" stroke-linecap="round"/>
+<rect x="18" y="56" width="8" height="16" rx="3" fill="#a3e635"/>
+<rect x="102" y="56" width="8" height="16" rx="3" fill="#a3e635"/>
+<path d="M48 103v8M80 103v8" stroke="#a3e635" stroke-width="5" stroke-linecap="round"/>
+</g>
+</svg>
+</div>
+<div style="flex:1;min-width:0;">
+<div style="font-size:13px;font-weight:700;margin-bottom:4px;">圓形滿版 · 胖貓在運動</div>
+<div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">支援手機安裝成獨立全螢幕 App，並套用此胖貓運動圖示。</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;">
+<button type="button" class="btn btn-primary btn-sm" id="cardInstallBtn" onclick="installPWAApp()">📲 安裝到手機主畫面</button>
+<button type="button" class="btn btn-ghost btn-sm" onclick="downloadAppIconPNG(512)">下載 512×512 PNG</button>
+<button type="button" class="btn btn-ghost btn-sm" onclick="downloadAppIconPNG(192)">下載 192×192 PNG</button>
+</div>
+</div>
+</div>
+<div class="card-title">跨裝置同步與本機備份</div>
+<p class="muted" style="line-height:1.6;margin:8px 0 12px;">預設資料存於裝置本機<code>localStorage</code>；設定「同步金鑰」可在同瀏覽器/同源分頁即時同步，並可透過「複製同步碼 / 貼上同步碼」快速在手機與電腦版網頁間同步紀錄。</p>
+<div style="display:flex;gap:8px;margin-bottom:10px;"><input type="text" id="syncKeyInput" placeholder="輸入同步金鑰（例如：my-surf-gym）" onchange="onSyncKeyChange(this.value)"/><button class="btn btn-ghost btn-sm" style="white-space:nowrap;" onclick="syncNowFromStorage()">立即同步</button></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+<button class="btn btn-primary btn-sm" onclick="copySyncBundle()">複製同步碼</button>
+<button class="btn btn-ghost btn-sm" onclick="pasteSyncBundle()">貼上同步碼並合併/覆蓋</button>
+<button class="btn btn-ghost btn-sm" onclick="exportJSON()">匯出 JSON</button>
+<label class="btn btn-ghost btn-sm" style="cursor:pointer;">匯入 JSON<input type="file" accept=".json" style="display:none;" onchange="importJSON(event)"/></label>
+<button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="clearAllData()">清空本機資料</button>
+</div>
+<textarea id="syncCodeBox" rows="3" placeholder="同步碼（或貼上從另一台裝置複製的同步碼）" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 10px;font-size:11px;resize:vertical;"></textarea>
+<pre id="jsonPreview" style="margin-top:12px;background:var(--surface-2);padding:10px;border-radius:10px;font-size:11px;max-height:220px;overflow:auto;color:var(--muted);"></pre>
+</div>
+</div>
+</div>
+<nav class="bottom-nav">
+<button class="nav-btn active" data-tab="tab-log" onclick="switchTab('tab-log',this)"><span class="nav-icon">🏋️</span><span>今日紀錄</span></button>
+<button class="nav-btn" data-tab="tab-overview" onclick="switchTab('tab-overview',this)"><span class="nav-icon">📅</span><span>歷史總覽</span></button>
+<button class="nav-btn" data-tab="tab-library" onclick="switchTab('tab-library',this)"><span class="nav-icon">📋</span><span>動作庫</span></button>
+<button class="nav-btn" data-tab="tab-chart" onclick="switchTab('tab-chart',this)"><span class="nav-icon">📈</span><span>曲線圖</span></button>
+<button class="nav-btn" data-tab="tab-storage" onclick="switchTab('tab-storage',this)"><span class="nav-icon">🔒</span><span>本機資料</span></button>
+</nav>
+<script>
+const CATEGORIES=['重量訓練','衝浪訓練','高強度間接','有氧訓練','低強度/休息'];
+const EXERCISE_POOL={
+'重量訓練':['槓鈴握推','槓鈴深蹲','槓鈴肩推','槓鈴RDL','槓鈴大腿側蹲','啞鈴坐式肩推','啞鈴胸推','滑輪下拉(機械)','水平划船(機械)','肩側部(機械)','捲腹(重訓椅&懸吊)','引體向上'],
+'衝浪訓練':['啞鈴肩推(滑水)','趴式Y式啞鈴','滑輪側腹轉體','滑輪下拉划水','地雷管爆發上推','地雷管單手肩推','地雷管軀幹旋轉','單腿RDL','哥本哈根側棒式'],
+'高強度間接':['槓鈴分腿蹲','啞鈴肩推(滑水)','啞鈴反向飛鳥(Y式)','大腿寬內外收(機械)','直臂下拉(機械)','肩推深蹲(複合)','單腿RDL','捲腹(重訓椅&懸吊)','地雷管爆發上推','跑步'],
+'有氧訓練':['慢跑','游泳','20分間歇'],
+'低強度/休息':[]
+};
+const STORAGE_KEY='personal_workout_log_v1';
+const SYNC_KEY_STORAGE='personal_workout_sync_key_v1';
+const WK_NAMES=['日','一','二','三','四','五','六'];
+let deferredInstallPrompt=null;
+
+function buildIconDataURL(size=512){
+return new Promise(resolve=>{
+const svgEl=document.getElementById('appLineArtIconSvg');
+if(!svgEl)return resolve('');
+const svgStr=new XMLSerializer().serializeToString(svgEl);
+const blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+const url=URL.createObjectURL(blob);
+const img=new Image();
+img.onload=()=>{
+const canvas=document.createElement('canvas');
+canvas.width=size;canvas.height=size;
+const ctx=canvas.getContext('2d');
+ctx.drawImage(img,0,0,size,size);
+URL.revokeObjectURL(url);
+try{resolve(canvas.toDataURL('image/png'))}catch{resolve('')}
+};
+img.onerror=()=>{URL.revokeObjectURL(url);resolve('')};
+img.src=url;
+});
+}
+
+async function setupPWA(){
+try{
+const [icon192,icon512]=await Promise.all([buildIconDataURL(192),buildIconDataURL(512)]);
+const appleLink=document.getElementById('dynamicAppleIcon');
+if(appleLink&&icon192)appleLink.href=icon192;
+const icons=[];
+if(icon192)icons.push({src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'});
+if(icon512)icons.push({src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'});
+const manifestObj={name:'運動紀錄 App',short_name:'運動紀錄',description:'個人重量訓練、衝浪與間歇運動紀錄',start_url:location.href,scope:location.href.substring(0,location.href.lastIndexOf('/')+1),display:'standalone',orientation:'portrait',background_color:'#0b1117',theme_color:'#0b1117',icons};
+const manifestBlob=new Blob([JSON.stringify(manifestObj)],{type:'application/manifest+json'});
+const manifestURL=URL.createObjectURL(manifestBlob);
+const manifestLink=document.getElementById('dynamicManifest');
+if(manifestLink)manifestLink.href=manifestURL;
+}catch{}
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
+try{
+const swCode=`const CACHE_NAME='workout-pwa-v1';self.addEventListener('install',e=>{self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim())});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,copy)).catch(()=>{});return res}).catch(()=>caches.match(e.request)))})`;
+const swBlob=new Blob([swCode],{type:'application/javascript'});
+const swURL=URL.createObjectURL(swBlob);
+navigator.serviceWorker.register(swURL).catch(()=>{});
+}catch{}
+}
+const isStandalone=window.matchMedia('(display-mode:standalone)').matches||window.navigator.standalone===true;
+if(isStandalone){
+const topBtn=document.getElementById('topInstallBtn');
+const cardBtn=document.getElementById('cardInstallBtn');
+const hint=document.getElementById('pwaInstallHint');
+if(topBtn)topBtn.textContent='已安裝 App';
+if(cardBtn)cardBtn.textContent='✓ 已在 App 模式執行';
+if(hint)hint.textContent='目前已透過手機主畫面獨立 App 模式開啟。';
+}
+}
+
+window.addEventListener('beforeinstallprompt',e=>{
+e.preventDefault();deferredInstallPrompt=e;
+const topBtn=document.getElementById('topInstallBtn');
+const cardBtn=document.getElementById('cardInstallBtn');
+if(topBtn)topBtn.textContent='安裝 App';
+if(cardBtn)cardBtn.textContent='📲 一鍵安裝到手機';
+});
+
+window.addEventListener('appinstalled',()=>{
+deferredInstallPrompt=null;
+const topBtn=document.getElementById('topInstallBtn');
+const cardBtn=document.getElementById('cardInstallBtn');
+if(topBtn)topBtn.textContent='已安裝 App';
+if(cardBtn)cardBtn.textContent='✓ 已安裝到手機';
+});
+
+async function installPWAApp(){
+if(deferredInstallPrompt){
+deferredInstallPrompt.prompt();
+const choice=await deferredInstallPrompt.userChoice;
+if(choice&&choice.outcome==='accepted')deferredInstallPrompt=null;
+return;
+}
+const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+if(isIOS)alert('請點選 Safari 下方的「分享」圖示（方框向上箭頭），再選擇「加入主畫面」，即可安裝為手機 App。');
+else alert('請點選瀏覽器右上角「⋮」選單，選擇「安裝應用程式」或「加到主畫面」，即可安裝為手機 App。');
+}
+
+function downloadAppIconPNG(size=512){
+buildIconDataURL(size).then(dataUrl=>{
+if(!dataUrl)return;
+const a=document.createElement('a');
+a.href=dataUrl;a.download=`workout-fatcat-icon-${size}.png`;a.click();
+});
+}
+
+function formatToday(){
+const now=new Date();
+return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+}
+
+function formatSlashDate(isoDate){
+const parts=String(isoDate||'').split('-');
+return parts.length===3?`${parts[0]}/${parts[1]}/${parts[2]}`:(isoDate||'');
+}
+
+function getWeekdayText(isoDate){
+const dt=new Date(isoDate+'T00:00:00');
+return Number.isNaN(dt.getTime())?'':`週${WK_NAMES[dt.getDay()]}`;
+}
+
+function isRestCategory(cat){return cat==='低強度/休息'||cat==='休息日'||cat==='休息'}
+
+function isDayRecorded(dayObj){
+if(!dayObj||typeof dayObj!=='object')return false;
+const hasExercises=Array.isArray(dayObj.exercises)&&dayObj.exercises.length>0;
+const isMarkedRest=Boolean(dayObj.restMarked)||isRestCategory(dayObj.category);
+return hasExercises||isMarkedRest;
+}
+
+function cleanEmptyRecords(rawObj){
+const cleaned={};
+if(!rawObj||typeof rawObj!=='object'||Array.isArray(rawObj))return cleaned;
+Object.keys(rawObj).forEach(d=>{
+const item=rawObj[d];
+if(!item||typeof item!=='object')return;
+const exercises=Array.isArray(item.exercises)?item.exercises:[];
+const restMarked=Boolean(item.restMarked)||isRestCategory(item.category);
+if(exercises.length>0||restMarked){
+cleaned[d]={category:item.category||(restMarked?'低強度/休息':'重量訓練'),exercises,...(restMarked?{restMarked:true}:{})};
+}
+});
+return cleaned;
+}
+
+function getSyncKey(){try{return localStorage.getItem(SYNC_KEY_STORAGE)||''}catch{return''}}
+function getEffectiveStorageKey(){const sk=getSyncKey().trim();return sk?`${STORAGE_KEY}__sync_${encodeURIComponent(sk)}`:STORAGE_KEY}
+
+function updateSyncBadge(){
+const badge=document.getElementById('syncStatusBadge');
+const sk=getSyncKey().trim();
+if(badge)badge.textContent=sk?`同步：${sk}`:'純本機';
+const keyInput=document.getElementById('syncKeyInput');
+if(keyInput&&document.activeElement!==keyInput)keyInput.value=sk;
+}
+
+function onSyncKeyChange(val){
+try{
+const trimmed=String(val||'').trim();
+if(trimmed)localStorage.setItem(SYNC_KEY_STORAGE,trimmed);
+else localStorage.removeItem(SYNC_KEY_STORAGE);
+}catch{}
+db=cleanEmptyRecords(loadDB());
+activeCategory=db[selectedDate]?.category||'重量訓練';
+updateSyncBadge();renderAll();
+}
+
+function loadDB(){try{return JSON.parse(localStorage.getItem(getEffectiveStorageKey())||'{}')}catch{return{}}}
+
+let db=cleanEmptyRecords(loadDB());
+let selectedDate=formatToday();
+let activeCategory=db[selectedDate]?.category||'重量訓練';
+let didDragStrip=false,didDragRestBtn=false,didDragOverview=false;
+const expandedOverviewDates=new Set();
+const broadcastChannel=('BroadcastChannel' in window)?new BroadcastChannel('personal_workout_sync_channel_v1'):null;
+
+if(broadcastChannel){
+broadcastChannel.onmessage=event=>{
+const data=event?.data;
+if(!data||data.storageKey!==getEffectiveStorageKey())return;
+db=cleanEmptyRecords(data.db||{});
+activeCategory=db[selectedDate]?.category||'重量訓練';
+renderAll();
+};
+}
+
+function saveDB(){
+const key=getEffectiveStorageKey();
+try{localStorage.setItem(key,JSON.stringify(db))}catch{}
+if(broadcastChannel){try{broadcastChannel.postMessage({storageKey:key,db})}catch{}}
+renderJSONPreview();
+}
+
+function syncNowFromStorage(){
+db=cleanEmptyRecords(loadDB());
+activeCategory=db[selectedDate]?.category||'重量訓練';
+updateSyncBadge();renderAll();
+}
+
+window.addEventListener('storage',e=>{if(e.key===getEffectiveStorageKey()||e.key===SYNC_KEY_STORAGE)syncNowFromStorage()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncNowFromStorage()});
+window.addEventListener('focus',()=>syncNowFromStorage());
+
+function getMonthDates(ym){
+const parts=String(ym||'').split('-');
+const y=Number(parts[0])||new Date().getFullYear();
+const m=Number(parts[1])||(new Date().getMonth()+1);
+const yStr=String(y),mStr=String(m).padStart(2,'0');
+const daysInMonth=new Date(y,m,0).getDate();
+const list=[];
+for(let d=1;d<=daysInMonth;d++)list.push(`${yStr}-${mStr}-${String(d).padStart(2,'0')}`);
+return list;
+}
+
+function renderMonthOptions(){
+const sel=document.getElementById('monthSelect');
+if(!sel)return;
+const todayStr=formatToday(),currentYM=todayStr.slice(0,7),selectedYM=selectedDate.slice(0,7);
+const months=new Set([currentYM,selectedYM]);
+const baseDate=new Date(todayStr+'T00:00:00');
+for(let offset=-5;offset<=1;offset++){
+const dt=new Date(baseDate.getFullYear(),baseDate.getMonth()+offset,1);
+months.add(`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`);
+}
+Object.keys(db).forEach(d=>{if(isDayRecorded(db[d])&&d.length>=7)months.add(d.slice(0,7))});
+const sorted=[...months].sort();
+sel.innerHTML=sorted.map(ym=>`<option value="${ym}">${ym}</option>`).join('');
+sel.value=selectedYM;
+}
+
+function onMonthChange(ym){
+if(!ym)return;
+const todayStr=formatToday();
+selectedDate=ym===todayStr.slice(0,7)?todayStr:`${ym}-01`;
+activeCategory=db[selectedDate]?.category||'重量訓練';
+renderAll();
+}
+
+function scrollActiveDateIntoView(){
+const strip=document.getElementById('dateStrip');
+if(!strip)return;
+const activeChip=strip.querySelector('.date-chip.active');
+if(activeChip){
+const left=activeChip.offsetLeft-(strip.clientWidth/2)+(activeChip.offsetWidth/2);
+strip.scrollLeft=Math.max(0,left);
+}
+}
+
+function renderDateStrip(){
+const strip=document.getElementById('dateStrip');
+if(!strip)return;
+const ym=selectedDate.slice(0,7),dates=getMonthDates(ym),todayStr=formatToday();
+const chipsHtml=dates.map(d=>{
+const hasLog=isDayRecorded(db[d]),isToday=d===todayStr;
+return `<div class="date-chip ${d===selectedDate?'active':''}" onclick="handleChipClick('${d}')"><div class="wk">${isToday?'今日':getWeekdayText(d)}</div><div class="dy">${d.slice(5)}</div><div class="dot" style="opacity:${hasLog?1:0.15}"></div></div>`;
+}).join('');
+strip.innerHTML=`<div class="date-spacer"></div>${chipsHtml}<div class="date-spacer"></div>`;
+const activeDateEl=document.getElementById('activeDateText');
+if(activeDateEl)activeDateEl.textContent=`${formatSlashDate(selectedDate).slice(5)} (${getWeekdayText(selectedDate)})`;
+renderMonthOptions();
+setTimeout(scrollActiveDateIntoView,0);
+}
+
+function handleChipClick(d){if(didDragStrip){didDragStrip=false;return}selectDate(d)}
+function handleRestBtnClick(cat){if(didDragRestBtn){didDragRestBtn=false;return}setCategory(cat)}
+
+function bindRestBtnDrag(){
+const btn=document.getElementById('restCatBtn');
+if(!btn||btn.dataset.dragBound)return;
+btn.dataset.dragBound='1';
+let isDown=false,startX=0,startScrollLeft=0;
+btn.addEventListener('mousedown',e=>{isDown=true;didDragRestBtn=false;btn.classList.add('dragging');startX=e.pageX-btn.offsetLeft;startScrollLeft=btn.scrollLeft});
+window.addEventListener('mouseup',()=>{if(!isDown)return;isDown=false;btn.classList.remove('dragging');setTimeout(()=>{didDragRestBtn=false},0)});
+btn.addEventListener('mousemove',e=>{if(!isDown)return;const x=e.pageX-btn.offsetLeft,walk=(x-startX)*1.2;if(Math.abs(walk)>4)didDragRestBtn=true;btn.scrollLeft=startScrollLeft-walk});
+}
+
+(function enableStripDrag(){
+const strip=document.getElementById('dateStrip');
+if(!strip)return;
+let isDown=false,startX=0,startScrollLeft=0;
+strip.addEventListener('mousedown',e=>{isDown=true;didDragStrip=false;strip.classList.add('dragging');startX=e.pageX-strip.offsetLeft;startScrollLeft=strip.scrollLeft});
+window.addEventListener('mouseup',()=>{if(!isDown)return;isDown=false;strip.classList.remove('dragging');setTimeout(()=>{didDragStrip=false},0)});
+strip.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-strip.offsetLeft,walk=(x-startX)*1.2;if(Math.abs(walk)>4)didDragStrip=true;strip.scrollLeft=startScrollLeft-walk});
+})();
+
+(function enableOverviewDrag(){
+const wrap=document.getElementById('overviewScrollWrap');
+if(!wrap)return;
+let isDown=false,startX=0,startY=0,startScrollLeft=0,startScrollY=0;
+wrap.addEventListener('mousedown',e=>{if(e.target.closest('button'))return;isDown=true;didDragOverview=false;wrap.classList.add('dragging');startX=e.pageX-wrap.offsetLeft;startY=e.pageY;startScrollLeft=wrap.scrollLeft;startScrollY=window.scrollY});
+window.addEventListener('mouseup',()=>{if(!isDown)return;isDown=false;wrap.classList.remove('dragging');setTimeout(()=>{didDragOverview=false},0)});
+wrap.addEventListener('mousemove',e=>{if(!isDown)return;const x=e.pageX-wrap.offsetLeft,dx=(x-startX)*1.25,dy=e.pageY-startY;if(Math.abs(dx)>3||Math.abs(dy)>6){didDragOverview=true;wrap.scrollLeft=startScrollLeft-dx;window.scrollTo(0,startScrollY-dy)}});
+})();
+
+function selectDate(d){selectedDate=d;activeCategory=db[d]?.category||'重量訓練';renderAll()}
+
+function getSortedUniqueExercises(list){
+const unique=[...new Set(list||[])];
+const rank=name=>name.includes('槓鈴')?1:name.includes('啞鈴')?2:name.includes('機械')?3:4;
+return unique.sort((a,b)=>rank(a)-rank(b));
+}
+
+function renderCategories(){
+const currentCat=db[selectedDate]?.category||activeCategory;
+const grid=document.getElementById('catGrid');
+if(!grid)return;
+grid.innerHTML=CATEGORIES.map(cat=>{
+const isRestCat=isRestCategory(cat);
+const activeClass=currentCat===cat?(isRestCat?'active rest-cat':'active'):'';
+return isRestCat
+?`<button type="button" id="restCatBtn" class="cat-btn rest-scroll-btn ${activeClass}" onclick="handleRestBtnClick('${cat}')">${cat}</button>`
+:`<button type="button" class="cat-btn ${activeClass}" onclick="setCategory('${cat}')">${cat}</button>`;
+}).join('');
+bindRestBtnDrag();
+const isRest=isRestCategory(currentCat);
+const restCard=document.getElementById('restCard');
+if(restCard)restCard.classList.toggle('hidden',!isRest);
+if(isRest){
+const alreadyMarked=Boolean(db[selectedDate]?.restMarked)||isRestCategory(db[selectedDate]?.category);
+document.getElementById('markRestBtn').textContent=alreadyMarked?'已記錄休息日':'記錄為休息日';
+document.getElementById('restCardDesc').textContent=alreadyMarked?'已列入休息日紀錄。':'點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。';
+}
+document.getElementById('strengthCard').classList.toggle('hidden',false);
+const pills=getSortedUniqueExercises(EXERCISE_POOL[currentCat]||[]);
+document.getElementById('quickExercises').innerHTML=pills.length?pills.map(ex=>`<button class="pill" onclick="pickExercise('${ex}')">${ex}</button>`).join(''):'<span class="muted">此分類無預設快選</span>';
+}
+
+function setCategory(cat){
+activeCategory=cat;
+if(db[selectedDate]&&isDayRecorded(db[selectedDate])){
+db[selectedDate].category=cat;
+if(isRestCategory(cat))db[selectedDate].restMarked=true;
+saveDB();renderOverview();
+}
+renderCategories();renderDayEntries();
+}
+
+function markRestDay(){
+if(!db[selectedDate])db[selectedDate]={category:'低強度/休息',exercises:[],restMarked:true};
+else{db[selectedDate].category='低強度/休息';db[selectedDate].restMarked=true}
+saveDB();renderAll();
+}
+
+function pickExercise(name){
+document.getElementById('exNameInput').value=name;
+const sel=document.getElementById('chartExerciseSelect');
+if(sel&&[...sel.options].some(o=>o.value===name)){sel.value=name;renderProgressChart()}
+}
+
+function resetSetsUI(count=3){
+const container=document.getElementById('setsContainer');
+if(!container)return;
+container.innerHTML='';
+for(let i=1;i<=count;i++)addSetRow(i);
+}
+
+function refreshSetLabels(){
+const rows=[...document.querySelectorAll('#setsContainer .row-3')];
+rows.forEach((r,i)=>{
+r.querySelector('.set-idx-label').textContent=`第 ${i+1} 組`;
+const delBtn=r.querySelector('.del-set-btn');
+if(delBtn)delBtn.style.visibility=rows.length>1?'visible':'hidden';
+});
+}
+
+function addSetRow(forcedNum=null){
+const container=document.getElementById('setsContainer');
+if(!container)return;
+const idx=forcedNum||(container.children.length+1);
+const div=document.createElement('div');
+div.className='row-3';
+div.innerHTML=`<span class="muted set-idx-label">第 ${idx} 組</span><input type="text" inputmode="decimal" class="set-reps" placeholder="次數"/><input type="text" inputmode="decimal" class="set-wt" placeholder="重量kg"/><button type="button" class="del-set-btn" title="刪除此組" onclick="removeSpecificSetRow(this)">✕</button>`;
+container.appendChild(div);
+refreshSetLabels();
+}
+
+function removeSpecificSetRow(btn){
+const container=document.getElementById('setsContainer');
+if(!container||container.children.length<=1)return;
+btn.closest('.row-3').remove();
+refreshSetLabels();
+}
+
+function saveStrengthEntry(){
+const name=document.getElementById('exNameInput').value.trim();
+if(!name)return alert('請輸入動作名稱');
+const rows=[...document.querySelectorAll('#setsContainer .row-3')];
+const sets=rows.map((r,i)=>({set:i+1,reps:r.querySelector('.set-reps').value.trim(),weight:r.querySelector('.set-wt').value.trim()})).filter(s=>s.reps||s.weight);
+if(!db[selectedDate])db[selectedDate]={category:activeCategory,exercises:[]};
+db[selectedDate].category=activeCategory;
+if(isRestCategory(activeCategory))db[selectedDate].restMarked=true;
+db[selectedDate].exercises.push({name,sets});
+saveDB();
+document.getElementById('exNameInput').value='';
+resetSetsUI(3);
+renderDayEntries();renderDateStrip();renderOverview();renderChartExerciseOptions(name);
+}
+
+function renderDayEntries(){
+const day=db[selectedDate],currentCat=day?.category||activeCategory,box=document.getElementById('dayEntriesList');
+if(!box)return;
+const exList=Array.isArray(day?.exercises)?day.exercises:[];
+document.getElementById('daySummaryBadge').textContent=`${currentCat} · ${exList.length} 項`;
+let html=exList.map((ex,idx)=>{
+const setsHtml=(ex.sets||[]).map(s=>`<div class="set-line"><span>第 ${s.set} 組</span><span>次數：<strong>${s.reps||'-'}</strong> ｜ 重量：<strong>${s.weight||'-'}</strong></span></div>`).join('');
+return `<div class="ex-item"><div class="ex-top"><span class="ex-name">${ex.name}</span><button class="btn btn-ghost btn-sm" onclick="deleteExercise(${idx})">移除</button></div>${setsHtml||'<div class="muted">無組數明細</div>'}</div>`;
+}).join('');
+if(!exList.length&&(Boolean(day?.restMarked)||isRestCategory(currentCat)))html+=`<div class="ex-item"><div class="muted">今日已記錄為低強度/休息日</div></div>`;
+box.innerHTML=html||'<div class="muted">尚無紀錄（加入動作或記錄休息日後才會記錄此日期）</div>';
+}
+
+function deleteExercise(idx){
+const day=db[selectedDate];
+if(!day)return;
+day.exercises.splice(idx,1);
+if(!isDayRecorded(day))delete db[selectedDate];
+saveDB();renderAll();
+}
+
+function toggleOverviewDate(d){
+if(didDragOverview){didDragOverview=false;return}
+if(expandedOverviewDates.has(d))expandedOverviewDates.delete(d);
+else expandedOverviewDates.add(d);
+renderOverview();
+}
+
+function deleteOverviewDate(d,event){
+if(event)event.stopPropagation();
+if(didDragOverview)return;
+if(!confirm(`確定要刪除 ${formatSlashDate(d)}（${getWeekdayText(d)}）的紀錄嗎？`))return;
+delete db[d];expandedOverviewDates.delete(d);
+saveDB();renderAll();
+}
+
+function renderOverview(){
+const box=document.getElementById('overviewList');
+if(!box)return;
+const dates=Object.keys(db).filter(d=>isDayRecorded(db[d])).sort().reverse();
+box.innerHTML=dates.length?dates.map(d=>{
+const day=db[d],exList=Array.isArray(day.exercises)?day.exercises:[];
+const hasRest=Boolean(day.restMarked)||isRestCategory(day.category);
+const isExpanded=expandedOverviewDates.has(d);
+const exSummary=exList.length?`${exList.length} 項：${exList.map(e=>e.name).join('、')}`:'';
+const summaryText=exList.length?(hasRest?`休息日 · ${exSummary}`:exSummary):(hasRest?'休息日（無訓練動作）':'無項目');
+const badgeHtml=hasRest?`<span class="rest-badge">休息日</span>`:`<span class="local-badge">${day.category||'重量訓練'}</span>`;
+let expandedHtml='';
+if(isExpanded){
+const restNoteHtml=hasRest?`<div class="muted" style="margin-bottom:6px;color:var(--orange);">狀態：低強度 / 休息日</div>`:'';
+expandedHtml=exList.length
+?`<div class="overview-expanded-list">${restNoteHtml}${exList.map(ex=>{
+const setsHtml=(ex.sets||[]).map(s=>`<div class="set-line"><span>第 ${s.set} 組</span><span>次數：<strong>${s.reps||'-'}</strong> ｜ 重量：<strong>${s.weight||'-'}</strong></span></div>`).join('');
+return `<div class="overview-sub-ex"><div class="overview-sub-title">${ex.name}</div>${setsHtml||'<div class="muted">無組數明細</div>'}</div>`;
+}).join('')}</div>`
+:`<div class="overview-expanded-list">${restNoteHtml||'<div class="muted">無訓練項目</div>'}</div>`;
+}
+return `<div class="overview-row" onclick="toggleOverviewDate('${d}')"><div class="overview-row-head"><div class="overview-row-main"><span class="overview-row-caret">${isExpanded?'▼':'▶'}</span><span class="overview-date-label">${formatSlashDate(d)}</span><span class="overview-wk-label">${getWeekdayText(d)}</span>${badgeHtml}<span class="overview-row-summary">${summaryText}</span></div><button type="button" class="overview-del-btn" onclick="deleteOverviewDate('${d}',event)">刪除</button></div>${expandedHtml}</div>`;
+}).join(''):'<div class="muted">目前尚無歷史紀錄</div>';
+}
+
+function renderLibrary(){
+const box=document.getElementById('libraryList');
+if(!box)return;
+box.innerHTML=Object.entries(EXERCISE_POOL).filter(([,list])=>list.length).map(([cat,list])=>{
+const sortedList=getSortedUniqueExercises(list);
+return `<div style="margin-bottom:14px;"><div class="section-label">${cat}</div><div class="pill-row">${sortedList.map(item=>`<span class="pill">${item}</span>`).join('')}</div></div>`;
+}).join('');
+}
+
+function parseNum(str){
+if(!str)return 0;
+const nums=String(str).match(/[\d.]+/g);
+return (!nums||!nums.length)?0:Math.max(...nums.map(Number).filter(n=>!Number.isNaN(n)));
+}
+
+function renderChartExerciseOptions(preferredName=null){
+const sel=document.getElementById('chartExerciseSelect');
+if(!sel)return;
+const prevVal=preferredName||sel.value,recordedNames=new Set();
+Object.keys(db).sort().forEach(d=>{(db[d].exercises||[]).forEach(ex=>{if(ex.name)recordedNames.add(ex.name)})});
+const list=[...recordedNames];
+if(!list.length){sel.innerHTML='<option value="">尚無已紀錄動作</option>';renderProgressChart();return}
+sel.innerHTML=list.map(name=>`<option value="${name}">${name}</option>`).join('');
+if(prevVal&&list.includes(prevVal))sel.value=prevVal;
+renderProgressChart();
+}
+
+function renderProgressChart(){
+const container=document.getElementById('progressChartContainer'),sel=document.getElementById('chartExerciseSelect'),targetName=sel?sel.value:'';
+if(!container)return;
+if(!targetName){container.innerHTML='<div class="muted" style="margin-top:8px;">新增訓練紀錄後，這裡會自動顯示重量與總量趨勢曲線。</div>';return}
+const points=[];
+Object.keys(db).sort().forEach(d=>{
+const matched=(db[d].exercises||[]).filter(ex=>ex.name===targetName);
+if(!matched.length)return;
+let maxWt=0,totalVol=0,totalReps=0;
+matched.forEach(ex=>{(ex.sets||[]).forEach(s=>{const wt=parseNum(s.weight),rp=parseNum(s.reps);if(wt>maxWt)maxWt=wt;totalReps+=rp;totalVol+=wt>0?wt*rp:rp})});
+points.push({date:d,maxWt,totalVol,totalReps});
+});
+if(!points.length){container.innerHTML='<div class="muted" style="margin-top:8px;">此動作尚無數據</div>';return}
+const W=320,H=140,padL=32,padR=14,padT=14,padB=24,plotW=W-padL-padR,plotH=H-padT-padB;
+const maxWeightVal=Math.max(...points.map(p=>p.maxWt),1),maxVolVal=Math.max(...points.map(p=>p.totalVol),1);
+const getX=i=>points.length===1?padL+plotW/2:padL+(i/(points.length-1))*plotW;
+const getYWeight=v=>padT+plotH-(v/maxWeightVal)*plotH;
+const getYVol=v=>padT+plotH-(v/maxVolVal)*plotH;
+const weightLine=points.map((p,i)=>`${getX(i).toFixed(1)},${getYWeight(p.maxWt).toFixed(1)}`).join(' ');
+const volLine=points.map((p,i)=>`${getX(i).toFixed(1)},${getYVol(p.totalVol).toFixed(1)}`).join(' ');
+const weightDots=points.map((p,i)=>`<circle cx="${getX(i).toFixed(1)}" cy="${getYWeight(p.maxWt).toFixed(1)}" r="3.5" fill="#22d3ee"/><text x="${getX(i).toFixed(1)}" y="${Math.max(10,getYWeight(p.maxWt)-6).toFixed(1)}" fill="#eef4fa" font-size="9" text-anchor="middle">${p.maxWt||p.totalReps}</text>`).join('');
+const volDots=points.map((p,i)=>`<circle cx="${getX(i).toFixed(1)}" cy="${getYVol(p.totalVol).toFixed(1)}" r="2.8" fill="#a3e635"/>`).join('');
+const xLabels=points.map((p,i)=>(points.length>6&&i!==0&&i!==points.length-1&&i%Math.ceil(points.length/4)!==0)?'':`<text x="${getX(i).toFixed(1)}" y="${H-6}" fill="#8fa3b8" font-size="9" text-anchor="middle">${p.date.slice(5)}</text>`).join('');
+const first=points[0],latest=points[points.length-1],bestWt=Math.max(...points.map(p=>p.maxWt)),diffWt=+(latest.maxWt-first.maxWt).toFixed(1),diffText=diffWt>0?`+${diffWt}kg`:`${diffWt}kg`;
+container.innerHTML=`<div class="chart-wrap"><div class="chart-legend"><span><i class="legend-dot" style="background:#22d3ee;"></i>最高重量 (kg)</span><span><i class="legend-dot" style="background:#a3e635;"></i>單次總訓練量</span></div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;"><line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="#273749" stroke-width="1"/><line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#273749" stroke-width="1"/><text x="${padL-4}" y="${padT+4}" fill="#8fa3b8" font-size="8" text-anchor="end">${maxWeightVal}</text><text x="${padL-4}" y="${H-padB}" fill="#8fa3b8" font-size="8" text-anchor="end">0</text>${points.length>1?`<polyline fill="none" stroke="#a3e635" stroke-width="1.8" stroke-dasharray="4 3" points="${volLine}"/>`:''}${points.length>1?`<polyline fill="none" stroke="#22d3ee" stroke-width="2.2" points="${weightLine}"/>`:''}${volDots}${weightDots}${xLabels}</svg><div class="chart-stats"><div class="stat-box"><div class="val">${bestWt} kg</div><div class="lbl">歷史最高重</div></div><div class="stat-box"><div class="val">${latest.maxWt} kg</div><div class="lbl">最近一次</div></div><div class="stat-box"><div class="val" style="color:${diffWt>=0?'var(--accent-2)':'var(--danger)'};">${diffText}</div><div class="lbl">首末變化</div></div></div></div>`;
+}
+
+function renderJSONPreview(){const el=document.getElementById('jsonPreview');if(el)el.textContent=JSON.stringify(db,null,2)}
+
+function copySyncBundle(){
+const payload=JSON.stringify({syncKey:getSyncKey().trim()||null,updatedAt:new Date().toISOString(),data:db});
+const box=document.getElementById('syncCodeBox');
+if(box)box.value=payload;
+if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(payload).then(()=>alert('已複製同步碼')).catch(()=>alert('已填入下方同步碼欄位，請手動複製'));
+else alert('已填入下方同步碼欄位，請手動複製');
+}
+
+function pasteSyncBundle(){
+const box=document.getElementById('syncCodeBox'),raw=box?box.value.trim():'';
+if(!raw)return alert('請先在同步碼欄位貼上同步碼');
+try{
+const parsed=JSON.parse(raw);
+const incomingData=parsed&&typeof parsed==='object'&&parsed.data&&typeof parsed.data==='object'?parsed.data:parsed;
+if(!incomingData||typeof incomingData!=='object'||Array.isArray(incomingData))throw new Error();
+db={...db,...cleanEmptyRecords(incomingData)};
+saveDB();renderAll();alert('已同步並合併紀錄');
+}catch{alert('同步碼格式不正確')}
+}
+
+function exportJSON(){
+const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');
+a.href=url;a.download=`運動紀錄備份_${formatToday()}.json`;a.click();
+URL.revokeObjectURL(url);
+}
+
+function importJSON(event){
+const file=event.target.files[0];
+if(!file)return;
+const reader=new FileReader();
+reader.onload=e=>{
+try{
+const parsed=JSON.parse(e.target.result);
+if(typeof parsed!=='object'||Array.isArray(parsed))throw new Error();
+db=cleanEmptyRecords(parsed);
+saveDB();renderAll();alert('已匯入備份資料');
+}catch{alert('JSON 格式不正確')}
+};
+reader.readAsText(file);event.target.value='';
+}
+
+function clearAllData(){
+if(!confirm('確定要清空本機所有運動紀錄嗎？建議先匯出備份。'))return;
+db={};saveDB();renderAll();
+}
+
+function switchTab(tabId,btn){
+['tab-log','tab-overview','tab-library','tab-chart','tab-storage'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('hidden',id!==tabId)});
+document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+if(btn)btn.classList.add('active');
+}
+
+let stopwatchSec=0,stopwatchId=null;
+
+function formatStopwatch(sec){
+const hrs=Math.floor(sec/3600),mins=Math.floor((sec%3600)/60),secs=sec%60;
+return hrs>0?`${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`:`${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+}
+
+function syncStopwatchUI(){
+const isRunning=Boolean(stopwatchId),btn=document.getElementById('timerToggleBtn'),numEl=document.getElementById('timerDisplay');
+if(btn){btn.textContent=isRunning?'❚❚':'▶';btn.setAttribute('aria-label',isRunning?'暫停碼表':'開始碼表')}
+if(numEl)numEl.textContent=formatStopwatch(stopwatchSec);
+}
+
+function resetTimer(){clearInterval(stopwatchId);stopwatchId=null;stopwatchSec=0;syncStopwatchUI()}
+
+function toggleTimer(){
+if(stopwatchId){clearInterval(stopwatchId);stopwatchId=null;syncStopwatchUI()}
+else{stopwatchId=setInterval(()=>{stopwatchSec++;syncStopwatchUI()},1000);syncStopwatchUI()}
+}
+
+function renderAll(){
+try{
+updateSyncBadge();renderDateStrip();renderCategories();renderDayEntries();
+renderOverview();renderLibrary();renderChartExerciseOptions();renderJSONPreview();
+}catch(err){document.body.innerHTML=`<div style="padding:20px;color:#eef4fa;font-family:sans-serif;">渲染發生錯誤：${err&&err.message?err.message:err}</div>`}
+}
+
+setupPWA();resetSetsUI(3);syncStopwatchUI();renderAll();
+</script>
 </body>
 </html>
