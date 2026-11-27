@@ -25,9 +25,7 @@
       --danger: #f87171;
       --radius: 14px;
     }
-
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
@@ -35,7 +33,6 @@
       color: var(--text);
       padding-bottom: 84px;
     }
-
     .topbar {
       position: sticky;
       top: 0;
@@ -49,7 +46,6 @@
       align-items: center;
       gap: 8px;
     }
-
     .topbar-title {
       font-size: 16px;
       font-weight: 700;
@@ -58,7 +54,6 @@
       gap: 8px;
       min-width: 0;
     }
-
     .local-badge {
       font-size: 11px;
       background: rgba(163, 230, 53, 0.14);
@@ -70,7 +65,6 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-
     .rest-badge {
       font-size: 11px;
       background: rgba(251, 146, 60, 0.16);
@@ -82,7 +76,6 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-
     .install-top-btn {
       background: rgba(34, 211, 238, 0.16);
       color: var(--accent);
@@ -94,13 +87,11 @@
       cursor: pointer;
       white-space: nowrap;
     }
-
     .container {
       max-width: 540px;
       margin: 0 auto;
       padding: 14px 16px;
     }
-
     .date-bar-top {
       display: flex;
       justify-content: space-between;
@@ -108,7 +99,6 @@
       margin-bottom: 8px;
       gap: 8px;
     }
-
     .month-select {
       width: auto;
       min-width: 118px;
@@ -119,7 +109,6 @@
       border: 1px solid var(--border);
       color: var(--text);
     }
-
     .date-strip {
       display: flex;
       gap: 8px;
@@ -133,12 +122,10 @@
     }
     .date-strip::-webkit-scrollbar { display: none; }
     .date-strip.dragging { cursor: grabbing; }
-
     .date-spacer {
       flex: 0 0 calc(50% - 31px);
       pointer-events: none;
     }
-
     .date-chip {
       flex: 0 0 62px;
       min-width: 62px;
@@ -158,10 +145,12 @@
     .date-chip.active .wk { color: var(--accent); font-weight: 700; }
     .date-chip .dy { font-size: 15px; font-weight: 700; margin-top: 2px; }
     .date-chip .dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      margin: 5px auto 0; background: var(--accent-2);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin: 5px auto 0;
+      background: var(--accent-2);
     }
-
     .section-label {
       font-size: 12px;
       color: var(--muted);
@@ -169,7 +158,6 @@
       font-weight: 600;
       letter-spacing: 0.4px;
     }
-
     .quick-row {
       display: flex;
       justify-content: space-between;
@@ -178,7 +166,6 @@
       margin-bottom: 8px;
     }
     .quick-row .section-label { margin-bottom: 0; }
-
     .cat-timer-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -186,14 +173,12 @@
       align-items: start;
       margin-bottom: 14px;
     }
-
     .cat-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 6px;
       min-width: 0;
     }
-
     .cat-btn {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -218,7 +203,6 @@
     }
     .cat-btn.rest-scroll-btn::-webkit-scrollbar { display: none; }
     .cat-btn.rest-scroll-btn.dragging { cursor: grabbing; }
-
     .cat-btn.active {
       background: var(--accent);
       color: #071018;
@@ -229,7 +213,6 @@
       color: #160b04;
       border-color: var(--orange);
     }
-
     .rest-inline-card {
       display: flex;
       align-items: center;
@@ -252,7 +235,6 @@
       color: var(--orange);
       margin-right: 6px;
     }
-
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -260,7 +242,6 @@
       padding: 14px;
       margin-bottom: 14px;
     }
-
     .card-header {
       display: flex;
       justify-content: space-between;
@@ -268,16 +249,13 @@
       margin-bottom: 10px;
       gap: 8px;
     }
-
     .card-title { font-size: 15px; font-weight: 700; }
-
     .pill-row {
       display: flex;
       gap: 7px;
       flex-wrap: wrap;
       margin-bottom: 10px;
     }
-
     .pill {
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -288,7 +266,6 @@
       cursor: pointer;
     }
     .pill:hover { border-color: var(--accent); }
-
     .row-3 {
       display: grid;
       grid-template-columns: 52px 1fr 1fr 28px;
@@ -296,7 +273,6 @@
       align-items: center;
       margin-bottom: 8px;
     }
-
     .del-set-btn {
       background: none;
       border: 1px solid var(--border);
@@ -308,7 +284,6 @@
       cursor: pointer;
       padding: 0;
     }
-
     input, select {
       width: 100%;
       background: var(--surface-2);
@@ -320,7 +295,6 @@
       outline: none;
     }
     input:focus, select:focus { border-color: var(--accent); }
-
     .btn {
       border: none;
       border-radius: 10px;
@@ -337,7 +311,6 @@
       border: 1px solid var(--border);
     }
     .btn-sm { padding: 6px 10px; font-size: 12px; }
-
     .ex-item {
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -362,7 +335,6 @@
       border-top: 1px dashed rgba(143, 163, 184, 0.16);
     }
     .set-line strong { color: var(--text); }
-
     .overview-scroll-wrap {
       overflow-x: auto;
       cursor: grab;
@@ -373,7 +345,6 @@
       scrollbar-color: var(--border) transparent;
     }
     .overview-scroll-wrap.dragging { cursor: grabbing; }
-
     .overview-row {
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -454,7 +425,6 @@
       color: var(--text);
       margin-bottom: 4px;
     }
-
     .app-icon-preview-box {
       display: flex;
       align-items: center;
@@ -474,7 +444,6 @@
       flex-shrink: 0;
       background: var(--bg);
     }
-
     .timer-box {
       position: relative;
       display: flex;
@@ -528,7 +497,6 @@
       height: 12px;
       display: block;
     }
-
     .chart-wrap {
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -567,10 +535,11 @@
     }
     .stat-box .val { font-size: 13px; font-weight: 700; color: var(--text); }
     .stat-box .lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
-
     .bottom-nav {
       position: fixed;
-      bottom: 0; left: 0; right: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
       background: rgba(11, 17, 23, 0.96);
       backdrop-filter: blur(12px);
       border-top: 1px solid var(--border);
@@ -580,13 +549,19 @@
       z-index: 30;
     }
     .nav-btn {
-      background: none; border: none; color: var(--muted);
-      font-size: 11px; font-weight: 600; cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
     }
     .nav-btn.active { color: var(--accent); }
     .nav-icon { font-size: 17px; }
-
     .hidden { display: none; }
     .muted { color: var(--muted); font-size: 12px; }
   </style>
@@ -597,12 +572,11 @@
       <span>運動紀錄</span>
       <span class="local-badge" id="syncStatusBadge">純本機儲存</span>
     </div>
-    <div style="display:flex; align-items:center; gap:6px;">
+    <div style="display:flex;align-items:center;gap:6px;">
       <button type="button" class="install-top-btn" id="topInstallBtn" onclick="installPWAApp()">安裝 App</button>
       <span class="muted" id="activeDateText"></span>
     </div>
   </div>
-
   <div class="container">
     <div id="tab-log">
       <div class="date-bar-top">
@@ -610,15 +584,12 @@
         <select id="monthSelect" class="month-select" onchange="onMonthChange(this.value)"></select>
       </div>
       <div class="date-strip" id="dateStrip"></div>
-
       <div class="cat-timer-row" style="margin-bottom:6px;">
         <div class="section-label" style="margin-bottom:0;">當日訓練分類</div>
-        <div class="section-label" style="margin-bottom:0; text-align:right;">組間碼表</div>
+        <div class="section-label" style="margin-bottom:0;text-align:right;">組間碼表</div>
       </div>
-
       <div class="cat-timer-row">
         <div class="cat-grid" id="catGrid"></div>
-
         <div class="timer-box" id="timerBox">
           <div class="timer-num" id="timerDisplay">00:00</div>
           <div class="circle-btn-group">
@@ -632,39 +603,32 @@
           </div>
         </div>
       </div>
-
       <div class="card rest-inline-card hidden" id="restCard">
         <div class="rest-inline-text" id="restInlineText">
           <span class="rest-inline-title">今日狀態：低強度/休息</span>
           <span class="muted" id="restCardDesc">點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。</span>
         </div>
-        <button type="button" class="btn btn-orange btn-sm" style="flex:0 0 auto; white-space:nowrap;" id="markRestBtn" onclick="markRestDay()">記錄為休息日</button>
+        <button type="button" class="btn btn-orange btn-sm" style="flex:0 0 auto;white-space:nowrap;" id="markRestBtn" onclick="markRestDay()">記錄為休息日</button>
       </div>
-
       <div class="card" id="strengthCard">
         <div class="card-header">
           <div class="card-title">新增動作組數</div>
           <span class="muted">次數 / 重量kg</span>
         </div>
-
         <div class="quick-row">
           <span class="section-label">常用動作快選</span>
           <span class="muted">可直接手動輸入動作</span>
         </div>
         <div class="pill-row" id="quickExercises"></div>
-
         <div style="margin-bottom:10px;">
           <input type="text" id="exNameInput" placeholder="動作名稱" />
         </div>
-
         <div id="setsContainer"></div>
-
-        <div style="display:flex; gap:8px; margin-top:10px;">
+        <div style="display:flex;gap:8px;margin-top:10px;">
           <button class="btn btn-ghost btn-sm" onclick="addSetRow()">＋ 增加一組</button>
           <button class="btn btn-primary" style="flex:1;" onclick="saveStrengthEntry()">加入今日紀錄</button>
         </div>
       </div>
-
       <div class="card">
         <div class="card-header">
           <div class="card-title">當日紀錄清單</div>
@@ -673,7 +637,6 @@
         <div id="dayEntriesList"></div>
       </div>
     </div>
-
     <div id="tab-overview" class="hidden">
       <div class="card">
         <div class="card-header">
@@ -685,14 +648,12 @@
         </div>
       </div>
     </div>
-
     <div id="tab-library" class="hidden">
       <div class="card">
         <div class="card-title" style="margin-bottom:8px;">分類動作庫</div>
         <div id="libraryList"></div>
       </div>
     </div>
-
     <div id="tab-chart" class="hidden">
       <div class="card">
         <div class="card-header">
@@ -703,7 +664,6 @@
         <div id="progressChartContainer"></div>
       </div>
     </div>
-
     <div id="tab-storage" class="hidden">
       <div class="card">
         <div class="card-title" style="margin-bottom:8px;">安裝到手機與 App 圖示</div>
@@ -724,26 +684,25 @@
               </g>
             </svg>
           </div>
-          <div style="flex:1; min-width:0;">
-            <div style="font-size:13px; font-weight:700; margin-bottom:4px;">拳擊手套 × 運動線條圖示（PWA）</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px;">拳擊手套 × 運動線條圖示（PWA）</div>
             <div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">支援手機安裝成獨立全螢幕 App，並套用此線條畫圖示。</div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
               <button type="button" class="btn btn-primary btn-sm" id="cardInstallBtn" onclick="installPWAApp()">📲 安裝到手機主畫面</button>
               <button type="button" class="btn btn-ghost btn-sm" onclick="downloadAppIconPNG(512)">下載 512×512 PNG</button>
               <button type="button" class="btn btn-ghost btn-sm" onclick="downloadAppIconPNG(192)">下載 192×192 PNG</button>
             </div>
           </div>
         </div>
-
         <div class="card-title">跨裝置同步與本機備份</div>
-        <p class="muted" style="line-height:1.6; margin:8px 0 12px;">
-          預設資料存於裝置本機 <code>localStorage</code>；設定「同步金鑰」可在同瀏覽器/同源分頁即時同步，並可透過「複製同步碼 / 貼上同步碼」快速在手機與電腦版網頁間同步紀錄。
+        <p class="muted" style="line-height:1.6;margin:8px 0 12px;">
+          預設資料存於裝置本機<code>localStorage</code>；設定「同步金鑰」可在同瀏覽器/同源分頁即時同步，並可透過「複製同步碼 / 貼上同步碼」快速在手機與電腦版網頁間同步紀錄。
         </p>
-        <div style="display:flex; gap:8px; margin-bottom:10px;">
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
           <input type="text" id="syncKeyInput" placeholder="輸入同步金鑰（例如：my-surf-gym）" onchange="onSyncKeyChange(this.value)" />
           <button class="btn btn-ghost btn-sm" style="white-space:nowrap;" onclick="syncNowFromStorage()">立即同步</button>
         </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
           <button class="btn btn-primary btn-sm" onclick="copySyncBundle()">複製同步碼</button>
           <button class="btn btn-ghost btn-sm" onclick="pasteSyncBundle()">貼上同步碼並合併/覆蓋</button>
           <button class="btn btn-ghost btn-sm" onclick="exportJSON()">匯出 JSON</button>
@@ -752,35 +711,30 @@
           </label>
           <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="clearAllData()">清空本機資料</button>
         </div>
-        <textarea id="syncCodeBox" rows="3" placeholder="同步碼（或貼上從另一台裝置複製的同步碼）" style="width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text); border-radius:10px; padding:8px 10px; font-size:11px; resize:vertical;"></textarea>
-        <pre id="jsonPreview" style="margin-top:12px; background:var(--surface-2); padding:10px; border-radius:10px; font-size:11px; max-height:220px; overflow:auto; color:var(--muted);"></pre>
+        <textarea id="syncCodeBox" rows="3" placeholder="同步碼（或貼上從另一台裝置複製的同步碼）" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 10px;font-size:11px;resize:vertical;"></textarea>
+        <pre id="jsonPreview" style="margin-top:12px;background:var(--surface-2);padding:10px;border-radius:10px;font-size:11px;max-height:220px;overflow:auto;color:var(--muted);"></pre>
       </div>
     </div>
   </div>
-
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="tab-log" onclick="switchTab('tab-log', this)">
+    <button class="nav-btn active" data-tab="tab-log" onclick="switchTab('tab-log',this)">
       <span class="nav-icon">🏋️</span><span>今日紀錄</span>
     </button>
-    <button class="nav-btn" data-tab="tab-overview" onclick="switchTab('tab-overview', this)">
+    <button class="nav-btn" data-tab="tab-overview" onclick="switchTab('tab-overview',this)">
       <span class="nav-icon">📅</span><span>歷史總覽</span>
     </button>
-    <button class="nav-btn" data-tab="tab-library" onclick="switchTab('tab-library', this)">
+    <button class="nav-btn" data-tab="tab-library" onclick="switchTab('tab-library',this)">
       <span class="nav-icon">📋</span><span>動作庫</span>
     </button>
-    <button class="nav-btn" data-tab="tab-chart" onclick="switchTab('tab-chart', this)">
+    <button class="nav-btn" data-tab="tab-chart" onclick="switchTab('tab-chart',this)">
       <span class="nav-icon">📈</span><span>曲線圖</span>
     </button>
-    <button class="nav-btn" data-tab="tab-storage" onclick="switchTab('tab-storage', this)">
+    <button class="nav-btn" data-tab="tab-storage" onclick="switchTab('tab-storage',this)">
       <span class="nav-icon">🔒</span><span>本機資料</span>
     </button>
   </nav>
-
   <script>
-    /* ===== 可自行擴充設定區 ===== */
     const CATEGORIES = ['重量訓練', '衝浪訓練', '高強度間接', '有氧訓練', '低強度/休息'];
-
-    /* 順序規則：槓鈴 -> 啞鈴 -> 機械 -> 其餘不重複名稱排後面 */
     const EXERCISE_POOL = {
       '重量訓練': [
         '槓鈴握推', '槓鈴深蹲', '槓鈴肩推', '槓鈴RDL', '槓鈴大腿側蹲',
@@ -801,13 +755,9 @@
       '有氧訓練': ['慢跑', '游泳', '20分間歇'],
       '低強度/休息': []
     };
-
     const STORAGE_KEY = 'personal_workout_log_v1';
     const SYNC_KEY_STORAGE = 'personal_workout_sync_key_v1';
     const WK_NAMES = ['日', '一', '二', '三', '四', '五', '六'];
-    /* ============================ */
-
-    /* ===== PWA 安裝與動態 Manifest / Service Worker ===== */
     let deferredInstallPrompt = null;
 
     function buildIconDataURL(size = 512) {
@@ -841,17 +791,12 @@
 
     async function setupPWA() {
       try {
-        const [icon192, icon512] = await Promise.all([
-          buildIconDataURL(192),
-          buildIconDataURL(512)
-        ]);
+        const [icon192, icon512] = await Promise.all([buildIconDataURL(192), buildIconDataURL(512)]);
         const appleLink = document.getElementById('dynamicAppleIcon');
         if (appleLink && icon192) appleLink.href = icon192;
-
         const icons = [];
         if (icon192) icons.push({ src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' });
         if (icon512) icons.push({ src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' });
-
         const manifestObj = {
           name: '運動紀錄 App',
           short_name: '運動紀錄',
@@ -925,9 +870,7 @@
       if (deferredInstallPrompt) {
         deferredInstallPrompt.prompt();
         const choice = await deferredInstallPrompt.userChoice;
-        if (choice && choice.outcome === 'accepted') {
-          deferredInstallPrompt = null;
-        }
+        if (choice && choice.outcome === 'accepted') deferredInstallPrompt = null;
         return;
       }
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -1014,23 +957,16 @@
     function updateSyncBadge() {
       const badge = document.getElementById('syncStatusBadge');
       const sk = getSyncKey().trim();
-      if (badge) {
-        badge.textContent = sk ? `同步：${sk}` : '純本機';
-      }
+      if (badge) badge.textContent = sk ? `同步：${sk}` : '純本機';
       const keyInput = document.getElementById('syncKeyInput');
-      if (keyInput && document.activeElement !== keyInput) {
-        keyInput.value = sk;
-      }
+      if (keyInput && document.activeElement !== keyInput) keyInput.value = sk;
     }
 
     function onSyncKeyChange(val) {
       try {
         const trimmed = String(val || '').trim();
-        if (trimmed) {
-          localStorage.setItem(SYNC_KEY_STORAGE, trimmed);
-        } else {
-          localStorage.removeItem(SYNC_KEY_STORAGE);
-        }
+        if (trimmed) localStorage.setItem(SYNC_KEY_STORAGE, trimmed);
+        else localStorage.removeItem(SYNC_KEY_STORAGE);
       } catch {}
       db = cleanEmptyRecords(loadDB());
       activeCategory = db[selectedDate]?.category || '重量訓練';
@@ -1089,18 +1025,12 @@
     }
 
     window.addEventListener('storage', e => {
-      if (e.key === getEffectiveStorageKey() || e.key === SYNC_KEY_STORAGE) {
-        syncNowFromStorage();
-      }
+      if (e.key === getEffectiveStorageKey() || e.key === SYNC_KEY_STORAGE) syncNowFromStorage();
     });
-
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) syncNowFromStorage();
     });
-
-    window.addEventListener('focus', () => {
-      syncNowFromStorage();
-    });
+    window.addEventListener('focus', () => syncNowFromStorage());
 
     function getMonthDates(ym) {
       const parts = String(ym || '').split('-');
@@ -1110,9 +1040,7 @@
       const mStr = String(m).padStart(2, '0');
       const daysInMonth = new Date(y, m, 0).getDate();
       const list = [];
-      for (let d = 1; d <= daysInMonth; d++) {
-        list.push(`${yStr}-${mStr}-${String(d).padStart(2, '0')}`);
-      }
+      for (let d = 1; d <= daysInMonth; d++) list.push(`${yStr}-${mStr}-${String(d).padStart(2, '0')}`);
       return list;
     }
 
@@ -1122,7 +1050,6 @@
       const todayStr = formatToday();
       const currentYM = todayStr.slice(0, 7);
       const selectedYM = selectedDate.slice(0, 7);
-
       const months = new Set([currentYM, selectedYM]);
       const baseDate = new Date(todayStr + 'T00:00:00');
       for (let offset = -5; offset <= 1; offset++) {
@@ -1132,7 +1059,6 @@
       Object.keys(db).forEach(d => {
         if (isDayRecorded(db[d]) && d.length >= 7) months.add(d.slice(0, 7));
       });
-
       const sorted = [...months].sort();
       sel.innerHTML = sorted.map(ym => `<option value="${ym}">${ym}</option>`).join('');
       sel.value = selectedYM;
@@ -1162,7 +1088,6 @@
       const ym = selectedDate.slice(0, 7);
       const dates = getMonthDates(ym);
       const todayStr = formatToday();
-
       const chipsHtml = dates.map(d => {
         const hasLog = isDayRecorded(db[d]);
         const isToday = d === todayStr;
@@ -1174,7 +1099,6 @@
           </div>
         `;
       }).join('');
-
       strip.innerHTML = `<div class="date-spacer"></div>${chipsHtml}<div class="date-spacer"></div>`;
       const activeDateEl = document.getElementById('activeDateText');
       if (activeDateEl) activeDateEl.textContent = `${formatSlashDate(selectedDate).slice(5)} (${getWeekdayText(selectedDate)})`;
@@ -1205,7 +1129,6 @@
       let isDown = false;
       let startX = 0;
       let startScrollLeft = 0;
-
       btn.addEventListener('mousedown', e => {
         isDown = true;
         didDragRestBtn = false;
@@ -1213,14 +1136,12 @@
         startX = e.pageX - btn.offsetLeft;
         startScrollLeft = btn.scrollLeft;
       });
-
       window.addEventListener('mouseup', () => {
         if (!isDown) return;
         isDown = false;
         btn.classList.remove('dragging');
         setTimeout(() => { didDragRestBtn = false; }, 0);
       });
-
       btn.addEventListener('mousemove', e => {
         if (!isDown) return;
         const x = e.pageX - btn.offsetLeft;
@@ -1236,7 +1157,6 @@
       let isDown = false;
       let startX = 0;
       let startScrollLeft = 0;
-
       strip.addEventListener('mousedown', e => {
         isDown = true;
         didDragStrip = false;
@@ -1244,14 +1164,12 @@
         startX = e.pageX - strip.offsetLeft;
         startScrollLeft = strip.scrollLeft;
       });
-
       window.addEventListener('mouseup', () => {
         if (!isDown) return;
         isDown = false;
         strip.classList.remove('dragging');
         setTimeout(() => { didDragStrip = false; }, 0);
       });
-
       strip.addEventListener('mousemove', e => {
         if (!isDown) return;
         e.preventDefault();
@@ -1270,7 +1188,6 @@
       let startY = 0;
       let startScrollLeft = 0;
       let startScrollY = 0;
-
       wrap.addEventListener('mousedown', e => {
         if (e.target.closest('button')) return;
         isDown = true;
@@ -1281,14 +1198,12 @@
         startScrollLeft = wrap.scrollLeft;
         startScrollY = window.scrollY;
       });
-
       window.addEventListener('mouseup', () => {
         if (!isDown) return;
         isDown = false;
         wrap.classList.remove('dragging');
         setTimeout(() => { didDragOverview = false; }, 0);
       });
-
       wrap.addEventListener('mousemove', e => {
         if (!isDown) return;
         const x = e.pageX - wrap.offsetLeft;
@@ -1332,7 +1247,6 @@
         return `<button type="button" class="cat-btn ${activeClass}" onclick="setCategory('${cat}')">${cat}</button>`;
       }).join('');
       bindRestBtnDrag();
-
       const isRest = isRestCategory(currentCat);
       const restCard = document.getElementById('restCard');
       if (restCard) restCard.classList.toggle('hidden', !isRest);
@@ -1344,7 +1258,6 @@
           : '點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。';
       }
       document.getElementById('strengthCard').classList.toggle('hidden', false);
-
       const pills = getSortedUniqueExercises(EXERCISE_POOL[currentCat] || []);
       document.getElementById('quickExercises').innerHTML = pills.length
         ? pills.map(ex => `<button class="pill" onclick="pickExercise('${ex}')">${ex}</button>`).join('')
@@ -1364,9 +1277,8 @@
     }
 
     function markRestDay() {
-      if (!db[selectedDate]) {
-        db[selectedDate] = { category: '低強度/休息', exercises: [], restMarked: true };
-      } else {
+      if (!db[selectedDate]) db[selectedDate] = { category: '低強度/休息', exercises: [], restMarked: true };
+      else {
         db[selectedDate].category = '低強度/休息';
         db[selectedDate].restMarked = true;
       }
@@ -1431,15 +1343,11 @@
         reps: r.querySelector('.set-reps').value.trim(),
         weight: r.querySelector('.set-wt').value.trim()
       })).filter(s => s.reps || s.weight);
-
-      if (!db[selectedDate]) {
-        db[selectedDate] = { category: activeCategory, exercises: [] };
-      }
+      if (!db[selectedDate]) db[selectedDate] = { category: activeCategory, exercises: [] };
       db[selectedDate].category = activeCategory;
       if (isRestCategory(activeCategory)) db[selectedDate].restMarked = true;
       db[selectedDate].exercises.push({ name, sets });
       saveDB();
-
       document.getElementById('exNameInput').value = '';
       resetSetsUI(3);
       renderDayEntries();
@@ -1456,7 +1364,6 @@
       const exList = Array.isArray(day?.exercises) ? day.exercises : [];
       const totalItems = exList.length;
       document.getElementById('daySummaryBadge').textContent = `${currentCat} · ${totalItems} 項`;
-
       let html = '';
       exList.forEach((ex, idx) => {
         const setsHtml = (ex.sets || []).map(s => `
@@ -1475,11 +1382,9 @@
           </div>
         `;
       });
-
       if (!exList.length && (Boolean(day?.restMarked) || isRestCategory(currentCat))) {
         html += `<div class="ex-item"><div class="muted">今日已記錄為低強度/休息日</div></div>`;
       }
-
       box.innerHTML = html || '<div class="muted">尚無紀錄（加入動作或記錄休息日後才會記錄此日期）</div>';
     }
 
@@ -1487,9 +1392,7 @@
       const day = db[selectedDate];
       if (!day) return;
       day.exercises.splice(idx, 1);
-      if (!isDayRecorded(day)) {
-        delete db[selectedDate];
-      }
+      if (!isDayRecorded(day)) delete db[selectedDate];
       saveDB();
       renderAll();
     }
@@ -1499,11 +1402,8 @@
         didDragOverview = false;
         return;
       }
-      if (expandedOverviewDates.has(d)) {
-        expandedOverviewDates.delete(d);
-      } else {
-        expandedOverviewDates.add(d);
-      }
+      if (expandedOverviewDates.has(d)) expandedOverviewDates.delete(d);
+      else expandedOverviewDates.add(d);
       renderOverview();
     }
 
@@ -1526,21 +1426,16 @@
         const exList = Array.isArray(day.exercises) ? day.exercises : [];
         const hasRest = Boolean(day.restMarked) || isRestCategory(day.category);
         const isExpanded = expandedOverviewDates.has(d);
-
         const exSummary = exList.length ? `${exList.length} 項：${exList.map(e => e.name).join('、')}` : '';
         const summaryText = exList.length
           ? (hasRest ? `休息日 · ${exSummary}` : exSummary)
           : (hasRest ? '休息日（無訓練動作）' : '無項目');
-
         const badgeHtml = hasRest
           ? `<span class="rest-badge">休息日</span>`
           : `<span class="local-badge">${day.category || '重量訓練'}</span>`;
-
         let expandedHtml = '';
         if (isExpanded) {
-          const restNoteHtml = hasRest
-            ? `<div class="muted" style="margin-bottom:6px; color:var(--orange);">狀態：低強度 / 休息日</div>`
-            : '';
+          const restNoteHtml = hasRest ? `<div class="muted" style="margin-bottom:6px;color:var(--orange);">狀態：低強度 / 休息日</div>` : '';
           if (exList.length) {
             expandedHtml = `<div class="overview-expanded-list">${restNoteHtml}${exList.map(ex => {
               const setsHtml = (ex.sets || []).map(s => `
@@ -1560,7 +1455,6 @@
             expandedHtml = `<div class="overview-expanded-list">${restNoteHtml || '<div class="muted">無訓練項目</div>'}</div>`;
           }
         }
-
         return `
           <div class="overview-row" onclick="toggleOverviewDate('${d}')">
             <div class="overview-row-head">
@@ -1571,7 +1465,7 @@
                 ${badgeHtml}
                 <span class="overview-row-summary">${summaryText}</span>
               </div>
-              <button type="button" class="overview-del-btn" onclick="deleteOverviewDate('${d}', event)">刪除</button>
+              <button type="button" class="overview-del-btn" onclick="deleteOverviewDate('${d}',event)">刪除</button>
             </div>
             ${expandedHtml}
           </div>
@@ -1610,14 +1504,12 @@
           if (ex.name) recordedNames.add(ex.name);
         });
       });
-
       const list = [...recordedNames];
       if (!list.length) {
         sel.innerHTML = '<option value="">尚無已紀錄動作</option>';
         renderProgressChart();
         return;
       }
-
       sel.innerHTML = list.map(name => `<option value="${name}">${name}</option>`).join('');
       if (prevVal && list.includes(prevVal)) sel.value = prevVal;
       renderProgressChart();
@@ -1628,19 +1520,15 @@
       const sel = document.getElementById('chartExerciseSelect');
       const targetName = sel ? sel.value : '';
       if (!container) return;
-
       if (!targetName) {
         container.innerHTML = '<div class="muted" style="margin-top:8px;">新增訓練紀錄後，這裡會自動顯示重量與總量趨勢曲線。</div>';
         return;
       }
-
       const points = [];
       Object.keys(db).sort().forEach(d => {
         const matched = (db[d].exercises || []).filter(ex => ex.name === targetName);
         if (!matched.length) return;
-        let maxWt = 0;
-        let totalVol = 0;
-        let totalReps = 0;
+        let maxWt = 0, totalVol = 0, totalReps = 0;
         matched.forEach(ex => {
           (ex.sets || []).forEach(s => {
             const wt = parseNum(s.weight);
@@ -1652,53 +1540,39 @@
         });
         points.push({ date: d, maxWt, totalVol, totalReps });
       });
-
       if (!points.length) {
         container.innerHTML = '<div class="muted" style="margin-top:8px;">此動作尚無數據</div>';
         return;
       }
-
       const W = 320, H = 140, padL = 32, padR = 14, padT = 14, padB = 24;
-      const plotW = W - padL - padR;
-      const plotH = H - padT - padB;
-
+      const plotW = W - padL - padR, plotH = H - padT - padB;
       const maxWeightVal = Math.max(...points.map(p => p.maxWt), 1);
       const maxVolVal = Math.max(...points.map(p => p.totalVol), 1);
-
       const getX = i => points.length === 1 ? padL + plotW / 2 : padL + (i / (points.length - 1)) * plotW;
       const getYWeight = v => padT + plotH - (v / maxWeightVal) * plotH;
       const getYVol = v => padT + plotH - (v / maxVolVal) * plotH;
-
       const weightLine = points.map((p, i) => `${getX(i).toFixed(1)},${getYWeight(p.maxWt).toFixed(1)}`).join(' ');
       const volLine = points.map((p, i) => `${getX(i).toFixed(1)},${getYVol(p.totalVol).toFixed(1)}`).join(' ');
-
       const weightDots = points.map((p, i) => `
         <circle cx="${getX(i).toFixed(1)}" cy="${getYWeight(p.maxWt).toFixed(1)}" r="3.5" fill="#22d3ee" />
         <text x="${getX(i).toFixed(1)}" y="${Math.max(10, getYWeight(p.maxWt) - 6).toFixed(1)}" fill="#eef4fa" font-size="9" text-anchor="middle">${p.maxWt || p.totalReps}</text>
       `).join('');
-
-      const volDots = points.map((p, i) => `
-        <circle cx="${getX(i).toFixed(1)}" cy="${getYVol(p.totalVol).toFixed(1)}" r="2.8" fill="#a3e635" />
-      `).join('');
-
+      const volDots = points.map((p, i) => `<circle cx="${getX(i).toFixed(1)}" cy="${getYVol(p.totalVol).toFixed(1)}" r="2.8" fill="#a3e635" />`).join('');
       const xLabels = points.map((p, i) => {
         if (points.length > 6 && i !== 0 && i !== points.length - 1 && i % Math.ceil(points.length / 4) !== 0) return '';
         return `<text x="${getX(i).toFixed(1)}" y="${H - 6}" fill="#8fa3b8" font-size="9" text-anchor="middle">${p.date.slice(5)}</text>`;
       }).join('');
-
-      const first = points[0];
-      const latest = points[points.length - 1];
+      const first = points[0], latest = points[points.length - 1];
       const bestWt = Math.max(...points.map(p => p.maxWt));
       const diffWt = +(latest.maxWt - first.maxWt).toFixed(1);
       const diffText = diffWt > 0 ? `+${diffWt}kg` : `${diffWt}kg`;
-
       container.innerHTML = `
         <div class="chart-wrap">
           <div class="chart-legend">
             <span><i class="legend-dot" style="background:#22d3ee;"></i>最高重量 (kg)</span>
             <span><i class="legend-dot" style="background:#a3e635;"></i>單次總訓練量</span>
           </div>
-          <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">
+          <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;">
             <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#273749" stroke-width="1" />
             <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#273749" stroke-width="1" />
             <text x="${padL - 4}" y="${padT + 4}" fill="#8fa3b8" font-size="8" text-anchor="end">${maxWeightVal}</text>
@@ -1710,18 +1584,9 @@
             ${xLabels}
           </svg>
           <div class="chart-stats">
-            <div class="stat-box">
-              <div class="val">${bestWt} kg</div>
-              <div class="lbl">歷史最高重</div>
-            </div>
-            <div class="stat-box">
-              <div class="val">${latest.maxWt} kg</div>
-              <div class="lbl">最近一次</div>
-            </div>
-            <div class="stat-box">
-              <div class="val" style="color:${diffWt >= 0 ? 'var(--accent-2)' : 'var(--danger)'};">${diffText}</div>
-              <div class="lbl">首末變化</div>
-            </div>
+            <div class="stat-box"><div class="val">${bestWt} kg</div><div class="lbl">歷史最高重</div></div>
+            <div class="stat-box"><div class="val">${latest.maxWt} kg</div><div class="lbl">最近一次</div></div>
+            <div class="stat-box"><div class="val" style="color:${diffWt >= 0 ? 'var(--accent-2)' : 'var(--danger)'};">${diffText}</div><div class="lbl">首末變化</div></div>
           </div>
         </div>
       `;
@@ -1733,11 +1598,7 @@
     }
 
     function copySyncBundle() {
-      const payload = JSON.stringify({
-        syncKey: getSyncKey().trim() || null,
-        updatedAt: new Date().toISOString(),
-        data: db
-      });
+      const payload = JSON.stringify({ syncKey: getSyncKey().trim() || null, updatedAt: new Date().toISOString(), data: db });
       const box = document.getElementById('syncCodeBox');
       if (box) box.value = payload;
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1753,12 +1614,9 @@
       if (!raw) return alert('請先在同步碼欄位貼上同步碼');
       try {
         const parsed = JSON.parse(raw);
-        const incomingData = parsed && typeof parsed === 'object' && parsed.data && typeof parsed.data === 'object'
-          ? parsed.data
-          : parsed;
+        const incomingData = parsed && typeof parsed === 'object' && parsed.data && typeof parsed.data === 'object' ? parsed.data : parsed;
         if (!incomingData || typeof incomingData !== 'object' || Array.isArray(incomingData)) throw new Error();
-        const cleanedIncoming = cleanEmptyRecords(incomingData);
-        db = { ...db, ...cleanedIncoming };
+        db = { ...db, ...cleanEmptyRecords(incomingData) };
         saveDB();
         renderAll();
         alert('已同步並合併紀錄');
@@ -1805,7 +1663,7 @@
     }
 
     function switchTab(tabId, btn) {
-      ['tab-log','tab-overview','tab-library','tab-chart','tab-storage'].forEach(id => {
+      ['tab-log', 'tab-overview', 'tab-library', 'tab-chart', 'tab-storage'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.toggle('hidden', id !== tabId);
       });
@@ -1820,9 +1678,7 @@
       const hrs = Math.floor(sec / 3600);
       const mins = Math.floor((sec % 3600) / 60);
       const secs = sec % 60;
-      if (hrs > 0) {
-        return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-      }
+      if (hrs > 0) return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
       return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
 
@@ -1834,9 +1690,7 @@
         btn.textContent = isRunning ? '❚❚' : '▶';
         btn.setAttribute('aria-label', isRunning ? '暫停碼表' : '開始碼表');
       }
-      if (numEl) {
-        numEl.textContent = formatStopwatch(stopwatchSec);
-      }
+      if (numEl) numEl.textContent = formatStopwatch(stopwatchSec);
     }
 
     function resetTimer() {
