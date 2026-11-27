@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="運動紀錄"/>
 <title>運動紀錄 App</title>
 <link id="dynamicManifest" rel="manifest" href=""/>
-<link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Ccircle cx='64' cy='64' r='64'/%3E%3C/clipPath%3E%3C/defs%3E%3Cg clip-path='url(%23c)'%3E%3Ccircle cx='64' cy='64' r='64' fill='%23131c26'/%3E%3Cellipse cx='64' cy='76' rx='34' ry='28' fill='%2322d3ee' fill-opacity='0.18' stroke='%2322d3ee' stroke-width='4.5'/%3E%3Ccircle cx='64' cy='44' r='21' fill='%231b2735' stroke='%2322d3ee' stroke-width='4.5'/%3E%3Cpolygon points='45,30 41,14 56,24' fill='%231b2735' stroke='%2322d3ee' stroke-width='4' stroke-linejoin='round'/%3E%3Cpolygon points='83,30 87,14 72,24' fill='%231b2735' stroke='%2322d3ee' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='57' cy='43' r='2.6' fill='%23eef4fa'/%3E%3Ccircle cx='71' cy='43' r='2.6' fill='%23eef4fa'/%3E%3Cpath d='M61 48h6l-3 4z' fill='%23fb923c'/%3E%3Cpath d='M57 53q4 4 7 0q3 4 7 0' fill='none' stroke='%23eef4fa' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='24' y1='64' x2='104' y2='64' stroke='%23a3e635' stroke-width='5' stroke-linecap='round'/%3E%3Crect x='20' y='56' width='8' height='16' rx='3' fill='%23a3e635'/%3E%3Crect x='100' y='56' width='8' height='16' rx='3' fill='%23a3e635'/%3E%3Cpath d='M48 102v8M80 102v8' stroke='%23a3e635' stroke-width='5' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E"/>
+<link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='64' fill='%23131c26'/%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round' stroke-width='6'%3E%3Cpath d='M44 33l-6-15 15 9' stroke='%2322d3ee'/%3E%3Cpath d='M84 33l6-15-15 9' stroke='%2322d3ee'/%3E%3Ccircle cx='64' cy='46' r='20' stroke='%2322d3ee'/%3E%3Cellipse cx='64' cy='80' rx='32' ry='24' stroke='%2322d3ee'/%3E%3Cline x1='24' y1='66' x2='104' y2='66' stroke='%23a3e635'/%3E%3Cline x1='24' y1='57' x2='24' y2='75' stroke='%23a3e635'/%3E%3Cline x1='104' y1='57' x2='104' y2='75' stroke='%23a3e635'/%3E%3C/g%3E%3C/svg%3E"/>
 <link id="dynamicAppleIcon" rel="apple-touch-icon" href=""/>
 <style>
 :root{--bg:#0b1117;--surface:#131c26;--surface-2:#1b2735;--border:#273749;--text:#eef4fa;--muted:#8fa3b8;--accent:#22d3ee;--accent-2:#a3e635;--orange:#fb923c;--danger:#f87171;--radius:14px}
@@ -81,7 +81,7 @@ input:focus,select:focus{border-color:var(--accent)}
 .overview-sub-ex{background:rgba(11,17,23,0.45);border:1px solid rgba(39,55,73,0.85);border-radius:10px;padding:8px 10px;margin-top:8px}
 .overview-sub-title{font-weight:700;font-size:13px;color:var(--text);margin-bottom:4px}
 .app-icon-preview-box{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px}
-.app-icon-frame{width:68px;height:68px;border-radius:50%;overflow:hidden;border:1px solid var(--border);flex-shrink:0;background:var(--bg)}
+.app-icon-frame{width:68px;height:68px;border-radius:50%;overflow:hidden;border:1px solid var(--border);flex-shrink:0;background:#131c26}
 .timer-box{position:relative;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(163,230,53,0.08));border:1px solid rgba(34,211,238,0.3);border-radius:12px;height:62px;padding:6px 48px 14px 10px;min-width:0;width:100%}
 .timer-num{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:clamp(20px,5.8vw,26px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap;text-align:center;letter-spacing:0.4px}
 .circle-btn-group{position:absolute;right:6px;bottom:6px;display:flex;align-items:center;gap:4px}
@@ -123,8 +123,8 @@ input:focus,select:focus{border-color:var(--accent)}
 </div>
 </div>
 <div class="card rest-inline-card hidden" id="restCard">
-<div class="rest-inline-text" id="restInlineText"><span class="rest-inline-title">今日狀態：低強度/休息</span><span class="muted" id="restCardDesc">點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。</span></div>
-<button type="button" class="btn btn-orange btn-sm" style="flex:0 0 auto;white-space:nowrap;" id="markRestBtn" onclick="markRestDay()">記錄為休息日</button>
+<div class="rest-inline-text" id="restInlineText"><span class="rest-inline-title">今日狀態：低強度/休息</span><span class="muted" id="restCardDesc">點擊右側按鈕記錄或取消休息日。</span></div>
+<button type="button" class="btn btn-orange btn-sm" style="flex:0 0 auto;white-space:nowrap;" id="markRestBtn" onclick="toggleRestDay()">記錄為休息日</button>
 </div>
 <div class="card" id="strengthCard">
 <div class="card-header"><div class="card-title">新增動作組數</div><span class="muted">次數 / 重量kg</span></div>
@@ -161,27 +161,21 @@ input:focus,select:focus{border-color:var(--accent)}
 <div class="app-icon-preview-box">
 <div class="app-icon-frame">
 <svg id="appLineArtIconSvg" viewBox="0 0 128 128" width="68" height="68" xmlns="http://www.w3.org/2000/svg">
-<defs><clipPath id="fatCatCircleClip"><circle cx="64" cy="64" r="64"/></clipPath></defs>
-<g clip-path="url(#fatCatCircleClip)">
 <circle cx="64" cy="64" r="64" fill="#131c26"/>
-<ellipse cx="64" cy="77" rx="35" ry="29" fill="#22d3ee" fill-opacity="0.16" stroke="#22d3ee" stroke-width="4.5"/>
-<circle cx="64" cy="43" r="20" fill="#1b2735" stroke="#22d3ee" stroke-width="4.5"/>
-<polygon points="46,29 42,13 57,23" fill="#1b2735" stroke="#22d3ee" stroke-width="4" stroke-linejoin="round"/>
-<polygon points="82,29 86,13 71,23" fill="#1b2735" stroke="#22d3ee" stroke-width="4" stroke-linejoin="round"/>
-<circle cx="57" cy="42" r="2.6" fill="#eef4fa"/>
-<circle cx="71" cy="42" r="2.6" fill="#eef4fa"/>
-<path d="M61 47h6l-3 4z" fill="#fb923c"/>
-<path d="M56 52q4 4 8 0q4 4 8 0" fill="none" stroke="#eef4fa" stroke-width="2.5" stroke-linecap="round"/>
-<line x1="22" y1="64" x2="106" y2="64" stroke="#a3e635" stroke-width="5" stroke-linecap="round"/>
-<rect x="18" y="56" width="8" height="16" rx="3" fill="#a3e635"/>
-<rect x="102" y="56" width="8" height="16" rx="3" fill="#a3e635"/>
-<path d="M48 103v8M80 103v8" stroke="#a3e635" stroke-width="5" stroke-linecap="round"/>
+<g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="6">
+<path d="M44 33l-6-15 15 9" stroke="#22d3ee"/>
+<path d="M84 33l6-15-15 9" stroke="#22d3ee"/>
+<circle cx="64" cy="46" r="20" stroke="#22d3ee"/>
+<ellipse cx="64" cy="80" rx="32" ry="24" stroke="#22d3ee"/>
+<line x1="24" y1="66" x2="104" y2="66" stroke="#a3e635"/>
+<line x1="24" y1="57" x2="24" y2="75" stroke="#a3e635"/>
+<line x1="104" y1="57" x2="104" y2="75" stroke="#a3e635"/>
 </g>
 </svg>
 </div>
 <div style="flex:1;min-width:0;">
-<div style="font-size:13px;font-weight:700;margin-bottom:4px;">圓形滿版 · 胖貓在運動</div>
-<div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">支援手機安裝成獨立全螢幕 App，並套用此胖貓運動圖示。</div>
+<div style="font-size:13px;font-weight:700;margin-bottom:4px;">純色圓形 · 極簡胖貓運動</div>
+<div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">支援手機安裝成獨立全螢幕 App，並套用此極簡胖貓圖示。</div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;">
 <button type="button" class="btn btn-primary btn-sm" id="cardInstallBtn" onclick="installPWAApp()">📲 安裝到手機主畫面</button>
 <button type="button" class="btn btn-ghost btn-sm" onclick="downloadAppIconPNG(512)">下載 512×512 PNG</button>
@@ -237,7 +231,13 @@ img.onload=()=>{
 const canvas=document.createElement('canvas');
 canvas.width=size;canvas.height=size;
 const ctx=canvas.getContext('2d');
+ctx.clearRect(0,0,size,size);
+ctx.save();
+ctx.beginPath();
+ctx.arc(size/2,size/2,size/2,0,Math.PI*2);
+ctx.clip();
 ctx.drawImage(img,0,0,size,size);
+ctx.restore();
 URL.revokeObjectURL(url);
 try{resolve(canvas.toDataURL('image/png'))}catch{resolve('')}
 };
@@ -527,9 +527,10 @@ const isRest=isRestCategory(currentCat);
 const restCard=document.getElementById('restCard');
 if(restCard)restCard.classList.toggle('hidden',!isRest);
 if(isRest){
-const alreadyMarked=Boolean(db[selectedDate]?.restMarked)||isRestCategory(db[selectedDate]?.category);
-document.getElementById('markRestBtn').textContent=alreadyMarked?'已記錄休息日':'記錄為休息日';
-document.getElementById('restCardDesc').textContent=alreadyMarked?'已列入休息日紀錄。':'點擊右上角按鈕才會把這天寫入紀錄，或直接於下方加入低強度動作。';
+const dayObj=db[selectedDate];
+const alreadyMarked=Boolean(dayObj?.restMarked)||isRestCategory(dayObj?.category);
+document.getElementById('markRestBtn').textContent=alreadyMarked?'取消休息日':'記錄為休息日';
+document.getElementById('restCardDesc').textContent=alreadyMarked?'已列入休息日紀錄，可點右側按鈕取消。':'點擊右側按鈕記錄為休息日。';
 }
 document.getElementById('strengthCard').classList.toggle('hidden',false);
 const pills=getSortedUniqueExercises(EXERCISE_POOL[currentCat]||[]);
@@ -546,7 +547,23 @@ saveDB();renderOverview();
 renderCategories();renderDayEntries();
 }
 
-function markRestDay(){
+function toggleRestDay(){
+const day=db[selectedDate];
+const alreadyMarked=Boolean(day?.restMarked)||isRestCategory(day?.category);
+if(alreadyMarked){
+if(day){
+delete day.restMarked;
+const hasEx=Array.isArray(day.exercises)&&day.exercises.length>0;
+if(hasEx){
+if(isRestCategory(day.category))day.category='重量訓練';
+activeCategory=day.category;
+}else{
+delete db[selectedDate];
+activeCategory='重量訓練';
+}
+}
+saveDB();renderAll();return;
+}
 if(!db[selectedDate])db[selectedDate]={category:'低強度/休息',exercises:[],restMarked:true};
 else{db[selectedDate].category='低強度/休息';db[selectedDate].restMarked=true}
 saveDB();renderAll();
