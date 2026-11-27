@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="運動紀錄"/>
 <title>運動紀錄 App</title>
 <link id="dynamicManifest" rel="manifest" href=""/>
-<link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='62' fill='%23ffffff'/%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M44 37l-5-14 14 8' stroke='%23f97316' stroke-width='5.5'/%3E%3Cpath d='M84 37l5-14-14 8' stroke='%23f97316' stroke-width='5.5'/%3E%3Ccircle cx='64' cy='50' r='18' fill='%23ffedd5' stroke='%23f97316' stroke-width='5.5'/%3E%3Ccircle cx='57.5' cy='49' r='2.3' fill='%237c2d12' stroke='none'/%3E%3Ccircle cx='70.5' cy='49' r='2.3' fill='%237c2d12' stroke='none'/%3E%3Cpath d='M61.5 54.5q2.5 2.5 5 0' stroke='%237c2d12' stroke-width='2.4'/%3E%3Cellipse cx='64' cy='80' rx='24' ry='15' fill='%23ffedd5' stroke='%23f97316' stroke-width='5.5'/%3E%3Cline x1='28' y1='73' x2='100' y2='73' stroke='%230ea5e9' stroke-width='5.5'/%3E%3Crect x='25' y='64' width='7' height='18' rx='3' fill='%230ea5e9' stroke='none'/%3E%3Crect x='96' y='64' width='7' height='18' rx='3' fill='%230ea5e9' stroke='none'/%3E%3C/g%3E%3C/svg%3E"/>
+<link id="dynamicFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M43 35l-6-15 15 9' stroke='%23f97316' stroke-width='6'/%3E%3Cpath d='M85 35l6-15-15 9' stroke='%23f97316' stroke-width='6'/%3E%3Ccircle cx='64' cy='48' r='19' fill='%23ffedd5' stroke='%23f97316' stroke-width='6'/%3E%3Ccircle cx='57' cy='47' r='2.5' fill='%237c2d12' stroke='none'/%3E%3Ccircle cx='71' cy='47' r='2.5' fill='%237c2d12' stroke='none'/%3E%3Cpath d='M61 53q3 3 6 0' stroke='%237c2d12' stroke-width='2.6'/%3E%3Cellipse cx='64' cy='80' rx='25' ry='16' fill='%23ffedd5' stroke='%23f97316' stroke-width='6'/%3E%3Cline x1='24' y1='73' x2='104' y2='73' stroke='%2322d3ee' stroke-width='6'/%3E%3Crect x='21' y='63' width='8' height='20' rx='3.5' fill='%2322d3ee' stroke='none'/%3E%3Crect x='99' y='63' width='8' height='20' rx='3.5' fill='%2322d3ee' stroke='none'/%3E%3C/g%3E%3C/svg%3E"/>
 <link id="dynamicAppleIcon" rel="apple-touch-icon" href=""/>
 <style>
 :root{--bg:#0b1117;--surface:#131c26;--surface-2:#1b2735;--border:#273749;--text:#eef4fa;--muted:#8fa3b8;--accent:#22d3ee;--accent-2:#a3e635;--orange:#fb923c;--danger:#f87171;--radius:14px}
@@ -85,7 +85,7 @@ input:focus,select:focus{border-color:var(--accent)}
 .overview-sub-ex{background:rgba(11,17,23,0.45);border:1px solid rgba(39,55,73,0.85);border-radius:9px;padding:7px 9px;margin-top:6px}
 .overview-sub-title{font-weight:700;font-size:12px;color:var(--text);margin-bottom:3px}
 .app-icon-preview-box{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px}
-.app-icon-frame{width:72px;height:72px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#ffffff;display:flex;align-items:center;justify-content:center}
+.app-icon-frame{width:72px;height:72px;border-radius:50%;overflow:hidden;flex-shrink:0;background:repeating-conic-gradient(#243242 0% 25%, #16202c 0% 50%) 50% / 12px 12px;display:flex;align-items:center;justify-content:center}
 .timer-box{display:grid;grid-template-columns:minmax(0,1fr) 26px;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(163,230,53,0.08));border:1px solid rgba(34,211,238,0.3);border-radius:12px;min-height:74px;padding:8px 8px 8px 10px;min-width:0;width:100%}
 .timer-num{width:100%;display:flex;align-items:center;justify-content:center;font-size:clamp(19px,5.2vw,25px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap;text-align:center;letter-spacing:0.3px}
 .circle-btn-group{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;flex-shrink:0}
@@ -165,24 +165,23 @@ input:focus,select:focus{border-color:var(--accent)}
 <div class="app-icon-preview-box">
 <div class="app-icon-frame">
 <svg id="appLineArtIconSvg" viewBox="0 0 128 128" width="72" height="72" xmlns="http://www.w3.org/2000/svg">
-<circle cx="64" cy="64" r="62" fill="#ffffff"/>
 <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-<path d="M44 37l-5-14 14 8" stroke="#f97316" stroke-width="5.5"/>
-<path d="M84 37l5-14-14 8" stroke="#f97316" stroke-width="5.5"/>
-<circle cx="64" cy="50" r="18" fill="#ffedd5" stroke="#f97316" stroke-width="5.5"/>
-<circle cx="57.5" cy="49" r="2.3" fill="#7c2d12" stroke="none"/>
-<circle cx="70.5" cy="49" r="2.3" fill="#7c2d12" stroke="none"/>
-<path d="M61.5 54.5q2.5 2.5 5 0" stroke="#7c2d12" stroke-width="2.4"/>
-<ellipse cx="64" cy="80" rx="24" ry="15" fill="#ffedd5" stroke="#f97316" stroke-width="5.5"/>
-<line x1="28" y1="73" x2="100" y2="73" stroke="#0ea5e9" stroke-width="5.5"/>
-<rect x="25" y="64" width="7" height="18" rx="3" fill="#0ea5e9" stroke="none"/>
-<rect x="96" y="64" width="7" height="18" rx="3" fill="#0ea5e9" stroke="none"/>
+<path d="M43 35l-6-15 15 9" stroke="#f97316" stroke-width="6"/>
+<path d="M85 35l6-15-15 9" stroke="#f97316" stroke-width="6"/>
+<circle cx="64" cy="48" r="19" fill="#ffedd5" stroke="#f97316" stroke-width="6"/>
+<circle cx="57" cy="47" r="2.5" fill="#7c2d12" stroke="none"/>
+<circle cx="71" cy="47" r="2.5" fill="#7c2d12" stroke="none"/>
+<path d="M61 53q3 3 6 0" stroke="#7c2d12" stroke-width="2.6"/>
+<ellipse cx="64" cy="80" rx="25" ry="16" fill="#ffedd5" stroke="#f97316" stroke-width="6"/>
+<line x1="24" y1="73" x2="104" y2="73" stroke="#22d3ee" stroke-width="6"/>
+<rect x="21" y="63" width="8" height="20" rx="3.5" fill="#22d3ee" stroke="none"/>
+<rect x="99" y="63" width="8" height="20" rx="3.5" fill="#22d3ee" stroke="none"/>
 </g>
 </svg>
 </div>
 <div style="flex:1;min-width:0;">
-<div style="font-size:13px;font-weight:700;margin-bottom:4px;">圓形置中 · 橘貓運動</div>
-<div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">純白圓形背景、置中橘貓運動圖示，無方形邊框。</div>
+<div style="font-size:13px;font-weight:700;margin-bottom:4px;">圓形透明背景 · 橘貓運動</div>
+<div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">透明底圓形橘貓運動圖示；若舊捷徑殘留舊圖示，請移除舊捷徑後再安裝。</div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
 <button type="button" class="btn btn-primary btn-pill-label" id="cardInstallBtn" onclick="installPWAApp()">📲 安裝到手機主畫面</button>
 <button type="button" class="btn btn-ghost btn-pill-label" onclick="downloadAppIconPNG(512)">下載 512 PNG</button>
@@ -239,12 +238,13 @@ const canvas=document.createElement('canvas');
 canvas.width=size;canvas.height=size;
 const ctx=canvas.getContext('2d');
 ctx.clearRect(0,0,size,size);
-ctx.save();
-ctx.beginPath();
-ctx.arc(size/2,size/2,size/2,0,Math.PI*2);
-ctx.clip();
 ctx.drawImage(img,0,0,size,size);
-ctx.restore();
+ctx.globalCompositeOperation='destination-in';
+ctx.beginPath();
+ctx.arc(size/2,size/2,size*0.48,0,Math.PI*2);
+ctx.fillStyle='#000000';
+ctx.fill();
+ctx.globalCompositeOperation='source-over';
 URL.revokeObjectURL(url);
 try{resolve(canvas.toDataURL('image/png'))}catch{resolve('')}
 };
@@ -259,8 +259,8 @@ const [icon192,icon512]=await Promise.all([buildIconDataURL(192),buildIconDataUR
 const appleLink=document.getElementById('dynamicAppleIcon');
 if(appleLink&&icon192)appleLink.href=icon192;
 const icons=[];
-if(icon192)icons.push({src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'});
-if(icon512)icons.push({src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'});
+if(icon192)icons.push({src:icon192,sizes:'192x192',type:'image/png',purpose:'any'});
+if(icon512)icons.push({src:icon512,sizes:'512x512',type:'image/png',purpose:'any'});
 const manifestObj={name:'運動紀錄 App',short_name:'運動紀錄',description:'個人重量訓練、衝浪與間歇運動紀錄',start_url:location.href,scope:location.href.substring(0,location.href.lastIndexOf('/')+1),display:'standalone',orientation:'portrait',background_color:'#0b1117',theme_color:'#0b1117',icons};
 const manifestBlob=new Blob([JSON.stringify(manifestObj)],{type:'application/manifest+json'});
 const manifestURL=URL.createObjectURL(manifestBlob);
@@ -269,7 +269,7 @@ if(manifestLink)manifestLink.href=manifestURL;
 }catch{}
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
 try{
-const swCode=`const CACHE_NAME='workout-pwa-v1';self.addEventListener('install',e=>{self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim())});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,copy)).catch(()=>{});return res}).catch(()=>caches.match(e.request)))})`;
+const swCode=`const CACHE_NAME='workout-pwa-v2';self.addEventListener('install',e=>{self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim())});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,copy)).catch(()=>{});return res}).catch(()=>caches.match(e.request)))})`;
 const swBlob=new Blob([swCode],{type:'application/javascript'});
 const swURL=URL.createObjectURL(swBlob);
 navigator.serviceWorker.register(swURL).catch(()=>{});
@@ -310,15 +310,15 @@ if(choice&&choice.outcome==='accepted')deferredInstallPrompt=null;
 return;
 }
 const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
-if(isIOS)alert('請點選 Safari 下方的「分享」圖示（方框向上箭頭），再選擇「加入主畫面」，即可安裝為手機 App。');
-else alert('請點選瀏覽器右上角「⋮」選單，選擇「安裝應用程式」或「加到主畫面」，即可安裝為手機 App。');
+if(isIOS)alert('請先移除舊捷徑，再點選 Safari 下方的「分享」圖示，選擇「加入主畫面」。');
+else alert('若桌面有舊捷徑請先移除，再點選瀏覽器右上角「⋮」選單選擇「安裝應用程式」或「加到主畫面」。');
 }
 
 function downloadAppIconPNG(size=512){
 buildIconDataURL(size).then(dataUrl=>{
 if(!dataUrl)return;
 const a=document.createElement('a');
-a.href=dataUrl;a.download=`workout-orange-cat-icon-${size}.png`;a.click();
+a.href=dataUrl;a.download=`workout-orange-cat-transparent-${size}.png`;a.click();
 });
 }
 
