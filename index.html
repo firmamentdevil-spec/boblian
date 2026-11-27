@@ -53,8 +53,9 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"No
 .pill-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
 .pill{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:999px;font-size:12px;cursor:pointer}
 .pill:hover{border-color:var(--accent)}
-.row-3{display:grid;grid-template-columns:52px 1fr 1fr 28px;gap:6px;align-items:center;margin-bottom:8px}
-.del-set-btn{background:none;border:1px solid var(--border);color:var(--danger);border-radius:8px;height:34px;width:28px;font-size:12px;cursor:pointer;padding:0}
+.row-4{display:grid;grid-template-columns:46px minmax(0,1fr) minmax(0,1fr) minmax(0,1.15fr) 26px;gap:5px;align-items:center;margin-bottom:8px}
+.row-4 input{padding:8px 7px;font-size:13px;min-width:0}
+.del-set-btn{background:none;border:1px solid var(--border);color:var(--danger);border-radius:8px;height:34px;width:26px;font-size:12px;cursor:pointer;padding:0}
 input,select{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 10px;font-size:14px;outline:none}
 input:focus,select:focus{border-color:var(--accent)}
 .btn{border:none;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;cursor:pointer}
@@ -62,24 +63,24 @@ input:focus,select:focus{border-color:var(--accent)}
 .btn-orange{background:var(--orange);color:#160b04}
 .btn-ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
 .btn-sm{padding:6px 10px;font-size:12px}
-.ex-item{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px}
-.ex-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
-.ex-name{font-weight:700;font-size:15px}
-.set-line{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);padding:4px 0;border-top:1px dashed rgba(143,163,184,0.16)}
+.ex-item{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.ex-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
+.ex-name{font-weight:700;font-size:14px}
+.set-line{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--muted);padding:4px 0;border-top:1px dashed rgba(143,163,184,0.16)}
 .set-line strong{color:var(--text)}
 .overview-scroll-wrap{overflow-x:auto;cursor:grab;user-select:none;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 .overview-scroll-wrap.dragging{cursor:grabbing}
-.overview-row{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;width:max-content;min-width:100%}
-.overview-row-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.overview-row-main{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.overview-row{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:9px 10px;margin-bottom:8px;cursor:pointer;width:max-content;min-width:100%}
+.overview-row-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.overview-row-main{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .overview-row-caret{font-size:10px;color:var(--muted);width:12px;text-align:center;flex-shrink:0}
-.overview-date-label{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;flex-shrink:0}
-.overview-wk-label{font-size:12px;color:var(--accent);font-weight:600;white-space:nowrap;flex-shrink:0}
+.overview-date-label{font-weight:700;font-size:13px;color:var(--text);white-space:nowrap;flex-shrink:0}
+.overview-wk-label{font-size:11px;color:var(--accent);font-weight:600;white-space:nowrap;flex-shrink:0}
 .overview-row-summary{font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0}
 .overview-del-btn{background:none;border:1px solid rgba(248,113,113,0.35);color:var(--danger);border-radius:7px;padding:3px 7px;font-size:11px;font-weight:500;line-height:1.2;cursor:pointer;flex-shrink:0}
-.overview-expanded-list{margin-top:10px;padding-top:8px;border-top:1px solid var(--border);max-width:480px}
-.overview-sub-ex{background:rgba(11,17,23,0.45);border:1px solid rgba(39,55,73,0.85);border-radius:10px;padding:8px 10px;margin-top:8px}
-.overview-sub-title{font-weight:700;font-size:13px;color:var(--text);margin-bottom:4px}
+.overview-expanded-list{margin-top:8px;padding-top:6px;border-top:1px solid var(--border);width:min(100vw - 68px,460px);max-width:460px}
+.overview-sub-ex{background:rgba(11,17,23,0.45);border:1px solid rgba(39,55,73,0.85);border-radius:9px;padding:6px 8px;margin-top:6px}
+.overview-sub-title{font-weight:700;font-size:12px;color:var(--text);margin-bottom:3px}
 .app-icon-preview-box{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px}
 .app-icon-frame{width:68px;height:68px;border-radius:50%;overflow:hidden;border:1px solid var(--border);flex-shrink:0;background:#131c26}
 .timer-box{position:relative;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(163,230,53,0.08));border:1px solid rgba(34,211,238,0.3);border-radius:12px;height:62px;padding:6px 48px 14px 10px;min-width:0;width:100%}
@@ -127,7 +128,7 @@ input:focus,select:focus{border-color:var(--accent)}
 <button type="button" class="btn btn-orange btn-sm" style="flex:0 0 auto;white-space:nowrap;" id="markRestBtn" onclick="toggleRestDay()">記錄為休息日</button>
 </div>
 <div class="card" id="strengthCard">
-<div class="card-header"><div class="card-title">新增動作組數</div><span class="muted">次數 / 重量kg</span></div>
+<div class="card-header"><div class="card-title">新增動作組數</div><span class="muted">次數 / 重量kg / 距離或配速</span></div>
 <div class="quick-row"><span class="section-label">常用動作快選</span><span class="muted">可直接手動輸入動作</span></div>
 <div class="pill-row" id="quickExercises"></div>
 <div style="margin-bottom:10px;"><input type="text" id="exNameInput" placeholder="動作名稱"/></div>
@@ -174,8 +175,8 @@ input:focus,select:focus{border-color:var(--accent)}
 </svg>
 </div>
 <div style="flex:1;min-width:0;">
-<div style="font-size:13px;font-weight:700;margin-bottom:4px;">純色圓形 · 極簡胖貓運動</div>
-<div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">支援手機安裝成獨立全螢幕 App，並套用此極簡胖貓圖示。</div>
+<div style="font-size:13px;font-weight:700;margin-bottom:4px;">純色圓形滿版 · 極簡胖貓運動</div>
+<div class="muted" id="pwaInstallHint" style="margin-bottom:8px;">支援手機安裝成獨立全螢幕 App，並套用此圓形胖貓圖示。</div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;">
 <button type="button" class="btn btn-primary btn-sm" id="cardInstallBtn" onclick="installPWAApp()">📲 安裝到手機主畫面</button>
 <button type="button" class="btn btn-ghost btn-sm" onclick="downloadAppIconPNG(512)">下載 512×512 PNG</button>
@@ -583,9 +584,9 @@ for(let i=1;i<=count;i++)addSetRow(i);
 }
 
 function refreshSetLabels(){
-const rows=[...document.querySelectorAll('#setsContainer .row-3')];
+const rows=[...document.querySelectorAll('#setsContainer .row-4')];
 rows.forEach((r,i)=>{
-r.querySelector('.set-idx-label').textContent=`第 ${i+1} 組`;
+r.querySelector('.set-idx-label').textContent=`第${i+1}組`;
 const delBtn=r.querySelector('.del-set-btn');
 if(delBtn)delBtn.style.visibility=rows.length>1?'visible':'hidden';
 });
@@ -596,8 +597,8 @@ const container=document.getElementById('setsContainer');
 if(!container)return;
 const idx=forcedNum||(container.children.length+1);
 const div=document.createElement('div');
-div.className='row-3';
-div.innerHTML=`<span class="muted set-idx-label">第 ${idx} 組</span><input type="text" inputmode="decimal" class="set-reps" placeholder="次數"/><input type="text" inputmode="decimal" class="set-wt" placeholder="重量kg"/><button type="button" class="del-set-btn" title="刪除此組" onclick="removeSpecificSetRow(this)">✕</button>`;
+div.className='row-4';
+div.innerHTML=`<span class="muted set-idx-label">第${idx}組</span><input type="text" inputmode="decimal" class="set-reps" placeholder="次數"/><input type="text" inputmode="decimal" class="set-wt" placeholder="重量kg"/><input type="text" class="set-pace" placeholder="距離/配速"/><button type="button" class="del-set-btn" title="刪除此組" onclick="removeSpecificSetRow(this)">✕</button>`;
 container.appendChild(div);
 refreshSetLabels();
 }
@@ -605,15 +606,20 @@ refreshSetLabels();
 function removeSpecificSetRow(btn){
 const container=document.getElementById('setsContainer');
 if(!container||container.children.length<=1)return;
-btn.closest('.row-3').remove();
+btn.closest('.row-4').remove();
 refreshSetLabels();
 }
 
 function saveStrengthEntry(){
 const name=document.getElementById('exNameInput').value.trim();
 if(!name)return alert('請輸入動作名稱');
-const rows=[...document.querySelectorAll('#setsContainer .row-3')];
-const sets=rows.map((r,i)=>({set:i+1,reps:r.querySelector('.set-reps').value.trim(),weight:r.querySelector('.set-wt').value.trim()})).filter(s=>s.reps||s.weight);
+const rows=[...document.querySelectorAll('#setsContainer .row-4')];
+const sets=rows.map((r,i)=>({
+set:i+1,
+reps:r.querySelector('.set-reps').value.trim(),
+weight:r.querySelector('.set-wt').value.trim(),
+pace:r.querySelector('.set-pace').value.trim()
+})).filter(s=>s.reps||s.weight||s.pace);
 if(!db[selectedDate])db[selectedDate]={category:activeCategory,exercises:[]};
 db[selectedDate].category=activeCategory;
 if(isRestCategory(activeCategory))db[selectedDate].restMarked=true;
@@ -624,13 +630,21 @@ resetSetsUI(3);
 renderDayEntries();renderDateStrip();renderOverview();renderChartExerciseOptions(name);
 }
 
+function formatSetDetail(s){
+const parts=[];
+if(s.reps)parts.push(`次:<strong>${s.reps}</strong>`);
+if(s.weight)parts.push(`重:<strong>${s.weight}</strong>`);
+if(s.pace)parts.push(`距/速:<strong>${s.pace}</strong>`);
+return parts.length?parts.join(' · '):'<strong>-</strong>';
+}
+
 function renderDayEntries(){
 const day=db[selectedDate],currentCat=day?.category||activeCategory,box=document.getElementById('dayEntriesList');
 if(!box)return;
 const exList=Array.isArray(day?.exercises)?day.exercises:[];
 document.getElementById('daySummaryBadge').textContent=`${currentCat} · ${exList.length} 項`;
 let html=exList.map((ex,idx)=>{
-const setsHtml=(ex.sets||[]).map(s=>`<div class="set-line"><span>第 ${s.set} 組</span><span>次數：<strong>${s.reps||'-'}</strong> ｜ 重量：<strong>${s.weight||'-'}</strong></span></div>`).join('');
+const setsHtml=(ex.sets||[]).map(s=>`<div class="set-line"><span>第${s.set}組</span><span>${formatSetDetail(s)}</span></div>`).join('');
 return `<div class="ex-item"><div class="ex-top"><span class="ex-name">${ex.name}</span><button class="btn btn-ghost btn-sm" onclick="deleteExercise(${idx})">移除</button></div>${setsHtml||'<div class="muted">無組數明細</div>'}</div>`;
 }).join('');
 if(!exList.length&&(Boolean(day?.restMarked)||isRestCategory(currentCat)))html+=`<div class="ex-item"><div class="muted">今日已記錄為低強度/休息日</div></div>`;
@@ -673,10 +687,10 @@ const summaryText=exList.length?(hasRest?`休息日 · ${exSummary}`:exSummary):
 const badgeHtml=hasRest?`<span class="rest-badge">休息日</span>`:`<span class="local-badge">${day.category||'重量訓練'}</span>`;
 let expandedHtml='';
 if(isExpanded){
-const restNoteHtml=hasRest?`<div class="muted" style="margin-bottom:6px;color:var(--orange);">狀態：低強度 / 休息日</div>`:'';
+const restNoteHtml=hasRest?`<div class="muted" style="margin-bottom:4px;color:var(--orange);">狀態：低強度 / 休息日</div>`:'';
 expandedHtml=exList.length
 ?`<div class="overview-expanded-list">${restNoteHtml}${exList.map(ex=>{
-const setsHtml=(ex.sets||[]).map(s=>`<div class="set-line"><span>第 ${s.set} 組</span><span>次數：<strong>${s.reps||'-'}</strong> ｜ 重量：<strong>${s.weight||'-'}</strong></span></div>`).join('');
+const setsHtml=(ex.sets||[]).map(s=>`<div class="set-line"><span>第${s.set}組</span><span>${formatSetDetail(s)}</span></div>`).join('');
 return `<div class="overview-sub-ex"><div class="overview-sub-title">${ex.name}</div>${setsHtml||'<div class="muted">無組數明細</div>'}</div>`;
 }).join('')}</div>`
 :`<div class="overview-expanded-list">${restNoteHtml||'<div class="muted">無訓練項目</div>'}</div>`;
