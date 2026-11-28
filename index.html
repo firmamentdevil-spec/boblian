@@ -27,10 +27,17 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"No
 .date-strip::-webkit-scrollbar{display:none}
 .date-strip.dragging{cursor:grabbing}
 .date-spacer{flex:0 0 calc(50% - 31px);pointer-events:none}
-.date-chip{flex:0 0 62px;min-width:62px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 6px;text-align:center;cursor:pointer}
+.date-chip{flex:0 0 62px;min-width:62px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 6px;text-align:center;cursor:pointer;transition:background-color .15s,border-color .15s,box-shadow .15s}
+.date-chip.has-log{background:rgba(163,230,53,0.14);border-color:rgba(163,230,53,0.65);box-shadow:0 0 10px rgba(163,230,53,0.18)}
+.date-chip.has-log .dy{color:#d9f99d}
+.date-chip.rest-day{background:rgba(251,146,60,0.16);border-color:rgba(251,146,60,0.75);box-shadow:0 0 10px rgba(251,146,60,0.2)}
+.date-chip.rest-day .dy{color:var(--orange)}
+.date-chip.rest-day .dot{background:var(--orange)}
 .date-chip.active{background:rgba(34,211,238,0.22);border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.date-chip.active.rest-day{background:rgba(251,146,60,0.24);border-color:var(--orange);box-shadow:0 0 0 1px var(--orange),0 0 12px rgba(251,146,60,0.25)}
 .date-chip .wk{font-size:11px;color:var(--muted)}
 .date-chip.active .wk{color:var(--accent);font-weight:700}
+.date-chip.active.rest-day .wk{color:var(--orange);font-weight:700}
 .date-chip .dy{font-size:15px;font-weight:700;margin-top:2px}
 .date-chip .dot{width:6px;height:6px;border-radius:50%;margin:5px auto 0;background:var(--accent-2)}
 .section-label{font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;letter-spacing:0.4px}
@@ -62,7 +69,7 @@ input:focus,select:focus{border-color:var(--accent)}
 .btn-orange{background:var(--orange);color:#160b04}
 .btn-ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
 .btn-sm{width:38px;height:38px;font-size:11px}
-.btn-action-lg{width:46px;height:46px;font-size:12px;flex-shrink:0}
+.rect-action-btn{border-radius:10px;aspect-ratio:auto;padding:10px 14px;font-size:13px;font-weight:700;line-height:1.2}
 .btn-pill-label{border-radius:999px;aspect-ratio:auto;padding:8px 12px}
 .ex-item{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px}
 .ex-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
@@ -86,8 +93,8 @@ input:focus,select:focus{border-color:var(--accent)}
 .overview-sub-title{font-weight:700;font-size:12px;color:var(--text);margin-bottom:3px}
 .app-icon-preview-box{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px}
 .app-icon-frame{width:72px;height:72px;border-radius:50%;overflow:hidden;flex-shrink:0;background:repeating-conic-gradient(#243242 0% 25%, #16202c 0% 50%) 50% / 12px 12px;display:flex;align-items:center;justify-content:center}
-.timer-box{display:grid;grid-template-columns:minmax(0,1fr) 26px;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(163,230,53,0.08));border:1px solid rgba(34,211,238,0.3);border-radius:12px;min-height:74px;padding:8px 8px 8px 10px;min-width:0;width:100%}
-.timer-num{width:100%;display:flex;align-items:center;justify-content:center;font-size:clamp(19px,5.2vw,25px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap;text-align:center;letter-spacing:0.3px}
+.timer-box{display:grid;grid-template-columns:minmax(0,1fr) 26px;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(163,230,53,0.08));border:1px solid rgba(34,211,238,0.3);border-radius:12px;min-height:78px;padding:8px 8px 8px 10px;min-width:0;width:100%}
+.timer-num{width:100%;display:flex;align-items:center;justify-content:center;font-size:clamp(24px,7vw,34px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap;text-align:center;letter-spacing:0.4px}
 .circle-btn-group{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;flex-shrink:0}
 .circle-icon-btn{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
 .circle-icon-btn svg{width:12px;height:12px;display:block}
@@ -136,7 +143,7 @@ input:focus,select:focus{border-color:var(--accent)}
 <div class="pill-row" id="quickExercises"></div>
 <div style="margin-bottom:10px;"><input type="text" id="exNameInput" placeholder="動作名稱"/></div>
 <div id="setsContainer"></div>
-<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;"><button type="button" class="btn btn-ghost btn-action-lg" title="增加一組" onclick="addSetRow()">＋組</button><button type="button" class="btn btn-primary btn-action-lg" title="加入今日紀錄" onclick="saveStrengthEntry()">加入</button></div>
+<div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><button type="button" class="btn btn-ghost rect-action-btn" onclick="addSetRow()">＋組</button><button type="button" class="btn btn-primary rect-action-btn" style="flex:1;" onclick="saveStrengthEntry()">加入</button></div>
 </div>
 <div class="card">
 <div class="card-header"><div class="card-title">當日紀錄清單</div><span class="muted" id="daySummaryBadge"></span></div>
@@ -269,7 +276,7 @@ if(manifestLink)manifestLink.href=manifestURL;
 }catch{}
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
 try{
-const swCode=`const CACHE_NAME='workout-pwa-v2';self.addEventListener('install',e=>{self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim())});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,copy)).catch(()=>{});return res}).catch(()=>caches.match(e.request)))})`;
+const swCode=`const CACHE_NAME='workout-pwa-v3';self.addEventListener('install',e=>{self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim())});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,copy)).catch(()=>{});return res}).catch(()=>caches.match(e.request)))})`;
 const swBlob=new Blob([swCode],{type:'application/javascript'});
 const swURL=URL.createObjectURL(swBlob);
 navigator.serviceWorker.register(swURL).catch(()=>{});
@@ -338,6 +345,13 @@ return Number.isNaN(dt.getTime())?'':`週${WK_NAMES[dt.getDay()]}`;
 }
 
 function isRestCategory(cat){return cat==='低強度/休息'||cat==='休息日'||cat==='休息'}
+
+function isDayRestOnlyOrRest(dayObj){
+if(!dayObj||typeof dayObj!=='object')return false;
+const hasExercises=Array.isArray(dayObj.exercises)&&dayObj.exercises.length>0;
+const isMarkedRest=Boolean(dayObj.restMarked)||isRestCategory(dayObj.category);
+return isMarkedRest&&!hasExercises;
+}
 
 function isDayRecorded(dayObj){
 if(!dayObj||typeof dayObj!=='object')return false;
@@ -469,8 +483,15 @@ const strip=document.getElementById('dateStrip');
 if(!strip)return;
 const ym=selectedDate.slice(0,7),dates=getMonthDates(ym),todayStr=formatToday();
 const chipsHtml=dates.map(d=>{
-const hasLog=isDayRecorded(db[d]),isToday=d===todayStr;
-return `<div class="date-chip ${d===selectedDate?'active':''}" onclick="handleChipClick('${d}')"><div class="wk">${isToday?'今日':getWeekdayText(d)}</div><div class="dy">${d.slice(5)}</div><div class="dot" style="opacity:${hasLog?1:0.15}"></div></div>`;
+const dayObj=db[d];
+const hasLog=isDayRecorded(dayObj);
+const isRestOnly=isDayRestOnlyOrRest(dayObj);
+const isToday=d===todayStr;
+const classes=['date-chip'];
+if(hasLog)classes.push('has-log');
+if(isRestOnly)classes.push('rest-day');
+if(d===selectedDate)classes.push('active');
+return `<div class="${classes.join(' ')}" onclick="handleChipClick('${d}')"><div class="wk">${isToday?'今日':getWeekdayText(d)}</div><div class="dy">${d.slice(5)}</div><div class="dot" style="opacity:${hasLog?1:0.15}"></div></div>`;
 }).join('');
 strip.innerHTML=`<div class="date-spacer"></div>${chipsHtml}<div class="date-spacer"></div>`;
 const activeDateEl=document.getElementById('activeDateText');
@@ -549,7 +570,7 @@ activeCategory=cat;
 if(db[selectedDate]&&isDayRecorded(db[selectedDate])){
 db[selectedDate].category=cat;
 if(isRestCategory(cat))db[selectedDate].restMarked=true;
-saveDB();renderOverview();
+saveDB();renderOverview();renderDateStrip();
 }
 renderCategories();renderDayEntries();
 }
