@@ -70,7 +70,7 @@ input:focus,select:focus{border-color:var(--accent)}
 .btn-ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
 .btn-sm{width:38px;height:38px;font-size:11px}
 .rect-action-btn{border-radius:10px;aspect-ratio:auto;padding:10px 14px;font-size:13px;font-weight:700;line-height:1.2}
-.rect-sm-btn{border-radius:8px;aspect-ratio:auto;padding:6px 10px;font-size:12px;font-weight:700;line-height:1.2}
+.rect-sm-btn{border-radius:8px;aspect-ratio:auto;padding:5px 9px;font-size:11px;font-weight:700;line-height:1.2}
 .btn-pill-label{border-radius:999px;aspect-ratio:auto;padding:8px 12px}
 .ex-item{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px}
 .ex-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
@@ -90,7 +90,9 @@ input:focus,select:focus{border-color:var(--accent)}
 .overview-row-summary{font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0}
 .overview-del-btn{background:none;border:1px solid rgba(248,113,113,0.35);color:var(--danger);border-radius:7px;padding:3px 7px;font-size:11px;font-weight:500;line-height:1.2;cursor:pointer;flex-shrink:0}
 .overview-expanded-list{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);width:100%;max-width:100%}
-.overview-sub-ex{background:rgba(11,17,23,0.45);border:1px solid rgba(39,55,73,0.85);border-radius:9px;padding:8px;margin-top:6px}
+.overview-view-foot{display:flex;justify-content:flex-end;margin-top:8px}
+.overview-sub-ex{background:rgba(11,17,23,0.45);border:1px solid rgba(39,55,73,0.85);border-radius:9px;padding:7px 9px;margin-top:6px}
+.overview-sub-title{font-weight:700;font-size:12px;color:var(--text);margin-bottom:3px}
 .overview-edit-bar{display:flex;align-items:center;gap:6px;margin-bottom:6px}
 .overview-edit-bar select{padding:6px 8px;font-size:12px;border-radius:8px}
 .ov-ex-head{display:flex;align-items:center;gap:6px;margin-bottom:6px}
@@ -98,7 +100,6 @@ input:focus,select:focus{border-color:var(--accent)}
 .ov-set-row{display:grid;grid-template-columns:42px 1fr 1fr 26px;gap:5px;align-items:center;margin-bottom:5px}
 .ov-set-row input{padding:6px 7px;font-size:12px;border-radius:7px}
 .ov-set-row .del-set-btn{height:28px;width:26px}
-.ov-ex-actions{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:8px}
 .app-icon-preview-box{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px}
 .app-icon-frame{width:72px;height:72px;border-radius:50%;overflow:hidden;flex-shrink:0;background:repeating-conic-gradient(#243242 0% 25%, #16202c 0% 50%) 50% / 12px 12px;display:flex;align-items:center;justify-content:center}
 .timer-box{display:grid;grid-template-columns:minmax(0,1fr) 26px;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(163,230,53,0.08));border:1px solid rgba(34,211,238,0.3);border-radius:12px;min-height:78px;padding:8px 8px 8px 10px;min-width:0;width:100%}
@@ -160,7 +161,7 @@ input:focus,select:focus{border-color:var(--accent)}
 </div>
 <div id="tab-overview" class="hidden">
 <div class="card">
-<div class="card-header"><div class="card-title" style="margin-bottom:0;">歷史總覽</div><span class="muted">點選展開直接修改 · 支援儲存</span></div>
+<div class="card-header"><div class="card-title" style="margin-bottom:0;">歷史總覽</div><span class="muted">點選展開明細 · 按修改再編輯</span></div>
 <div class="overview-scroll-wrap" id="overviewScrollWrap"><div id="overviewList"></div></div>
 </div>
 </div>
@@ -282,7 +283,7 @@ if(manifestLink)manifestLink.href=manifestURL;
 }catch{}
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
 try{
-const swCode=`const CACHE_NAME='workout-pwa-v4';self.addEventListener('install',e=>{self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim())});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,copy)).catch(()=>{});return res}).catch(()=>caches.match(e.request)))})`;
+const swCode=`const CACHE_NAME='workout-pwa-v5';self.addEventListener('install',e=>{self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim())});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,copy)).catch(()=>{});return res}).catch(()=>caches.match(e.request)))})`;
 const swBlob=new Blob([swCode],{type:'application/javascript'});
 const swURL=URL.createObjectURL(swBlob);
 navigator.serviceWorker.register(swURL).catch(()=>{});
@@ -395,6 +396,7 @@ let selectedDate=formatToday();
 let activeCategory=db[selectedDate]?.category||'重量訓練';
 let didDragStrip=false,didDragRestBtn=false,didDragOverview=false;
 const expandedOverviewDates=new Set();
+const editingOverviewDates=new Set();
 const broadcastChannel=('BroadcastChannel' in window)?new BroadcastChannel('personal_workout_sync_channel_v1'):null;
 if(broadcastChannel){
 broadcastChannel.onmessage=event=>{
@@ -643,15 +645,17 @@ saveDB();renderAll();
 }
 function toggleOverviewDate(d){
 if(didDragOverview){didDragOverview=false;return}
-if(expandedOverviewDates.has(d))expandedOverviewDates.delete(d);
+if(expandedOverviewDates.has(d)){expandedOverviewDates.delete(d);editingOverviewDates.delete(d)}
 else expandedOverviewDates.add(d);
 renderOverview();
 }
+function startOverviewEdit(d){editingOverviewDates.add(d);renderOverview()}
+function cancelOverviewEdit(d){editingOverviewDates.delete(d);renderOverview()}
 function deleteOverviewDate(d,event){
 if(event)event.stopPropagation();
 if(didDragOverview)return;
 if(!confirm(`確定要刪除 ${formatSlashDate(d)}（${getWeekdayText(d)}）的紀錄嗎？`))return;
-delete db[d];expandedOverviewDates.delete(d);
+delete db[d];expandedOverviewDates.delete(d);editingOverviewDates.delete(d);
 saveDB();renderAll();
 }
 function addOverviewSet(d,exIdx){
@@ -672,7 +676,7 @@ function removeOverviewExercise(d,exIdx){
 const day=db[d];
 if(!day||!Array.isArray(day.exercises))return;
 day.exercises.splice(exIdx,1);
-if(!isDayRecorded(day)){delete db[d];expandedOverviewDates.delete(d)}
+if(!isDayRecorded(day)){delete db[d];expandedOverviewDates.delete(d);editingOverviewDates.delete(d)}
 saveDB();renderAll();
 }
 function saveOverviewEdit(d){
@@ -698,6 +702,7 @@ day.category=newCat;
 day.exercises=updatedExercises;
 if(isRestCategory(newCat))day.restMarked=true;
 else delete day.restMarked;
+editingOverviewDates.delete(d);
 if(!isDayRecorded(day)){delete db[d];expandedOverviewDates.delete(d)}
 if(d===selectedDate)activeCategory=db[d]?.category||'重量訓練';
 saveDB();renderAll();
@@ -710,18 +715,26 @@ box.innerHTML=dates.length?dates.map(d=>{
 const day=db[d],exList=Array.isArray(day.exercises)?day.exercises:[];
 const hasRest=Boolean(day.restMarked)||isRestCategory(day.category);
 const isExpanded=expandedOverviewDates.has(d);
+const isEditing=editingOverviewDates.has(d);
 const exSummary=exList.length?`${exList.length} 項：${exList.map(e=>e.name).join('、')}`:'';
 const summaryText=exList.length?(hasRest?`休息日 · ${exSummary}`:exSummary):(hasRest?'休息日（無訓練動作）':'無項目');
 const badgeHtml=hasRest?`<span class="rest-badge">休息日</span>`:`<span class="local-badge">${day.category||'重量訓練'}</span>`;
 let expandedHtml='';
-if(isExpanded){
+if(isExpanded&&!isEditing){
+const restNoteHtml=hasRest?`<div class="muted" style="margin-bottom:4px;color:var(--orange);">狀態：低強度 / 休息日</div>`:'';
+const viewBody=exList.length?exList.map(ex=>{
+const setsHtml=(ex.sets||[]).map(s=>`<div class="set-line"><span>第 ${s.set} 組</span><span>次數：<strong>${s.reps||'-'}</strong> ｜ 重量：<strong>${s.weight||'-'}</strong></span></div>`).join('');
+return `<div class="overview-sub-ex"><div class="overview-sub-title">${ex.name}</div>${setsHtml||'<div class="muted">無組數明細</div>'}</div>`;
+}).join(''):(restNoteHtml||'<div class="muted">無訓練項目</div>');
+expandedHtml=`<div class="overview-expanded-list" onclick="event.stopPropagation()">${exList.length?restNoteHtml:''}${viewBody}<div class="overview-view-foot"><button type="button" class="btn btn-ghost rect-sm-btn" onclick="startOverviewEdit('${d}')">修改</button></div></div>`;
+}else if(isExpanded&&isEditing){
 const catOpts=CATEGORIES.map(c=>`<option value="${c}" ${(day.category||'重量訓練')===c?'selected':''}>${c}</option>`).join('');
 const exEditors=exList.map((ex,exIdx)=>{
 const sets=(ex.sets&&ex.sets.length)?ex.sets:[{set:1,reps:'',weight:''}];
 const setRowsHtml=sets.map((s,sIdx)=>`<div class="ov-set-row"><span class="muted">第${sIdx+1}組</span><input type="text" inputmode="decimal" class="ov-set-reps" value="${escAttr(s.reps)}" placeholder="次數"/><input type="text" inputmode="decimal" class="ov-set-wt" value="${escAttr(s.weight)}" placeholder="重量kg"/><button type="button" class="del-set-btn" onclick="removeOverviewSet('${d}',${exIdx},${sIdx})">✕</button></div>`).join('');
 return `<div class="overview-sub-ex"><div class="ov-ex-head"><input type="text" class="ov-ex-name" value="${escAttr(ex.name)}" placeholder="動作名稱"/><button type="button" class="btn btn-ghost rect-sm-btn" onclick="addOverviewSet('${d}',${exIdx})">＋組</button><button type="button" class="btn btn-ghost rect-sm-btn" style="color:var(--danger);" onclick="removeOverviewExercise('${d}',${exIdx})">移除</button></div>${setRowsHtml}</div>`;
 }).join('');
-expandedHtml=`<div class="overview-expanded-list" data-date="${d}" onclick="event.stopPropagation()"><div class="overview-edit-bar"><span class="muted" style="white-space:nowrap;">分類</span><select class="ov-cat-select">${catOpts}</select><button type="button" class="btn btn-primary rect-sm-btn" style="white-space:nowrap;" onclick="saveOverviewEdit('${d}')">儲存修改</button></div>${exEditors||'<div class="muted">無訓練動作（可切換分類後儲存）</div>'}</div>`;
+expandedHtml=`<div class="overview-expanded-list" data-date="${d}" onclick="event.stopPropagation()"><div class="overview-edit-bar"><span class="muted" style="white-space:nowrap;">分類</span><select class="ov-cat-select">${catOpts}</select><button type="button" class="btn btn-primary rect-sm-btn" style="white-space:nowrap;" onclick="saveOverviewEdit('${d}')">儲存</button><button type="button" class="btn btn-ghost rect-sm-btn" style="white-space:nowrap;" onclick="cancelOverviewEdit('${d}')">取消</button></div>${exEditors||'<div class="muted">無訓練動作（可切換分類後儲存）</div>'}</div>`;
 }
 return `<div class="overview-row ${isExpanded?'expanded':''}"><div class="overview-row-head" onclick="toggleOverviewDate('${d}')"><div class="overview-row-main"><span class="overview-row-caret">${isExpanded?'▼':'▶'}</span><span class="overview-date-label">${formatSlashDate(d)}</span><span class="overview-wk-label">${getWeekdayText(d)}</span>${badgeHtml}<span class="overview-row-summary">${summaryText}</span></div><button type="button" class="overview-del-btn" onclick="deleteOverviewDate('${d}',event)">刪除</button></div>${expandedHtml}</div>`;
 }).join(''):'<div class="muted">目前尚無歷史紀錄</div>';
